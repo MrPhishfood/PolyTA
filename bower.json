@@ -1,0 +1,16 @@
+{
+  "name": "NewTakeAway",
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "dependencies": {
+    "app-elements": "PolymerElements/app-elements#^0.9.0",
+    "paper-elements": "PolymerElements/paper-elements#^1.0.7",
+    "iron-elements": "PolymerElements/iron-elements#^1.0.10",
+    "gold-elements": "PolymerElements/gold-elements#^1.0.1",
+    "neon-elements": "PolymerElements/neon-elements#^1.0.0",
+    "polymerfire": "firebase/polymerfire#^0.9.4"
+  }
+}

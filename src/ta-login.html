@@ -1,0 +1,44 @@
+﻿<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+
+
+
+
+
+<dom-module id="ta-login">
+    <template>
+        <style>
+            :host {
+                display: block;
+                padding: 15px;
+            }
+
+            h1 {
+
+            }
+        </style>
+        <h1>Login</h1>
+        <paper-input label="e-mail" id="email-login" required>
+            <iron-icon icon="icons:mail" prefix></iron-icon>
+        </paper-input>
+
+        <paper-input label="password" id="email-login" typeof="password" required>
+            <iron-icon icon="icons:lock" prefix></iron-icon>
+        </paper-input>
+
+    </template>
+    <script>
+
+    Polymer({
+
+        is: 'ta-login',
+
+        properties: {
+
+            },
+    });
+
+    </script>
+</dom-module>

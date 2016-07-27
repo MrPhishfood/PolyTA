@@ -1,0 +1,70 @@
+﻿<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/paper-styles/color.html">
+
+<link rel="import" href="menu/menu-item.html">
+
+<dom-module id="ta-menu">
+    <!-- Defines the element's style and local DOM -->
+    <template>
+        <style>
+            :host {
+                display: block;
+                padding: 16px 30px 16px 16px;
+                background-color: var(--paper-blue-grey-50);
+            }
+
+            h1 {
+                margin-top: 8px;
+                margin-bottom: 10px;
+                font-size: 25px;
+            }
+        </style>
+
+        <!--loop categories-->
+        <template is="dom-repeat" items="{{categoryList}}" as="category">
+            <h1 id="category-id-{{category.$key}}">{{category.name}}</h1>
+            <!--loop items-->
+            <template is="dom-repeat" items="{{itemList}}" filter="{{_filterByCategory(category.$key)}}"
+                      sort="_sortItems" observe="order category">
+                <menu-item item="{{item}}"></menu-item>
+            </template>
+        </template>
+
+    </template>
+
+    <!-- Creates the element's prototype and registers it -->
+    <script>
+        Polymer({
+            is: 'ta-menu',
+
+            properties: {
+                categoryList: {
+                    type: Object,
+                },
+
+                itemList: {
+                    type: Object,
+                },
+            },
+
+            _filterByCategory: function (category) {
+                return function (item) {
+                    return category == item.category;
+                }
+            },
+
+            _sortItems: function (a, b) {
+                if (a.order == b.order) {
+                    return 0;
+                }
+                return a.order < b.order ? -1 : 1;
+            },
+
+            scollToSection: function (catID) {
+                Polymer.dom(this.shadowRoot).querySelector('#category-id-' + catID).scrollIntoView(true);
+            }
+
+        });
+    </script>
+</dom-module>

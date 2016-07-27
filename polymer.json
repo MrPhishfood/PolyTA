@@ -1,0 +1,9 @@
+{
+  "entrypoint": "index.html",
+  "shell": "src/ta-shop.html",
+  "fragments": [
+    "src/ta-menu.html",
+    "src/ta-shopping-cart.html",
+    "src/ta-login.html"
+  ]
+}
