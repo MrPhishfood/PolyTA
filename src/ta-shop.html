@@ -1,4 +1,4 @@
-﻿<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
 
 <!--App Elements-->
 <link rel="import" href="../bower_components/app-route/app-location.html">
@@ -26,7 +26,6 @@
 <!--Other Elements-->
 <link rel="import" href="../bower_components/polymerfire/polymerfire.html">
 
-<link rel="import" href="ta-cart-tab.html">
 <link rel="import" href="ta-menu.html">
 <link rel="import" href="ta-shopping-cart.html">
 <link rel="import" href="ta-login.html">
@@ -41,7 +40,6 @@
                 display: block;
                 --app-primary-color: #4285f4;
                 --app-secondary-color: black;
-
                 --paper-drawer-panel-drawer-container: {
                     /*background: var(--paper-grey-100);*/
                 }
@@ -60,13 +58,10 @@
                 --paper-toolbar-sm-height: 60px;
             }
 
-            #mainPanel {
-
-            }
+            #mainPanel {}
 
             #main-toolbar {
                 --paper-toolbar-background: var(--paper-red-500);
-
             }
 
             #drawer-toolbar {
@@ -84,7 +79,7 @@
             }
 
             paper-tabs {
-                width:100%;
+                width: 100%;
             }
 
             .drawer-list {
@@ -115,92 +110,83 @@
 
         <app-location route="{{route}}"></app-location>
 
-        <app-route
-            route="{{route}}"
-            pattern="/:page"
-            data="{{routeData}}"
-            tail="{{subroute}}"
-            active="active">
+        <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}" active="active">
         </app-route>
 
-        <firebase-app
-            auth-domain="truyasia.firebaseapp.com"
-            database-url="https://truyasia.firebaseio.com"
-            api-key="AIzaSyCgfF2gQeiE1fyOWlaBcAcSLcwocz23BNk"
-            storageBucket="truyasia.appspot.com">
+        <firebase-app auth-domain="truyasia.firebaseapp.com" database-url="https://truyasia.firebaseio.com" api-key="AIzaSyCgfF2gQeiE1fyOWlaBcAcSLcwocz23BNk" storageBucket="truyasia.appspot.com">
         </firebase-app>
 
-        <firebase-query
-            path="/menu/categories"
-            order-by-child="order"
-            data="{{categoryList}}">
+        <firebase-query path="/menu/categories" order-by-child="order" data="{{categoryList}}">
         </firebase-query>
 
-        <firebase-query
-            path="/menu/items"
-            data="{{itemList}}">
+        <firebase-query path="/menu/items" data="{{itemList}}">
         </firebase-query>
 
-        <firebase-document
-            path="/menu/items"
-            data="{{cartItemList}}">
+        <firebase-document path="/menu/items" data="{{cartItemList}}">
         </firebase-document>
 
-       <firebase-auth
-            id="auth"
-            user="{{user}}"
-            on-error="handleError">
+        <firebase-auth id="auth" user="{{user}}" on-error="handleError">
         </firebase-auth>
+
+        <firebase-document id="fbUserProfile" path="/users/{{user.uid}}" data="{{userProfileData}}">
+        </firebase-document>
+
 
         <iron-media-query query="(min-width: 550px)" query-matches="{{queryMatches}}"></iron-media-query>
 
-            <paper-drawer-panel id="mainPanel" responsive-width="549px" elevation="2">
-                <paper-header-panel drawer id="leftDrawer" mode="waterfall">
-                    <!--Tabs Toolbar-->
-                    <paper-toolbar id="drawer-toolbar"  >
-                        <paper-tabs selected="{{tabpage}}" attr-for-selected="name">
-                            <paper-tab name="menutab"><iron-icon icon="icons:chrome-reader-mode"></iron-icon>Menu</paper-tab>
-                            <paper-tab name="carttab"><iron-icon icon="icons:shopping-cart"></iron-icon>Cart</paper-tab>
-                        </paper-tabs>
-                    </paper-toolbar>
-                    <!--Tab Pages-->
-                    <iron-pages selected="[[tabpage]]" attr-for-selected="name">
-                        <!--Menu Tab-->
-                        <div name="menutab">
-                            <template is="dom-repeat" items="{{categoryList}}" as="category">
-                                <paper-item class="menu-category-item" on-tap="scrollToMenuSection">
-                                    {{category.name}}
-                                </paper-item>
-                            </template>
-                        </div>
-                    </iron-pages>
-                    <!--Insert Other Tabs-->
-                </paper-header-panel>
-                <!--Main Section-->
-                <paper-scroll-header-panel main>
-                    <!--Toolbar-->
-                    <paper-toolbar id="main-toolbar">
-                        <paper-icon-button icon="icons:menu" paper-drawer-toggle></paper-icon-button>
-                        <span class="title">Truly Asia</span>
-                        <paper-icon-button icon="icons:3d-rotation"class="toolbar-button" on-tap="_login"></paper-icon-button>
-                        <a href="/login"><paper-icon-button icon="icons:account-box" class="toolbar-button"></paper-icon-button></a>
-                        <a href="/"><paper-icon-button icon="icons:chrome-reader-mode" class="toolbar-button"></paper-icon-button></a>
-                        <a href="/shopping-cart"><paper-icon-button id="headercart" icon="icons:shopping-cart" class="toolbar-button"></paper-icon-button></a>
-                        <paper-badge for="headercart" label="{{cartBadge}}" hidden$="{{!cartBadge}}"></paper-badge>
-                    </paper-toolbar>
-                    <!--Pages-->
-                    <iron-pages selected="[[page]]" attr-for-selected="name">
-                        <ta-menu id="menulistpage" name="menu" category-list="{{categoryList}}" item-list="{{itemList}}"></ta-menu>
-                        <ta-shopping-cart name="shopping-cart" cart="{{cart}}"></ta-shopping-cart>
-                        <ta-login name="login"></ta-login>
-                    </iron-pages>
-                </paper-scroll-header-panel>
-            </paper-drawer-panel>
+        <paper-drawer-panel id="mainPanel" responsive-width="549px" elevation="2">
+            <paper-header-panel drawer id="leftDrawer" mode="waterfall">
+                <!--Tabs Toolbar-->
+                <paper-toolbar id="drawer-toolbar">
+                    <paper-tabs selected="{{tabpage}}" attr-for-selected="name">
+                        <paper-tab name="menutab">
+                            <iron-icon icon="icons:chrome-reader-mode"></iron-icon>Menu</paper-tab>
+                        <paper-tab name="carttab">
+                            <iron-icon icon="icons:shopping-cart"></iron-icon>Cart</paper-tab>
+                    </paper-tabs>
+                </paper-toolbar>
+                <!--Tab Pages-->
+                <iron-pages selected="[[tabpage]]" attr-for-selected="name">
+                    <!--Menu Tab-->
+                    <div name="menutab">
+                        <template is="dom-repeat" items="{{categoryList}}" as="category">
+                            <paper-item class="menu-category-item" on-tap="scrollToMenuSection">
+                                {{category.name}}
+                            </paper-item>
+                        </template>
+                    </div>
+                </iron-pages>
+                <!--Insert Other Tabs-->
+            </paper-header-panel>
+            <!--Main Section-->
+            <paper-scroll-header-panel main>
+                <!--Toolbar-->
+                <paper-toolbar id="main-toolbar">
+                    <paper-icon-button icon="icons:menu" paper-drawer-toggle></paper-icon-button>
+                    <span class="title">Truly Asia</span>
+                    <a href="/login">
+                        <paper-icon-button icon="icons:account-box" class="toolbar-button"></paper-icon-button>
+                    </a>
+                    <a href="/">
+                        <paper-icon-button icon="icons:chrome-reader-mode" class="toolbar-button"></paper-icon-button>
+                    </a>
+                    <a href="/shopping-cart">
+                        <paper-icon-button id="headercart" icon="icons:shopping-cart" class="toolbar-button"></paper-icon-button>
+                    </a>
+                    <paper-badge for="headercart" label="{{cartBadge}}" hidden$="{{!cartBadge}}"></paper-badge>
+                </paper-toolbar>
+                <!--Pages-->
+                <iron-pages selected="[[page]]" attr-for-selected="name">
+                    <ta-menu id="menulistpage" name="menu" category-list="{{categoryList}}" item-list="{{itemList}}"></ta-menu>
+                    <ta-shopping-cart name="shopping-cart" cart="{{cart}}"></ta-shopping-cart>
+                    <ta-login name="login" user={{user}}></ta-login>
+                </iron-pages>
+            </paper-scroll-header-panel>
+        </paper-drawer-panel>
 
-            <paper-toast id="toast0" text=""></paper-toast>
+        <paper-toast id="toast0" text=""></paper-toast>
     </template>
     <script>
-
         Polymer({
 
             is: 'ta-shop',
@@ -208,15 +194,21 @@
             properties: {
 
                 routeData: {
-                  type: Object,
+                    type: Object,
                 },
 
                 subroute: {
-                  type: Object,
+                    type: Object,
                 },
 
                 user: {
-                  type: Object,
+                    type: Object,
+                    observer: '_userchange',
+                },
+
+                userProfileData: {
+                    type: Object,
+                    observer: '_userProfileChange'
                 },
 
                 page: {
@@ -255,127 +247,174 @@
                 },
 
                 queryMatches: {
-                  type: Boolean,
-                  readOnly: true,
+                    type: Boolean,
+                    readOnly: true,
                 }
 
             },
 
             listeners: {
                 'cart-added': 'addToCart',
-                'cart-plus' : 'plusFromCart',
+                'cart-plus': 'plusFromCart',
                 'cart-minus': 'minusFromCart',
                 'cart-deleted': 'deleteFromCart',
+                'sign-in': '_login',
+                'logout': '_logout',
             },
 
             observers: [
-              '_routePageChanged(routeData.page)',
+                '_routePageChanged(routeData.page)',
             ],
 
-            _routePageChanged: function (page) {
+            _routePageChanged: function(page) {
                 this.page = page || 'menu';
             },
 
-            _pageChanged: function (page) {
+            _pageChanged: function(page) {
                 // load page import on demand.
                 this.importHref(
-                  this.resolveUrl('ta-' + page + '.html'), null, null, true);
+                    this.resolveUrl('ta-' + page + '.html'), null, null, true);
             },
 
-            openDrawer: function () {
+            openDrawer: function() {
                 this.$.mainPanel.openDrawer();
             },
 
-            tabToCart: function () {
+            tabToCart: function() {
                 this.tabpage = 'carttab';
                 this.$.mainPanel.openDrawer();
             },
 
-            _login: function () {
-                console.log(this.$.auth);
-                this.$.auth.signInWithPopup('google').then(function (reponse) {
-                    console.log(response);
-                    console.log(this.user);
-                }).catch(function (error) {
-                    console.log(error);
-                })
+            _login: function(e) {
+                console.log(e.detail);
+                this.$.auth.signInWithPopup(e.detail);
             },
 
-            scrollToMenuSection: function (e) {
+            _logout: function() {
+                this.$.auth.signOut();
+            },
+
+            _userchange: function(user) {
+
+                //check if logged in
+                if (user !== null) {
+                    console.log(user.providerData[0].providerId);
+                    //check for empty {} userProfileData var
+                    console.log(!isEmpty(this.userProfileData));
+                    if (isEmpty(this.userProfileData)) {
+                        var userProfile = {
+                            email: user.email,
+                            provider: user.providerData[0].providerId
+                            // provider: user.
+                        };
+                        this.$.fbUserProfile.ref.set(userProfile, function(error) {
+                            if (error) {
+                                console.log('user creation failure:' + error);
+                            } else {
+                                console.log('user creation success');
+                            }
+                        });
+                    }
+                }
+            },
+
+            _userProfileChange: function() {
+                console.log('user profile changed');
+
+            },
+
+            scrollToMenuSection: function(e) {
                 this.$.menulistpage.scollToSection(e.model.category.$key);
                 this.$.mainPanel.closeDrawer();
             },
 
             //Add item to cart
-            addToCart: function (e) {
+            addToCart: function(e) {
                 console.log(e.detail);
                 var itemObj = e.detail;
                 //Call toast only from menu list
                 function toasty(t, e) {
-                  if (e.path[0].localName == 'menu-item') {
-                    t.$.toast0.show({ text: '+ ' + itemObj.item.name, duration: 1300 });
-                  }
+                    if (e.path[0].localName == 'menu-item') {
+                        t.$.toast0.show({
+                            text: '+ ' + itemObj.item.name,
+                            duration: 1300
+                        });
+                    }
                 }
                 var index = ItemIndex(this.cart.items, itemObj);
                 //Single item changes add to qty
-                if (itemObj.item.selections == null) {
+                if (itemObj.item.selections === null) {
                     if (index !== false) {
 
                         //Add to qunatity
                         this.set(['cart.items', index, 'qty'], this.cart.items[index].qty + 1);
                     } else {
                         //add new item
-                        var newItem = { item: itemObj.item, qty: 1 };
+                        var newItem = {
+                            item: itemObj.item,
+                            qty: 1
+                        };
                         this.push('cart.items', newItem);
                     }
                     toasty(this, e);
-                //Selecton item changes add to qty if selections same
+                    //Selecton item changes add to qty if selections same
                 } else {
                     if (index !== false) {
                         this.set(['cart.items', index, 'qty'], this.cart.items[index].qty + 1);
                     } else {
-                        var newItem = { item: itemObj.item, qty: 1, selections: e.detail.selections };
-                        this.push('cart.items', newItem);
+                        var newItemS = {
+                            item: itemObj.item,
+                            qty: 1,
+                            selections: e.detail.selections
+                        };
+                        this.push('cart.items', newItemS);
                     }
-                    toasty(this,e);
+                    toasty(this, e);
                 }
                 this._updateCartCookie();
             },
 
-            plusFromCart: function (e) {
+            plusFromCart: function(e) {
                 this.set(['cart.items', e.detail.index, 'qty'], e.detail.item.qty + 1);
                 this._updateCartCookie();
             },
 
-            minusFromCart: function (e) {
+            minusFromCart: function(e) {
                 this.set(['cart.items', e.detail.index, 'qty'], e.detail.item.qty - 1);
                 this._updateCartCookie();
 
-                if (e.detail.item.qty == 0) {
+                if (e.detail.item.qty === 0) {
                     this.deleteFromCart(e);
                 }
             },
 
-            deleteFromCart: function (e) {
+            deleteFromCart: function(e) {
                 this.splice('cart.items', e.detail.index, 1);
                 this._updateCartCookie();
             },
 
             //Syncs the 'cart' cookie with this.cart
-            loadCartFromCookie: function (itemArray) {
+            loadCartFromCookie: function(itemArray) {
                 var cartdata = getCartCookieJSON();
-                var newCart = { items: [] };
+                var newCart = {
+                    items: []
+                };
 
                 for (x = 0; x < cartdata.items.length; x++) {
 
                     var found = itemArray.filter(
-                        function (data) { return data.$key == cartdata.items[x].id }
+                        function(data) {
+                            return data.$key == cartdata.items[x].id;
+                        }
                     );
 
                     if (found.length) {
-                        var itemdata = { item: found[0], qty: cartdata.items[x].qty };
+                        var itemdata = {
+                            item: found[0],
+                            qty: cartdata.items[x].qty
+                        };
                         //add selection data if any
-                        if (cartdata.items[x].selections != null) {
+                        if (cartdata.items[x].selections !== null) {
                             itemdata.selections = cartdata.items[x].selections;
                         }
                         newCart.items.push(itemdata);
@@ -385,13 +424,15 @@
             },
 
             //Updates 'cart' cookie and the badge to sync with this.Cart
-            _updateCartCookie: function () {
+            _updateCartCookie: function() {
 
-                var list = { items: [] };
-                var cartBadge = 0
+                var list = {
+                    items: []
+                };
+                var cartBadge = 0;
                 for (i = 0; i < this.cart.items.length; i++) {
                     //check for selections
-                    if (this.cart.items[i].selections == null) {
+                    if (this.cart.items[i].selections === null) {
                         //single items
                         list.items.push({
                             id: this.cart.items[i].item.$key,
@@ -404,7 +445,7 @@
                             qty: this.cart.items[i].qty,
                             selections: this.cart.items[i].selections
 
-                        })
+                        });
                     }
                     cartBadge += this.cart.items[i].qty;
 
@@ -414,12 +455,12 @@
             },
 
             //Casts items nodes in to array and loads the cart from cookie
-            _cartItemListChanged: function (fbObject) {
+            _cartItemListChanged: function(fbObject) {
                 if (Object.getOwnPropertyNames(fbObject).length !== 0) {
                     var key;
                     var itemArray = [];
                     for (key in fbObject) {
-                        fbObject[key].$key = key
+                        fbObject[key].$key = key;
                         itemArray.push(fbObject[key]);
                     }
                     this.loadCartFromCookie(itemArray);
@@ -444,9 +485,11 @@
             } else {
                 //single items
                 for (x = 0; x < items.length; x++) {
-                    if (items[x].item.$key == itemObj.item.$key) { return x; }
+                    if (items[x].item.$key == itemObj.item.$key) {
+                        return x;
+                    }
                 }
-                return false
+                return false;
             }
 
 
@@ -465,7 +508,9 @@
             var oldCartData = getCookie('cart');
             var newCart;
             if (!oldCartData) {
-                newCart = { items: [] };
+                newCart = {
+                    items: []
+                };
             } else {
                 newCart = JSON.parse(oldCartData);
             }
@@ -481,11 +526,19 @@
                 while (c.charAt(0) == ' ') {
                     c = c.substring(1);
                 }
-                if (c.indexOf(name) == 0) {
+                if (c.indexOf(name) === 0) {
                     return c.substring(name.length, c.length);
                 }
             }
             return "";
+        }
+
+        function isEmpty(obj) {
+            for (var prop in obj) {
+                if (obj.hasOwnProperty(prop))
+                    return false;
+            }
+            return true && JSON.stringify(obj) === JSON.stringify({});
         }
     </script>
 </dom-module>
