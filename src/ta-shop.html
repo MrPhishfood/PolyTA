@@ -23,12 +23,14 @@
 <link rel="import" href="../bower_components/paper-badge/paper-badge.html">
 <link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 
-<!--Other Elements-->
+<!--Google Elements-->
 <link rel="import" href="../bower_components/polymerfire/polymerfire.html">
 
 <link rel="import" href="ta-menu.html">
 <link rel="import" href="ta-shopping-cart.html">
 <link rel="import" href="ta-login.html">
+<link rel="import" href="ta-checkout.html">
+<link rel="import" href="ta-payment.html">
 
 <!--Custom Elements-->
 <!--<link rel="import" href="custom-icons.html"/>-->
@@ -113,7 +115,7 @@
         <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}" active="active">
         </app-route>
 
-        <firebase-app auth-domain="truyasia.firebaseapp.com" database-url="https://truyasia.firebaseio.com" api-key="AIzaSyCgfF2gQeiE1fyOWlaBcAcSLcwocz23BNk" storageBucket="truyasia.appspot.com">
+        <firebase-app auth-domain="truyasia.firebaseapp.com" database-url="https://truyasia.firebaseio.com" api-key="AIzaSyCgfF2gQeiE1fyOWlaBcAcSLcwocz23BNk" storage-bucket="truyasia.appspot.com">
         </firebase-app>
 
         <firebase-query path="/menu/categories" order-by-child="order" data="{{categoryList}}">
@@ -164,6 +166,9 @@
                 <paper-toolbar id="main-toolbar">
                     <paper-icon-button icon="icons:menu" paper-drawer-toggle></paper-icon-button>
                     <span class="title">Truly Asia</span>
+                    <a href="/payment">
+                        <paper-icon-button icon="icons:account-box" class="toolbar-button"></paper-icon-button>
+                    </a>
                     <a href="/login">
                         <paper-icon-button icon="icons:account-box" class="toolbar-button"></paper-icon-button>
                     </a>
@@ -179,7 +184,9 @@
                 <iron-pages selected="[[page]]" attr-for-selected="name">
                     <ta-menu id="menulistpage" name="menu" category-list="{{categoryList}}" item-list="{{itemList}}"></ta-menu>
                     <ta-shopping-cart name="shopping-cart" cart="{{cart}}"></ta-shopping-cart>
-                    <ta-login name="login" user={{user}}></ta-login>
+                    <ta-checkout name="checkout" user="{{user}}" user-profile="{{userProfileData}}" cart="{{cart}}"></ta-checkout>
+                    <ta-payment name="payment" user="{{user}}"></ta-payment>
+                    <ta-login name="login" user="{{user}}"></ta-login>
                 </iron-pages>
             </paper-scroll-header-panel>
         </paper-drawer-panel>
@@ -208,7 +215,6 @@
 
                 userProfileData: {
                     type: Object,
-                    observer: '_userProfileChange'
                 },
 
                 page: {
@@ -258,6 +264,7 @@
                 'cart-plus': 'plusFromCart',
                 'cart-minus': 'minusFromCart',
                 'cart-deleted': 'deleteFromCart',
+                'checkout-tapped': '_pageToCheckout',
                 'sign-in': '_login',
                 'logout': '_logout',
             },
@@ -285,6 +292,10 @@
                 this.$.mainPanel.openDrawer();
             },
 
+            _pageToCheckout: function() {
+                this.page = 'checkout';
+            },
+
             _login: function(e) {
                 console.log(e.detail);
                 this.$.auth.signInWithPopup(e.detail);
@@ -295,32 +306,29 @@
             },
 
             _userchange: function(user) {
-
+                //CREATE USER PROFILE IF NON EXISTS
                 //check if logged in
-                if (user !== null) {
-                    console.log(user.providerData[0].providerId);
-                    //check for empty {} userProfileData var
-                    console.log(!isEmpty(this.userProfileData));
-                    if (isEmpty(this.userProfileData)) {
-                        var userProfile = {
-                            email: user.email,
-                            provider: user.providerData[0].providerId
-                            // provider: user.
-                        };
-                        this.$.fbUserProfile.ref.set(userProfile, function(error) {
-                            if (error) {
-                                console.log('user creation failure:' + error);
-                            } else {
-                                console.log('user creation success');
-                            }
-                        });
-                    }
+                if (this.user !== null) {
+                    var profileEl = this.$.fbUserProfile;
+                    profileEl.ref.once('value').then(function(snapshot) {
+                        //if no profile exists
+                        if (snapshot.val() === null) {
+                            //create profile data obj
+                            var userProfile = {
+                                email: user.email,
+                                provider: user.providerData[0].providerId
+                            };
+                            //create profile
+                            profileEl.ref.set(userProfile, function(error) {
+                                if (error) {
+                                    console.log('user creation failure:' + error);
+                                } else {
+                                    console.log('user creation success');
+                                }
+                            });
+                        }
+                    });
                 }
-            },
-
-            _userProfileChange: function() {
-                console.log('user profile changed');
-
             },
 
             scrollToMenuSection: function(e) {
@@ -330,7 +338,6 @@
 
             //Add item to cart
             addToCart: function(e) {
-                console.log(e.detail);
                 var itemObj = e.detail;
                 //Call toast only from menu list
                 function toasty(t, e) {
@@ -343,7 +350,7 @@
                 }
                 var index = ItemIndex(this.cart.items, itemObj);
                 //Single item changes add to qty
-                if (itemObj.item.selections === null) {
+                if (itemObj.item.selections == null) {
                     if (index !== false) {
 
                         //Add to qunatity
