@@ -1,6 +1,6 @@
 ﻿<link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox-custom.html">
+<link rel="import" href="../poly-mods/paper-checkbox-custom.html">
 
 <dom-module id="selection-multi-subitem">
     <template>
@@ -98,10 +98,10 @@
             for (var i in cboxes) {
                 if (cboxes[i].checked) {
                     chkCount++;
-                    selected.subitems.push({ id: cboxes[i].id });                 
+                    selected.subitems.push({ id: cboxes[i].id });
                 }
             }
-            this.selected = selected;            
+            this.selected = selected;
 
             //If somehow the number of checked boxes exceeds max then uncheck all
             if (chkCount > this.max) {
@@ -160,5 +160,3 @@
 
     </script>
 </dom-module>
-
-
