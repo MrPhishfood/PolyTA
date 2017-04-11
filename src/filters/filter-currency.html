@@ -1,0 +1,31 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="filter-currency">
+  <script>
+    Polymer({
+      is: 'filter-currency',
+
+      properties: {
+        symbol: {
+          type: String,
+          value: '£'
+        },
+
+        zeroValue: {
+          type: String,
+          value: ''
+        }
+      },
+
+      filter: function(price) {
+        if (price === 0) {
+          return this.zeroValue;
+        } else if (price < 100) {
+          return price + 'p';
+        } else {
+          return this.symbol + (price / 100).toFixed(2);
+        }
+      },
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,269 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-document.html">
+
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../custom-icons.html">
+
+<link rel="import" href="my-item-selections.html">
+
+<!--
+
+### Styling
+
+The following custom properties and mixins are available for styling
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--my-menu-item-theme` | Mixin applied to the element | `{}`
+`--my-menu-item-name` | Mixin applied to the item name | `{}`
+`--my-menu-item-price` | Mixin applied to the item price | `{}`
+`--my-menu-item-description` | Mixin applied to the item description | `{}`
+`--my-menu-item-price-bg` | The background for the price tag | `--paper-amber-500`
+
+`my-menu-item`
+product display UI
+
+@demo demo/index.html
+-->
+
+<dom-module id="my-menu-item">
+  <template>
+    <style>
+       :host {
+        /*custom variables*/
+        --my-menu-item-image-height: 150px;
+        /*colors*/
+        --my-menu-item-font-color: var(--paper-grey-900);
+        --my-menu-item-support-font-color: var(--paper-grey-700);
+        --my-menu-item-background-color: #fff;
+        /*padding*/
+        --my-menu-item-padding: 16px;
+        --my-menu-item-padding-small: calc(var(--my-menu-item-padding)*0.5);
+        --my-menu-item-padding-large: calc(var(--my-menu-item-padding)*1.5);
+        /*font sizes*/
+        --my-menu-item-header-font-size: 24px;
+        --my-menu-item-support-font-size: 14px;
+        --my-menu-item-actions-font-size: 18px;
+        /*----*/
+        color: var(--my-menu-item-font-color);
+        background: var(--my-menu-item-background-color);
+        display: block;
+        position: static;
+        box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.14), 0 1px 8px 0 rgba(0, 0, 0, 0.12), 0 3px 3px -2px rgba(0, 0, 0, 0.4);
+        border-radius: 3px;
+        line-height: 1;
+        /*apply a mixin*/
+        @apply(--my-menu-item-theme);
+      }
+
+      #title-container {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: var(--my-menu-item-padding);
+      }
+
+      #name,
+      #price {
+        /*paper material sizing 6.9vw for 360px width*/
+        font-size: var(--my-menu-item-header-font-size);
+      }
+
+      #name {
+        font-family: 'Roboto Condensed', sans-serif;
+      }
+
+      #price {
+        padding-left: var(--my-menu-item-padding);
+      }
+
+      #image {
+        width: 100%;
+        height: var(--my-menu-item-image-height);
+        --iron-image-height: 100%;
+      }
+
+      #image[hidden],
+      #image[alt-hidden] {
+        display: none;
+      }
+
+      #description {
+        color: var(--my-menu-item-support-font-color);
+        font-size: var(--my-menu-item-support-font-size);
+        line-height: 1.2;
+        padding: 0 var(--my-menu-item-padding) var(--my-menu-item-padding) var(--my-menu-item-padding);
+      }
+
+      #description:empty {
+        display: none;
+      }
+
+      #image:not([hidden])~#description {
+        padding-top: var(--my-menu-item-padding);
+      }
+
+      #selections {
+        margin: 0 var(--my-menu-item-padding) var(--my-menu-item-padding) var(--my-menu-item-padding);
+        padding-top: var(--my-menu-item-padding);
+        --my-item-selection-control-padding: var(--my-menu-item-padding);
+        --my-item-selection-control-size: calc(var(--my-menu-item-support-font-size)*1.285);
+        --my-item-selection-heading-font-size: calc(var(--my-menu-item-support-font-size)*1.285);
+        --my-item-selection-option-font-size: var(--my-menu-item-support-font-size);
+        --my-item-selection-font-color: var(--paper-grey-900);
+        /*default colors*/
+        --my-item-selection-default-unselected-color: var(--paper-grey-900);
+        --my-item-selection-default-selected-color: var(--paper-red-500);
+      }
+
+      #description:not(:empty)~#selections {
+        border-top: 1px solid rgba(0, 0, 0, 0.12);
+      }
+
+      #actions-container {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+        padding: var(--my-menu-item-padding-small);
+        border-top: 1px solid rgba(0, 0, 0, 0.12);
+      }
+
+      #add-cart {
+        padding: calc(var(--my-menu-item-padding-small)/2);
+        min-width: 0;
+        margin: 0;
+        margin-left: calc(var(--my-menu-item-padding-small)/2);
+        transition: all 0.5s;
+      }
+
+      #add-cart:not([disabled]) {
+        color: var(--paper-green-500);
+      }
+
+      #add-cart[pressed] {
+        background: var(--paper-light-green-100);
+        transition: all 0.1s;
+      }
+
+      #add-text,
+      #invalid-text {
+        font-size: var(--my-menu-item-actions-font-size);
+      }
+
+      #invalid-text,
+      #option-icon {
+        display: none;
+      }
+
+      iron-icon {
+        --iron-icon-height: calc(var(--my-menu-item-actions-font-size)*1.333);
+        --iron-icon-width: calc(var(--my-menu-item-actions-font-size)*1.333);
+      }
+
+      #selections:not([selections-valid])~#actions-container #add-cart #add-text,
+      #selections:not([selections-valid])~#actions-container #add-cart #cart-icon {
+        display: none;
+      }
+
+      #selections:not([selections-valid])~#actions-container #add-cart #invalid-text,
+      #selections:not([selections-valid])~#actions-container #add-cart #option-icon {
+        display: block;
+      }
+    </style>
+
+    <firebase-document path="/menu/items/[[itemKey]]" data="{{item}}"></firebase-document>
+
+    <div id="title-container">
+      <div id="name">[[item.name]]</div>
+      <div id="price">[[_currencyFilter(item.price)]]</div>
+    </div>
+    <iron-image id="image" hidden="[[!item.image]]" alt-hidden$="[[errorLoad]]" preload fade error="{{errorLoad}}" placeholder="/images/itemplaceholder.gif" src="[[item.image]]" loading="{{_imgLoaded}}" sizing="cover" position="center"></iron-image>
+    <div id="description">{{item.shortdesc}}</div>
+    <template is="dom-if" if="[[item.selections]]">
+      <my-item-selections id="selections" item-key="[[itemKey]]" selections-valid="{{_selectionsValid}}"></my-item-selections>
+    </template>
+    <div id="actions-container">
+      <paper-button id="add-cart" disabled="[[!_selectionsValid]]" on-tap="_addToCart">
+        <span id="add-text">ADD</span>
+        <span id="invalid-text">select options</span>
+        <iron-icon id="cart-icon" icon="custom-icons:shopping-cart"></iron-icon>
+        <iron-icon id="option-icon" icon="custom-icons:arrow-upward"></iron-icon>
+      </paper-button>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+
+      is: 'my-menu-item',
+
+      properties: {
+        item: {
+          type: Object,
+          observer: '_itemChanged'
+        },
+        itemKey: {
+          type: String,
+        },
+      },
+
+      //sets the itemKey property if the item property is populated first
+      _itemChanged: function(newVal, oldVal) {
+        if (newVal.$key) {
+          this.itemKey = newVal.$key;
+          // console.log(newVal);
+        }
+      },
+
+      //returns the key of the item object
+      _getKey: function(key) {
+        return key ? key : this.item.$key;
+      },
+
+      //if true returns has-image to be inserted in to class
+      _computeHasImageClass: function(val) {
+        return val ? 'has-image' : '';
+      },
+
+      //converts GBP in its lowest demonination (300 pence)
+      //to its standard representation (£3.00) and anything
+      //lower than 100 pence is suffixed with 'p'
+      //example: 50p
+      //0 pence is 'free'
+      _currencyFilter: function(price) {
+        if (price === 0) {
+          return 'free';
+        } else if (price < 100) {
+          return price + 'p';
+        } else {
+          return '£' + (price / 100).toFixed(2);
+        }
+      },
+
+      //called on tapping the add-cart button,
+      //fires event with JSON object that includes the item data
+      //and also the selection if there is any
+      _addToCart: function(e) {
+        console.log(e);
+        if (this.item.selections) {
+          var selections = Polymer.dom(this.root).querySelector('#selections');
+
+          this.fire('cart-add', {
+            item: this.itemKey,
+            selections: selections.getSelections()
+          });
+        } else {
+          this.fire('cart-add', {
+            item: this.itemKey
+          });
+        }
+      },
+
+    });
+  </script>
+</dom-module>

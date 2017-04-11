@@ -1,98 +1,162 @@
-
 <!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-    <title>Truly Asia</title>
-    <link rel="shortcut icon" sizes="32x32" href="images/app-icon-32.png">
-    <meta name="theme-color" content="#fff">
-    <meta name="viewport" content="width=device-width">
-    <meta name="mobile-web-app-capable" content="yes">
-    <link rel="icon" sizes="192x192" href="icon.png">
-    <link rel="manifest" href="manifest.json">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>Truly Asia</title>
+  <link rel="shortcut icon" sizes="32x32" href="images/app-icon-32.png">
+  <meta name="theme-color" content="#fff">
+  <meta name="viewport" content="width=device-width">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" sizes="192x192" href="icon.png">
+  <link rel="manifest" href="manifest.json">
 
-    <link rel="import" href="src/ta-shop.html" async="">
+  <link rel="import" href="src/ta-shop.html" async="">
 
-    <link rel="prefetch" href="bower_components/polymer/polymer.html">
+  <link rel="prefetch" href="bower_components/polymer/polymer.html">
 
-    <!--App Elements-->
-    <link rel="prefetch" href="bower_components/app-route/app-location.html">
-    <link rel="prefetch" href="bower_components/app-route/app-route.html">
+  <!--App Elements-->
+  <link rel="prefetch" href="bower_components/app-route/app-location.html">
+  <link rel="prefetch" href="bower_components/app-route/app-route.html">
 
-    <!--Iron Elements-->
-    <link rel="prefetch" href="bower_components/iron-icons/iron-icons.html">
-    <link rel="prefetch" href="bower_components/iron-icons/maps-icons.html">
-    <link rel="prefetch" href="bower_components/iron-icon/iron-icon.html">
-    <link rel="prefetch" href="bower_components/iron-pages/iron-pages.html">
-    <link rel="prefetch" href="bower_components/iron-media-query/iron-media-query.html" />
+  <!--Iron Elements-->
+  <link rel="prefetch" href="bower_components/iron-icon/iron-icon.html">
+  <link rel="prefetch" href="bower_components/iron-pages/iron-pages.html">
+  <link rel="prefetch" href="bower_components/iron-media-query/iron-media-query.html" />
 
-    <!--Paper Elements-->
-    <link rel="prefetch" href="bower_components/paper-drawer-panel/paper-drawer-panel.html">
-    <link rel="prefetch" href="bower_components/paper-header-panel/paper-header-panel.html">
-    <link rel="prefetch" href="bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
-    <link rel="prefetch" href="bower_components/paper-toolbar/paper-toolbar.html">
-    <link rel="prefetch" href="bower_components/paper-tabs/paper-tabs.html">
-    <link rel="prefetch" href="bower_components/paper-icon-button/paper-icon-button.html">
-    <link rel="prefetch" href="bower_components/paper-item/paper-icon-item.html">
-    <link rel="prefetch" href="bower_components/paper-item/paper-item.html">
-    <link rel="prefetch" href="bower_components/paper-badge/paper-badge.html">
-    <link rel="prefetch" href="bower_components/paper-toast/paper-toast.html">
+  <!--Paper Elements-->
+  <link rel="prefetch" href="bower_components/paper-drawer-panel/paper-drawer-panel.html">
+  <link rel="prefetch" href="bower_components/paper-header-panel/paper-header-panel.html">
+  <link rel="prefetch" href="bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
+  <link rel="prefetch" href="bower_components/paper-toolbar/paper-toolbar.html">
+  <link rel="prefetch" href="bower_components/paper-icon-button/paper-icon-button.html">
+  <link rel="prefetch" href="bower_components/paper-item/paper-icon-item.html">
+  <link rel="prefetch" href="bower_components/paper-item/paper-item.html">
+  <link rel="prefetch" href="bower_components/paper-badge/paper-badge.html">
+  <link rel="prefetch" href="bower_components/paper-toast/paper-toast.html">
 
-    <!--Other Elements-->
-    <link rel="prefetch" href="bower_components/polymerfire/polymerfire.html">
+  <!--Other Elements-->
+  <link rel="prefetch" href="bower_components/polymerfire/polymerfire.html">
 
-    <link rel="prefetch" href="src/ta-menu.html" async="">
-    <link rel="prefetch" href="src/ta-shopping-cart.html" async="">
-    <link rel="prefetch" href="src/ta-login.html" async="">
+  <link rel="prefetch" href="src/ta-menu.html" async="">
+  <link rel="prefetch" href="src/ta-shopping-cart.html" async="">
+  <link rel="prefetch" href="src/ta-login.html" async="">
 
+  <!-- fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
 
-    <script>
-        // setup Polymer options
-        window.Polymer = {
-            lazyRegister: true,
-            dom: 'shadow'
-        };
+  <script>
+    // setup Polymer options
+    window.Polymer = {
+      lazyRegister: true,
+      dom: 'shadow'
+    };
 
-        // load webcomponents polyfills
-        (function() {
-            if ('registerElement' in document &&
-                'import' in document.createElement('link') &&
-                'content' in document.createElement('template')) {
-                // browser has web components
-            } else {
-                // polyfill web components
-                var e = document.createElement('script');
-                e.src = 'bower_components/webcomponentsjs/webcomponents-lite.min.js';
-                document.head.appendChild(e);
-            }
-        })();
+    // load webcomponents polyfills
+    (function() {
+      if ('registerElement' in document &&
+        'import' in document.createElement('link') &&
+        'content' in document.createElement('template')) {
+        // browser has web components
+      } else {
+        // polyfill web components
+        var e = document.createElement('script');
+        e.src = 'bower_components/webcomponentsjs/webcomponents-lite.min.js';
+        document.head.appendChild(e);
+      }
+    })();
 
-        // load pre-caching service worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('service-worker.js');
-            });
-        }
+    // load pre-caching service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('service-worker.js');
+      });
+    }
 
-        window.addEventListener('WebComponentsReady', function(e) {
-            // do stuff here as components are loaded .....
-        });
-    </script>
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Roboto', 'Noto', sans-serif;
-            line-height: 1.5;
-            min-height: 100vh;
-            background-color: #eee;
-        }
-    </style>
+    window.addEventListener('WebComponentsReady', function(e) {
+      // do stuff here as components are loaded .....
+    });
+  </script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Roboto', 'Noto', sans-serif;
+      line-height: 1.5;
+      min-height: 100vh;
+      background-color: #eeeeee;
+    }
+
+    @media all and (max-width: 480px) {
+      html {
+        font-size: 15px;
+      }
+    }
+
+    @media all and (min-width: 481px) and (max-width: 600px) {
+      html {
+        font-size: 15px;
+      }
+    }
+
+    @media all and (min-width: 601px) and (max-width: 720px) {
+      html {
+        font-size: 14px;
+      }
+    }
+
+    @media all and (min-width: 721px) and (max-width: 840px) {
+      html {
+        font-size: 14.2px;
+      }
+    }
+
+    @media all and (min-width: 841px) and (max-width: 960px) {
+      html {
+        font-size: 15px;
+      }
+    }
+
+    @media all and (min-width: 961px) and (max-width: 1024px) {
+      html {
+        font-size: 15.7px;
+      }
+    }
+
+    @media all and (min-width: 1025px) and (max-width: 1280px) {
+      html {
+        font-size: 15px;
+      }
+    }
+
+    @media all and (min-width: 1281px) and (max-width: 1440px) {
+      html {
+        font-size: 15px;
+      }
+    }
+
+    @media all and (min-width: 1441px) and (max-width: 1600px) {
+      html {
+        font-size: 15px;
+      }
+    }
+
+    @media all and (min-width: 1601px) and (max-width: 1920px) {
+      html {
+        font-size: 15px;
+      }
+    }
+
+    @media all and (min-width: 1921px) {
+      html {
+        font-size: 15px;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <ta-shop></ta-shop>
+  <ta-shop></ta-shop>
 </body>
 
 </html>

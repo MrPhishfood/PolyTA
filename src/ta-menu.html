@@ -1,70 +1,294 @@
-﻿<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/iron-media-query/iron-media-query.html" />
 
 <link rel="import" href="../bower_components/paper-styles/color.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
 
-<link rel="import" href="menu/menu-item.html">
+<link rel="import" href="../bower_components/polymerfire/polymerfire.html">
+
+<link rel="import" href="menu/my-menu-item.html">
+
+<link rel="import" href="ta-cart.html">
 
 <dom-module id="ta-menu">
-    <!-- Defines the element's style and local DOM -->
-    <template>
-        <style>
-            :host {
-                display: block;
-                padding: 16px 30px 16px 16px;
-                background-color: var(--paper-blue-grey-50);
-            }
+  <!-- Defines the element's style and local DOM -->
+  <template>
+    <style>
+       :host {
+        display: flex;
+        max-width: 1280px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 8px 0px 8px 8px;
+      }
 
-            h1 {
-                margin-top: 8px;
-                margin-bottom: 10px;
-                font-size: 25px;
-            }
-        </style>
+      #container {
+        width: 100%;
+      }
 
-        <!--loop categories-->
-        <template is="dom-repeat" items="{{categoryList}}" as="category">
-            <h1 id="category-id-{{category.$key}}">{{category.name}}</h1>
-            <!--loop items-->
-            <template is="dom-repeat" items="{{itemList}}" filter="{{_filterByCategory(category.$key)}}"
-                      sort="_sortItems" observe="order category">
-                <menu-item item="{{item}}"></menu-item>
-            </template>
-        </template>
+      .category-divider {
+        display: block;
+        font-size: 1.5rem;
+        width: 100%;
+        color: var(--paper-red-500);
+        /*border-bottom: 2px solid var(--paper-red-500);*/
+        margin: 0.6667rem 0px 0.9333rem 0px;
+      }
 
-    </template>
+      .category-list {
+        display: flex;
+        align-content: flex-start;
+        flex-wrap: wrap;
+        flex-direction: column;
+        width: 100%;
+        /*height: 400px;*/
+      }
 
-    <!-- Creates the element's prototype and registers it -->
-    <script>
-        Polymer({
-            is: 'ta-menu',
+      .list-item {
+        box-sizing: border-box;
+        padding-bottom: 8px;
+        padding-right: 8px;
+      }
+      /*228 min width for card*/
 
-            properties: {
-                categoryList: {
-                    type: Object,
-                },
+      @media all and (max-width: 480px) {
+        .list-item {
+          width: 100%;
+        }
+        my-menu-item {
+          /*--my-menu-item-header-font-size:6.9vw;*/
+          --my-menu-item-header-font-size: calc( 24px + (30 - 24) * (100vw - 320px) / (480 - 320));
+          --my-menu-item-support-font-size: calc( 14px + (17.5 - 14) * (100vw - 320px) / (480 - 320));
+          --my-menu-item-actions-font-size: calc( 18px + (20 - 18) * (100vw - 320px) / (480 - 320));
+          --my-menu-item-image-height: calc( 204px + (311 - 204) * (100vw - 320px) / (480 - 320));
+        }
+      }
 
-                itemList: {
-                    type: Object,
-                },
-            },
+      @media all and (min-width: 481px) and (max-width: 700px) {
+        .list-item {
+          width: 50%;
+        }
+        my-menu-item {
+          --my-menu-item-header-font-size: calc( 20px + (24 - 20) * (100vw - 481px) / (700 - 481));
+          --my-menu-item-support-font-size: calc( 14px + (16.25 - 14) * (100vw - 481px) / (700 - 481));
+          --my-menu-item-actions-font-size: calc( 18px + (21.25 - 18) * (100vw - 481px) / (700 - 481));
+          --my-menu-item-image-height: calc( 153px + (227 - 153) * (100vw - 481px) / (700 - 481));
+        }
+      }
 
-            _filterByCategory: function (category) {
-                return function (item) {
-                    return category == item.category;
+      @media all and (min-width: 701px) and (max-width: 987px) {
+        .list-item {
+          width: 33.33%;
+        }
+        my-menu-item {
+          --my-menu-item-header-font-size: calc( 20px + (24 - 20) * (100vw - 701px) / (987 - 701));
+          --my-menu-item-support-font-size: calc( 14px + (16.25 - 14) * (100vw - 701px) / (987 - 701));
+          --my-menu-item-actions-font-size: calc( 18px + (21.25 - 18) * (100vw - 701px) / (987 - 701));
+          --my-menu-item-image-height: calc( 150px + (213 - 150) * (100vw - 701px) / (987 - 701));
+        }
+      }
+
+      @media all and (min-width: 988px) and (max-width: 1280px) {
+        .list-item {
+          width: 25%;
+        }
+        my-menu-item {
+          --my-menu-item-header-font-size: calc( 20px + (24 - 20) * (100vw - 988px) / (1280 - 988));
+          --my-menu-item-support-font-size: calc( 14px + (16.25 - 14) * (100vw - 988px) / (1280 - 988));
+          --my-menu-item-actions-font-size: calc( 18px + (21.25 - 18) * (100vw - 988px) / (1280 - 988));
+          --my-menu-item-image-height: calc( 159px + (207 - 159) * (100vw - 988px) / (1280 - 988));
+        }
+      }
+
+      @media all and (min-width: 1281px) {
+        .list-item {
+          width: 25%;
+        }
+        my-menu-item {
+          --my-menu-item-header-font-size: 24px;
+          --my-menu-item-support-font-size: 14px;
+          --my-menu-item-actions-font-size: 18px;
+          --my-menu-item-image-height: 207px;
+        }
+      }
+    </style>
+    <firebase-query path="/menu/categories" order-by-child="order" data="{{categoryList}}"></firebase-query>
+    <firebase-query path="/menu/items" data="{{itemList}}"></firebase-query>
+
+    <ta-cart id="cart"></ta-cart>
+
+    <div id="container">
+      <!--loop categories-->
+      <template is="dom-repeat" items="[[categoryList]]" as="category">
+        <div id="category-id-[[category.$key]]" class="category-divider">{{category.name}}</div>
+        <!--loop items-->
+        <div class="category-list">
+          <template is="dom-repeat" items="[[itemList]]" filter="[[_filterByCategory(category.$key)]]" sort="_sortItems" observe="order category">
+            <!-- //min width for iphone5 is 300px -->
+            <div class="list-item">
+              <my-menu-item item-key="[[item.$key]]" on-cart-add="addToCart"></my-menu-item>
+            </div>
+          </template>
+        </div>
+      </template>
+    </div>
+
+
+  </template>
+
+  <!-- Creates the element's prototype and registers it -->
+  <script>
+    Polymer({
+      is: 'ta-menu',
+
+      properties: {
+
+        categoriesTopPos: {
+          type: Array,
+        }
+
+      },
+
+      observers: [
+        'debounceRecalculateHeight(itemList.*)'
+      ],
+
+      _filterByCategory: function(category) {
+        return function(item) {
+          return category == item.category;
+        };
+      },
+
+      _sortItems: function(a, b) {
+        if (a.order == b.order) {
+          return 0;
+        }
+        return a.order < b.order ? -1 : 1;
+      },
+
+      addToCart: function(e) {
+        //call function from data element for cart
+        this.$.cart.addToCart(e);
+      },
+
+      getCategoryYPos: function(catID) {
+        return Polymer.dom(this.root).querySelector('#category-id-' + catID).offsetTop;
+      },
+
+      fireScrollToCategory: function(e) {
+        this.fire('ta-menu-scrollcategory', e.model.category.$key);
+
+      },
+
+      debounceRecalculateHeight: function(e) {
+        this.debounce('newheight', function() {
+          this.recalculateHeight();
+        }, 100);
+      },
+
+      //calculates optimum height for category list of items
+      //items arranged in vertical flexbox with fixed item widths so they
+      //fit nicely in to columns. Calculating height is necessary
+      recalculateHeight: function() {
+
+        //calculate num of columns
+        var boxWidth = Polymer.dom(this.root).querySelector('#container').offsetWidth;
+        var listItem = Polymer.dom(this.root).querySelector('.list-item');
+
+        //if ta-menu page is not visible end function
+        if (!boxWidth || !listItem) {
+          return;
+        }
+
+        this.updateStyles();
+
+        var itemWidth = listItem.offsetWidth;
+        var columns = Math.round(boxWidth / itemWidth);
+
+        //calc height
+        var allCatBoxes = Polymer.dom(this.root).querySelectorAll('.category-list');
+
+        //if only 1 column then set height to auto and end function
+        if (columns === 1) {
+          allCatBoxes.forEach(function(category) {
+            category.style.height = 'auto';
+          });
+          return;
+        }
+
+        allCatBoxes.forEach(function(category) {
+          var allItems = category.querySelectorAll('.list-item');
+          var itemHeights = []; //Array of all item heights, order unchanged
+
+          allItems.forEach(function(listItem) {
+            itemHeights.push(listItem.offsetHeight);
+          });
+
+          var x = {
+            layout: [],
+            colHeight: [],
+            colCount: 1,
+            baseline: 0,
+            getBoxHeight: function(itemArray, columnCount) {
+              this.colCount = columnCount ? columnCount : 1;
+              //populate empty arrays for coloumns in layout +1
+              for (let i = 0; i < this.colCount + 1; i++) {
+                this.layout[i] = [];
+              }
+              this.layout[0] = itemArray; //insert all items in to first column
+              //loop until items shift in to more columns than should exist
+              do {
+                //set safe baseline
+                this.baseline = this.calculateBaseline();
+                //loop through each coloumn from 1st to last
+                for (let i = 0; i < this.colCount; i++) {
+                  //reduce baseline by 1 and if sum of items is over
+                  if (this.colHeight[i] > this.baseline - 1) {
+                    //shift items for that column until fit in to baseline
+                    this.shiftItem(i);
+                  }
                 }
-            },
 
-            _sortItems: function (a, b) {
-                if (a.order == b.order) {
-                    return 0;
-                }
-                return a.order < b.order ? -1 : 1;
-            },
+              } while (this.layout[this.colCount].length === 0);
+              //return last safe baseline before overflow
 
-            scollToSection: function (catID) {
-                Polymer.dom(this.shadowRoot).querySelector('#category-id-' + catID).scrollIntoView(true);
+              return this.baseline;
+
+            },
+            shiftItem: function(col) {
+              //shift item from col to the next col
+              do {
+                this.layout[col + 1].unshift(this.layout[col].pop());
+              }
+              while (this.calculateColHeight(col) > this.baseline - 1);
+              //calculate height of items shifted to next coloumn
+              this.calculateColHeight(col + 1);
+              //if there is an item in a column above the colCount return false
+              // return layout[colCount - 1].length ? false : true;
+            },
+            calculateColHeight: function(colNum) {
+              //adds up height of all items of a column
+              this.colHeight[colNum] = this.layout[colNum].reduce((a, b) => a + b, 0);
+              return this.colHeight[colNum];
+
+            },
+            calculateBaseline: function() {
+              //gets height of all columns then returns highest
+              for (var i = 0; i < this.colCount; i++) {
+                this.calculateColHeight(i);
+              }
+              return Math.max.apply(null, this.colHeight);
             }
+
+          };
+          //set height on element (add 2 to accomodate for fractional elements e.g.1.5px)
+          var height = x.getBoxHeight(itemHeights, columns) + 2;
+          category.style.height = height + 'px';
 
         });
-    </script>
+      }
+    });
+  </script>
 </dom-module>
+e>

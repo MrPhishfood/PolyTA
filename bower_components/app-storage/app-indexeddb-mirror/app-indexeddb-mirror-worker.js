@@ -48,6 +48,10 @@
     // Maybe useful in case we want to notify clients of changes..
     this[CLIENT_PORTS] = new Array;
     this[DB_OPENS] = null;
+    this.supportsIndexedDB = self.indexedDB != null;
+    if (!self.Promise || !this.supportsIndexedDB) {
+      console.error('Indexeddb Mirror is not supported');
+    }
 
     this.openDb();
 
@@ -55,8 +59,6 @@
         'unhandledrejection', function(error){ console.error(error); });
     self.addEventListener(
         'error', function(error) { console.error(error); });
-
-    this.supportsIndexedDB = self.indexedDB != null;
     console.log('AppIndexedDBMirrorWorker started...');
   };
 

@@ -1,0 +1,285 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+
+<link rel="import" href="../../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-document.html">
+
+<link rel="import" href="../filters/filter-currency.html">
+
+<link rel="import" href="../custom-icons.html">
+
+<dom-module id="my-cart-item">
+  <template>
+    <style>
+       :host {
+        --my-cart-item-padding: 16px;
+        --my-cart-item-heading-font-size: 20px;
+        --my-cart-item-supporting-font-size: 14px;
+        display: block;
+        color: var(--paper-grey-900);
+        background: var(--my-cart-item-background, #fff);
+        box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.14), 0 1px 8px 0 rgba(0, 0, 0, 0.12), 0 3px 3px -2px rgba(0, 0, 0, 0.4);
+        border-radius: 3px;
+        line-height: 1.5;
+      }
+
+      #header-container {
+        display: flex;
+        justify-content: space-between;
+        padding: var(--my-cart-item-padding);
+      }
+
+      #qty {
+        margin-right: calc(var(--my-cart-item-padding)/2);
+      }
+
+      #qty-name-container {
+        display: flex;
+      }
+
+      #qty,
+      #name,
+      #subtotal {
+        font-size: var(--my-cart-item-heading-font-size);
+      }
+
+      #qty,
+      #name {
+        font-family: 'Roboto Condensed', sans-serif;
+      }
+
+      #subtotal {
+        margin-left: var(--my-cart-item-padding);
+      }
+
+      #selections {
+        font-size: var(--my-cart-item-supporting-font-size);
+        text-transform: lowercase;
+        padding: 0px var(--my-cart-item-padding) var(--my-cart-item-padding) var(--my-cart-item-padding);
+        color: var(--paper-grey-700);
+      }
+
+      #selections:empty {
+        display: none;
+      }
+
+      #actions {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+        padding: calc(var(--my-cart-item-padding)/2);
+        border-top: 1px solid rgba(0, 0, 0, 0.12);
+      }
+
+      #addItem,
+      #minusItem,
+      #removeItem {
+        padding: 4px;
+        width: 32px;
+        height: 32px;
+        margin-left: calc(var(--my-cart-item-padding)/2);
+        ;
+      }
+
+      #addNote {
+        font-size: 18px;
+        padding: 4px;
+        height: 32px;
+        margin: 0;
+      }
+
+      #addNote iron-icon {
+        margin-right: 4px;
+      }
+
+      #addItem,
+      #minusItem {
+        color: var(--paper-green-500);
+      }
+
+      #removeItem {
+        color: var(--paper-red-500);
+      }
+
+      #note {
+        --paper-input-container: {
+          margin: 0 13px 13px 13px;
+          padding: 0 0px 20px 0px;
+        }
+        ;
+        --paper-input-container-input-color: var(--paper-grey-900);
+        --paper-input-container-color: var(--paper-grey-900);
+        --paper-input-container-focus-color: var(--paper-red-500);
+      }
+
+      #noteButton {
+        flex-grow: 99;
+      }
+
+      #addNote {
+        text-transform: uppercase;
+        color: var(--paper-green-500);
+      }
+    </style>
+    <firebase-auth id="auth" user="{{user}}"></firebase-auth>
+    <firebase-document id="cartRef" path="/cart/pending/[[user.uid]]/[[itemKey]]" data="{{cartItem}}"></firebase-document>
+    <firebase-document id="itemRef" path="/menu/items/[[cartItem.item]]" data="{{menuItem}}"></firebase-document>
+
+    <filter-currency id="filterCurrency" zero-value="free"></filter-currency>
+
+    <div id="header-container">
+      <div id="qty-name-container">
+        <div id="qty">[[cartItem.qty]]x</div>
+        <div id="name">[[menuItem.name]]</div>
+      </div>
+      <div id="subtotal">[[subtotal]]</div>
+    </div>
+
+    <div id="selections">[[_computeSelectionText(cartItem,menuItem)]]</div>
+
+    <iron-collapse id="collapse" opened="[[noteState]]">
+      <paper-textarea id="note" label="Note" char-counter maxlength="100" value="{{cartItem.note}}" tabindex="0"></paper-textarea>
+    </iron-collapse>
+
+    <div id="actions">
+      <div id="noteButton">
+        <paper-button id="addNote" on-tap="_toggleNoteState">
+          <iron-icon icon="custom-icons:comment"></iron-icon>
+          [[_noteButtonText(noteState)]]
+        </paper-button>
+      </div>
+      <paper-icon-button id="removeItem" icon="custom-icons:highlight-off" on-tap="_removeItem"></paper-icon-button>
+      <paper-icon-button id="minusItem" icon="custom-icons:remove-circle-outline" on-tap="_subQty"></paper-icon-button>
+      <paper-icon-button id="addItem" icon="custom-icons:add-circle-outline" on-tap="_addQty"></paper-icon-button>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'my-cart-item',
+
+      properties: {
+        itemKey: {
+          type: String,
+        },
+
+        noteState: {
+          type: Boolean,
+          value: false
+        },
+
+        subtotal: {
+          type: Number,
+          computed: '_computeSubtotal(cartItem,menuItem)'
+        },
+
+      },
+
+      observers: [
+        '_noteChanged(cartItem.note)'
+      ],
+
+      //note state is is only false when ref does not exist
+      _noteChanged: function(note) {
+        this.noteState = note === undefined ? false : true;
+      },
+      //toggles the note iron collapse, focuses on the input element on show
+      _toggleNoteState: function() {
+        this.noteState = !this.noteState;
+        if (!this.noteState) {
+          this.set('cartItem.note', null);
+        } else {
+          //focus on input element delayed to allow time for iron collapse to finish
+          var input = this.$.note;
+          window.setTimeout(function() {
+            input.focus();
+          }, 300);
+        }
+      },
+      //button text for note button based on note state
+      _noteButtonText: function(e) {
+        return e ? 'remove note' : 'add note';
+      },
+      //adds 1 to current qty
+      _addQty: function() {
+        this.set('cartItem.qty', this.cartItem.qty + 1);
+      },
+      //subtracts 1 from current qty or removes when 0
+      _subQty: function() {
+        var newQty = this.cartItem.qty - 1;
+        if (newQty === 0) {
+          this._removeItem();
+        } else {
+          this.set('cartItem.qty', newQty);
+        }
+      },
+      //removes the cart firebase ref, thereby deleting this element
+      _removeItem: function() {
+        this.$.cartRef.destroy();
+      },
+
+      _computeSubtotal: function(item, data) {
+        var subtotal = 0;
+        if (!Object.keys(item).length || !Object.keys(data).length) {
+          return subtotal;
+        }
+
+        //add item base price to subtotal
+        subtotal = item.qty * data.price;
+        //if cart item HAS selection
+        if (item.selections) {
+          //loop through cart selection-list for each selection
+          for (let a in item.selections) {
+            //loop through each subitem in selection
+            for (let b in item.selections[a]) {
+              //add subitem to subtotal
+              subtotal += data.selections[a].subitems[b].price * item.qty;
+            }
+          }
+        }
+        return this.$.filterCurrency.filter(subtotal);
+      },
+      //returns the list of subitems selected seperated by comma
+      //returns in the right order based on the order of selections and subitems
+      _computeSelectionText: function(cItem, mItem) {
+        var selectText = '';
+        //return nothing if firebase data not populated
+        if (!Object.keys(cItem).length || !Object.keys(mItem).length) {
+          return selectText;
+        }
+        //put selections used in cart item in to sorted array based on order attr
+        var selections = arraySort(cItem, mItem, 'selections', 'selections', 'order');
+        //loop through selections in correct order
+        for (let a = 0; a < selections.length; a++) {
+          //put subitems used in cart item selection in to sorted array based on order attr
+          var subitems = arraySort(cItem.selections[selections[a].$key], selections[a], '', 'subitems', 'order');
+          //loop through subitems in correct order and add to selectText
+          for (let c = 0; c < subitems.length; c++) {
+            selectText += subitems[c].name + ', ';
+          }
+        }
+        return selectText.substring(0, selectText.length - 2);
+
+        function arraySort(cObj, mObj, cProp, mProp, order) {
+          var arr = [];
+          cObj = cProp ? cObj[cProp] : cObj;
+          for (let a in cObj) {
+            mObj[mProp][a].$key = a;
+            arr.push(mObj[mProp][a]);
+          }
+          arr.sort(function(a, b) {
+            return a[order] - b[order];
+          });
+          return arr;
+        }
+      },
+
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,129 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../../../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../../../bower_components/polymerfire/firebase-document.html">
+
+<link rel="import" href="../../ta-cart.html">
+<link rel="import" href="../../filters/filter-currency.html">
+
+<link rel="import" href="my-cart-table-row.html">
+
+<dom-module id="my-cart-table">
+  <template>
+    <style>
+       :host {
+        display: flex;
+        flex-direction: column;
+        color: var(--paper-grey-600);
+        background: var(--my-cart-table-background, #fff);
+        box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.14), 0 1px 0.5333rem 0 rgba(0, 0, 0, 0.12), 0 3px 3px -2px rgba(0, 0, 0, 0.4);
+        border-radius: 0.1333rem;
+        line-height: 1.5;
+      }
+      /*my-cart-table-row:hover {
+        background: var(--paper-grey-200);
+      }*/
+
+      #header,
+      #footer {
+        font-size: 12px;
+        font-weight: 500;
+        display: flex;
+        padding: 0px 24px;
+        min-height: 56px;
+        box-sizing: border-box;
+        align-items: center;
+      }
+
+      #header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+      }
+
+      #footer {
+        justify-content: flex-end;
+      }
+
+      .data:not(:nth-child(2)) {
+        margin-left: 56px;
+      }
+
+      .data:nth-child(2) {
+        margin-left: 24px;
+      }
+
+      .data {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      #name {
+        flex-grow: 99;
+      }
+
+      #note {
+        width: 20%;
+      }
+
+      #note iron-icon {
+        margin-right: 4px;
+        --iron-icon-width: 16px;
+        --iron-icon-height: 16px;
+      }
+
+      #qty {
+        width: 105px;
+        text-align: center;
+      }
+
+      #price {
+        width: 50px;
+        text-align: right;
+      }
+
+      #clear {
+        width: 40px;
+      }
+    </style>
+
+    <firebase-auth id="auth" user="{{user}}"></firebase-auth>
+    <firebase-query id="cart" path="/cart/pending/[[user.uid]]" data="{{cart}}"></firebase-query>
+
+    <ta-cart total="{{cartTotal}}"></ta-cart>
+
+    <filter-currency id="filterCurrency" zero-value="£.0.00"></filter-currency>
+
+    <div id="header">
+      <div class="data" id="clear"></div>
+      <div class="data" id="name"></div>
+      <div class="data" id="note">
+        <iron-icon icon="cartItemIcons:comment"></iron-icon>
+        Notes
+      </div>
+      <div class="data" id="qty">Qty</div>
+      <div class="data" id="price">Price</div>
+
+    </div>
+    <template is="dom-repeat" items="[[cart]]" index-as="index">
+      <my-cart-table-row item-key="[[item.$key]]"></my-cart-table-row>
+    </template>
+    <div id="footer">
+      <paper-button>Total: [[_filterPrice(cartTotal)]]</paper-button>
+    </div>
+
+
+  </template>
+  <script>
+    Polymer({
+      is: 'my-cart-table',
+
+      _filterPrice: function(price) {
+        return this.$.filterCurrency.filter(price);
+      },
+    });
+  </script>
+</dom-module>
+dule>

@@ -1,551 +1,421 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
-
 <!--App Elements-->
 <link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
-
 <!--Iron Elements-->
-<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../bower_components/iron-icons/maps-icons.html">
-<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="../bower_components/iron-media-query/iron-media-query.html" />
-
+<link rel="import" href="../bower_components/iron-media-query/iron-media-query.html">
 <!--Paper Elements-->
 <link rel="import" href="../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../bower_components/paper-header-panel/paper-header-panel.html">
 <link rel="import" href="../bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
 <link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
-<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-badge/paper-badge.html">
 <link rel="import" href="../bower_components/paper-toast/paper-toast.html">
-
 <!--Google Elements-->
 <link rel="import" href="../bower_components/polymerfire/polymerfire.html">
-
+<!--Custom Elements-->
+<link rel="import" href="ta-cart.html">
 <link rel="import" href="ta-menu.html">
 <link rel="import" href="ta-shopping-cart.html">
 <link rel="import" href="ta-login.html">
 <link rel="import" href="ta-checkout.html">
 <link rel="import" href="ta-payment.html">
-
-<!--Custom Elements-->
-<!--<link rel="import" href="custom-icons.html"/>-->
+<!-- Custom Icons -->
+<link rel="import" href="custom-icons.html" />
 
 <dom-module id="ta-shop">
-    <template>
-        <style>
-            :host {
-                display: block;
-                --app-primary-color: #4285f4;
-                --app-secondary-color: black;
-                --paper-drawer-panel-drawer-container: {
-                    /*background: var(--paper-grey-100);*/
-                }
-            }
+  <template>
+    <style>
+       :host {
+        display: block;
+        --app-primary-color: #4285f4;
+        --app-secondary-color: black;
+      }
 
-            paper-drawer-panel {
-                max-width: 900px;
-                left: 0;
-                right: 0;
-                margin: 0 auto;
-                @apply(--shadow-elevation-16dp);
-            }
+      #main-toolbar {
+        position: relative;
+        --paper-toolbar-background: var(--paper-red-500);
+        --paper-toolbar-content: {
+          max-width: 1280px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+      }
 
-            paper-toolbar {
-                --paper-toolbar-height: 85px;
-                --paper-toolbar-sm-height: 60px;
-            }
+      #drawer-toolbar {
+        --paper-toolbar-background: var(--paper-indigo-500);
+      }
 
-            #mainPanel {}
+      .toolbar-link {
+        text-decoration: none;
+      }
 
-            #main-toolbar {
-                --paper-toolbar-background: var(--paper-red-500);
-            }
+      .toolbar-button {
+        color: #ffffff;
+        font-size: 1.15rem;
+        min-width: 0;
+        min-height: 40px;
+        padding: 8px;
+        margin-right: 0;
+        margin-left: 0;
+        text-transform: none;
+      }
 
-            #drawer-toolbar {
-                --paper-toolbar-background: var(--paper-indigo-500);
-            }
+      .toolbar-button iron-icon {
+        --iron-icon-width: 24px;
+        --iron-icon-height: 24px;
+      }
 
-            .toolbar-button {
-                color: #ffffff;
-            }
+      #menuButton {
+        color: #fff;
+      }
 
-            paper-badge {
-                --paper-badge-margin-left: -3px;
-                --paper-badge-margin-bottom: -15px;
-                --paper-badge-background: var(--paper-teal-500);
-            }
+      .toolbar-text {
+        margin-left: 2px;
+      }
 
-            paper-tabs {
-                width: 100%;
-            }
+      paper-badge {
+        --paper-badge-margin-left: -3px;
+        --paper-badge-margin-bottom: -15px;
+        --paper-badge-background: var(--paper-green-500);
+      }
 
-            .drawer-list {
-                margin: 0 20px;
-            }
+      paper-badge[alt-hidden] {
+        display: none;
+      }
 
-            .drawer-list a {
-                display: block;
-                padding: 0 16px;
-                line-height: 40px;
-                text-decoration: none;
-                color: var(--app-secondary-color);
-            }
+      .drawer-list {
+        margin: 0 20px;
+      }
 
-            .drawer-list a.iron-selected {
-                color: black;
-                font-weight: bold;
-            }
+      .drawer-list a {
+        display: block;
+        padding: 0 16px;
+        line-height: 40px;
+        text-decoration: none;
+        color: var(--app-secondary-color);
+      }
 
-            .drawer-list a.subroute {
-                padding-left: 32px;
-            }
+      .drawer-list a.iron-selected {
+        color: black;
+        font-weight: bold;
+      }
 
-            .menu-category-item {
-                font-size: 20px;
-            }
-        </style>
+      .drawer-list a.subroute {
+        padding-left: 32px;
+      }
 
-        <app-location route="{{route}}"></app-location>
+      .menu-category-item {
+        font-size: 20px;
+        --paper-item-focused-before: {
+          opacity: 0;
+        }
+        ;
+      }
 
-        <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}" active="active">
-        </app-route>
+      #categoryButton {
+        visibility: visible;
+        opacity: 1;
+      }
 
-        <firebase-app auth-domain="truyasia.firebaseapp.com" database-url="https://truyasia.firebaseio.com" api-key="AIzaSyCgfF2gQeiE1fyOWlaBcAcSLcwocz23BNk" storage-bucket="truyasia.appspot.com">
-        </firebase-app>
+      #bigTitle {
+        position: fixed;
+        font-size: 64px;
+        line-height: 1;
+        bottom: 16px;
+      }
 
-        <firebase-query path="/menu/categories" order-by-child="order" data="{{categoryList}}">
-        </firebase-query>
+      #categoryButton[hidden] {
+        visibility: hidden;
+        opacity: 0;
+        width: 0;
+        padding: 0;
+      }
 
-        <firebase-query path="/menu/items" data="{{itemList}}">
-        </firebase-query>
+      @media all and (min-width: 720px) {
+        #cartCountBadge {
+          display: none;
+        }
+      }
 
-        <firebase-document path="/menu/items" data="{{cartItemList}}">
-        </firebase-document>
+      @media all and (max-width: 721px) {
+        .toolbar-text {
+          display: none;
+        }
+      }
 
-        <firebase-auth id="auth" user="{{user}}" on-error="handleError">
-        </firebase-auth>
+      @media all and (max-width: 979px) {
+        #wideMenuButton {
+          display: none;
+        }
+      }
 
-        <firebase-document id="fbUserProfile" path="/users/{{user.uid}}" data="{{userProfileData}}">
-        </firebase-document>
+      @media all and (min-width: 980px) {
+        #categoryButton,
+        #menuButton {
+          display: none;
+        }
+        ;
+      }
 
+      #pages[selected="menu"]+#main-toolbar #menuButton {
+        display: none;
+      }
 
-        <iron-media-query query="(min-width: 550px)" query-matches="{{queryMatches}}"></iron-media-query>
+      #pages:not([selected="menu"])+#main-toolbar #categoryButton {
+        display: none;
+      }
+    </style>
+    <app-location route="{{route}}"></app-location>
+    <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}" active="active"></app-route>
 
-        <paper-drawer-panel id="mainPanel" responsive-width="549px" elevation="2">
-            <paper-header-panel drawer id="leftDrawer" mode="waterfall">
-                <!--Tabs Toolbar-->
-                <paper-toolbar id="drawer-toolbar">
-                    <paper-tabs selected="{{tabpage}}" attr-for-selected="name">
-                        <paper-tab name="menutab">
-                            <iron-icon icon="icons:chrome-reader-mode"></iron-icon>Menu</paper-tab>
-                        <paper-tab name="carttab">
-                            <iron-icon icon="icons:shopping-cart"></iron-icon>Cart</paper-tab>
-                    </paper-tabs>
-                </paper-toolbar>
-                <!--Tab Pages-->
-                <iron-pages selected="[[tabpage]]" attr-for-selected="name">
-                    <!--Menu Tab-->
-                    <div name="menutab">
-                        <template is="dom-repeat" items="{{categoryList}}" as="category">
-                            <paper-item class="menu-category-item" on-tap="scrollToMenuSection">
-                                {{category.name}}
-                            </paper-item>
-                        </template>
-                    </div>
-                </iron-pages>
-                <!--Insert Other Tabs-->
-            </paper-header-panel>
-            <!--Main Section-->
-            <paper-scroll-header-panel main>
-                <!--Toolbar-->
-                <paper-toolbar id="main-toolbar">
-                    <paper-icon-button icon="icons:menu" paper-drawer-toggle></paper-icon-button>
-                    <span class="title">Truly Asia</span>
-                    <a href="/payment">
-                        <paper-icon-button icon="icons:account-box" class="toolbar-button"></paper-icon-button>
-                    </a>
-                    <a href="/login">
-                        <paper-icon-button icon="icons:account-box" class="toolbar-button"></paper-icon-button>
-                    </a>
-                    <a href="/">
-                        <paper-icon-button icon="icons:chrome-reader-mode" class="toolbar-button"></paper-icon-button>
-                    </a>
-                    <a href="/shopping-cart">
-                        <paper-icon-button id="headercart" icon="icons:shopping-cart" class="toolbar-button"></paper-icon-button>
-                    </a>
-                    <paper-badge for="headercart" label="{{cartBadge}}" hidden$="{{!cartBadge}}"></paper-badge>
-                </paper-toolbar>
-                <!--Pages-->
-                <iron-pages selected="[[page]]" attr-for-selected="name">
-                    <ta-menu id="menulistpage" name="menu" category-list="{{categoryList}}" item-list="{{itemList}}"></ta-menu>
-                    <ta-shopping-cart name="shopping-cart" cart="{{cart}}"></ta-shopping-cart>
-                    <ta-checkout name="checkout" user="{{user}}" user-profile="{{userProfileData}}" cart="{{cart}}"></ta-checkout>
-                    <ta-payment name="payment" user="{{user}}"></ta-payment>
-                    <ta-login name="login" user="{{user}}"></ta-login>
-                </iron-pages>
-            </paper-scroll-header-panel>
-        </paper-drawer-panel>
+    <firebase-app auth-domain="truyasia.firebaseapp.com" database-url="https://truyasia.firebaseio.com" api-key="AIzaSyCgfF2gQeiE1fyOWlaBcAcSLcwocz23BNk" storage-bucket="truyasia.appspot.com"></firebase-app>
+    <firebase-query path="/menu/categories" order-by-child="order" data="{{categoryList}}"></firebase-query>
+    <firebase-auth id="auth" user="{{user}}" on-error="handleError"></firebase-auth>
 
-        <paper-toast id="toast0" text=""></paper-toast>
-    </template>
-    <script>
-        Polymer({
+    <iron-media-query query="(min-width: 980px)" query-matches="{{sidebarQuery}}"></iron-media-query>
+    <iron-media-query query="(min-width: 721px)" query-matches="{{wideToolbarQuery}}"></iron-media-query>
 
-            is: 'ta-shop',
+    <ta-cart id="cart" uid="[[user.uid]]" count="{{cartCount}}" total="{{cartTotal}}"></ta-cart>
 
-            properties: {
+    <paper-drawer-panel id="mainPanel" responsive-width="979px" disable-edge-swipe="[[_edgeSwipeDisable(sidebarQuery,page)]]" force-narrow="[[sidebarQuery]]">
+      <!-- Drawer -->
+      <paper-header-panel drawer id="leftDrawer" mode="seamed">
+        <paper-toolbar id="drawer-toolbar"></paper-toolbar>
+        <div id="slide-panel">
+          <template is="dom-repeat" items="[[categoryList]]" as="category">
+            <paper-item class="menu-category-item" on-tap="scrollToMenuSection">
+              [[category.name]]
+            </paper-item>
+          </template>
+        </div>
+      </paper-header-panel>
+      <!--Main Section-->
+      <paper-scroll-header-panel id="mainScrollPanel" main fixed="[[sidebarQuery]]" on-iron-resize="_panelResized">
+        <!-- iron-pages -->
+        <iron-pages id="pages" selected$="[[page]]" attr-for-selected="name">
+          <ta-menu id="menulistpage" name="menu"></ta-menu>
+          <ta-shopping-cart name="shopping-cart"></ta-shopping-cart>
+          <ta-checkout name="checkout"></ta-checkout>
+          <ta-payment name="payment"></ta-payment>
+          <ta-login name="login"></ta-login>
+        </iron-pages>
+        <!--Toolbar-->
+        <paper-toolbar id="main-toolbar" class="[[_calculateMedTallClass(sidebarQuery)]]">
+          <!-- <span id="bigTitle" class="">Truly Asia</span> -->
+          <a href="/" class="middle toolbar-link">
+            <paper-icon-button id="menuButton" class="middle" icon="custom-icons:arrow-back"></paper-icon-button>
+          </a>
+          <paper-icon-button id="categoryButton" class="middle" icon="custom-icons:menu" paper-drawer-toggle></paper-icon-button>
+          <span id="smallTitle" class="title middle">TRULY ASIA</span>
+          <a href="/payment" class="middle">
+            <paper-icon-button icon="custom-icons:account-box" class="toolbar-button"></paper-icon-button>
+          </a>
+          <a id="wideMenuButton" href="/" class="middle toolbar-link">
+            <paper-button class="toolbar-button">
+              <iron-icon icon="custom-icons:chrome-reader-mode"></iron-icon>
+              <span class="toolbar-text">Menu</span>
+            </paper-button>
+          </a>
+          <a href="/login" class="middle toolbar-link">
+            <paper-button class="toolbar-button">
+              <iron-icon icon="custom-icons:account-box"></iron-icon>
+              <span class="toolbar-text">Account</span>
+            </paper-button>
+          </a>
+          <a href="/shopping-cart" class="middle toolbar-link">
+            <paper-button id="headercart" class="toolbar-button">
+              <iron-icon id="cart-icon" icon="custom-icons:shopping-cart"></iron-icon>
+              <span class="toolbar-text">Cart [[_currencyFilter(cartTotal)]]</span>
+            </paper-button>
+            <paper-badge id="cartCountBadge" for="headercart" label="[[cartCount]]" hidden$="[[!cartCount]]" alt-hidden$="[[sidebarQuery]]"></paper-badge>
+          </a>
+        </paper-toolbar>
+      </paper-scroll-header-panel>
+    </paper-drawer-panel>
+    <paper-toast id="toast0" text=""></paper-toast>
+  </template>
+  <script>
+    Polymer({
+      is: 'ta-shop',
+      properties: {
 
-                routeData: {
-                    type: Object,
-                },
+        routeData: {
+          type: Object
+        },
 
-                subroute: {
-                    type: Object,
-                },
+        subroute: {
+          type: Object
+        },
 
-                user: {
-                    type: Object,
-                    observer: '_userchange',
-                },
+        user: {
+          type: Object,
+          observer: '_userchange'
+        },
 
-                userProfileData: {
-                    type: Object,
-                },
+        page: {
+          type: String,
+          reflectToAttribute: true,
+          observer: '_pageChanged'
+        },
 
-                page: {
-                    type: String,
-                    reflectToAttribute: true,
-                    observer: '_pageChanged',
-                },
+        categoryList: {
+          type: Array
+        },
 
-                categoryList: {
-                    type: Array,
-                },
+        tabpage: {
+          type: String,
+          value: 'menutab'
+        },
 
-                itemList: {
-                    type: Array,
-                    notify: true,
-                },
+        cart: {
+          type: Object,
+          observer: '_updateCartCookie'
+        },
 
-                cartItemList: {
-                    type: Object,
-                    observer: '_cartItemListChanged'
-                },
+        cartBadge: {
+          type: Number,
+          value: 0
+        }
 
-                tabpage: {
-                    type: String,
-                    value: 'menutab',
-                },
+      },
+      listeners: {
+        'ta-menu-scrollcategory': 'scrollToMenuSection',
+        'cart-plus': 'plusFromCart',
+        'cart-minus': 'minusFromCart',
+        'cart-deleted': 'deleteFromCart',
+        'checkout-tapped': '_pageToCheckout',
+        'sign-in': '_login',
+        'logout': '_logout'
+      },
 
-                cart: {
-                    type: Object,
-                    observer: '_updateCartCookie',
-                },
+      observers: ['_routePageChanged(routeData.page)'],
+      _routePageChanged: function(page) {
+        this.page = page || 'menu';
+      },
 
-                cartBadge: {
-                    type: Number,
-                    value: 0,
-                },
+      _pageChanged: function(page) {
+        // load page import on demand.
+        this.importHref(this.resolveUrl('ta-' + page + '.html'), null, null, true);
+        if (this.page === 'menu') {
+          this.$.menulistpage.debounceRecalculateHeight();
+        }
+      },
 
-                queryMatches: {
-                    type: Boolean,
-                    readOnly: true,
-                }
+      _calculateMedTallClass: function(query) {
+        return query ?
+          'medium-tall' :
+          '';
+      },
 
-            },
+      openDrawer: function() {
+        this.$.mainPanel.openDrawer();
+      },
 
-            listeners: {
-                'cart-added': 'addToCart',
-                'cart-plus': 'plusFromCart',
-                'cart-minus': 'minusFromCart',
-                'cart-deleted': 'deleteFromCart',
-                'checkout-tapped': '_pageToCheckout',
-                'sign-in': '_login',
-                'logout': '_logout',
-            },
+      tabToCart: function() {
+        this.tabpage = 'carttab';
+        this.$.mainPanel.openDrawer();
+      },
 
-            observers: [
-                '_routePageChanged(routeData.page)',
-            ],
+      _pageToCheckout: function() {
+        this.page = 'checkout';
+      },
 
-            _routePageChanged: function(page) {
-                this.page = page || 'menu';
-            },
+      _login: function(e) {
+        console.log(e.detail);
+        this.$.auth.signInWithPopup(e.detail);
+      },
 
-            _pageChanged: function(page) {
-                // load page import on demand.
-                this.importHref(
-                    this.resolveUrl('ta-' + page + '.html'), null, null, true);
-            },
+      _logout: function() {
+        this.$.auth.signOut();
+      },
 
-            openDrawer: function() {
-                this.$.mainPanel.openDrawer();
-            },
-
-            tabToCart: function() {
-                this.tabpage = 'carttab';
-                this.$.mainPanel.openDrawer();
-            },
-
-            _pageToCheckout: function() {
-                this.page = 'checkout';
-            },
-
-            _login: function(e) {
-                console.log(e.detail);
-                this.$.auth.signInWithPopup(e.detail);
-            },
-
-            _logout: function() {
-                this.$.auth.signOut();
-            },
-
-            _userchange: function(user) {
-                //CREATE USER PROFILE IF NON EXISTS
-                //check if logged in
-                if (this.user !== null) {
-                    var profileEl = this.$.fbUserProfile;
-                    profileEl.ref.once('value').then(function(snapshot) {
-                        //if no profile exists
-                        if (snapshot.val() === null) {
-                            //create profile data obj
-                            var userProfile = {
-                                email: user.email,
-                                provider: user.providerData[0].providerId
-                            };
-                            //create profile
-                            profileEl.ref.set(userProfile, function(error) {
-                                if (error) {
-                                    console.log('user creation failure:' + error);
-                                } else {
-                                    console.log('user creation success');
-                                }
-                            });
-                        }
-                    });
-                }
-            },
-
-            scrollToMenuSection: function(e) {
-                this.$.menulistpage.scollToSection(e.model.category.$key);
-                this.$.mainPanel.closeDrawer();
-            },
-
-            //Add item to cart
-            addToCart: function(e) {
-                var itemObj = e.detail;
-                //Call toast only from menu list
-                function toasty(t, e) {
-                    if (e.path[0].localName == 'menu-item') {
-                        t.$.toast0.show({
-                            text: '+ ' + itemObj.item.name,
-                            duration: 1300
-                        });
-                    }
-                }
-                var index = ItemIndex(this.cart.items, itemObj);
-                //Single item changes add to qty
-                if (itemObj.item.selections == null) {
-                    if (index !== false) {
-
-                        //Add to qunatity
-                        this.set(['cart.items', index, 'qty'], this.cart.items[index].qty + 1);
-                    } else {
-                        //add new item
-                        var newItem = {
-                            item: itemObj.item,
-                            qty: 1
-                        };
-                        this.push('cart.items', newItem);
-                    }
-                    toasty(this, e);
-                    //Selecton item changes add to qty if selections same
+      _userchange: function(user) {
+        //CREATE USER PROFILE IF NON EXISTS check if logged in
+        if (this.user && !this.user.isAnonymous) {
+          console.log('create profile', this.user);
+          var profileEl = this.$.fbUserProfile;
+          profileEl.ref.once('value').then(function(snapshot) {
+            //if no profile exists
+            if (!snapshot.val()) {
+              //create profile data obj
+              var userProfile = {
+                email: user.email,
+                provider: user.providerData[0].providerId
+              };
+              //create profile
+              profileEl.ref.set(userProfile, function(error) {
+                if (error) {
+                  console.log('user creation failure:' + error);
                 } else {
-                    if (index !== false) {
-                        this.set(['cart.items', index, 'qty'], this.cart.items[index].qty + 1);
-                    } else {
-                        var newItemS = {
-                            item: itemObj.item,
-                            qty: 1,
-                            selections: e.detail.selections
-                        };
-                        this.push('cart.items', newItemS);
-                    }
-                    toasty(this, e);
+                  console.log('user creation success');
                 }
-                this._updateCartCookie();
-            },
+              });
+            }
+          });
+        }
+      },
 
-            plusFromCart: function(e) {
-                this.set(['cart.items', e.detail.index, 'qty'], e.detail.item.qty + 1);
-                this._updateCartCookie();
-            },
+      _edgeSwipeDisable: function(sidebarQuery, page) {
+        if (page != 'menu' || sidebarQuery) {
+          return true;
+        }
+        return false;
+      },
 
-            minusFromCart: function(e) {
-                this.set(['cart.items', e.detail.index, 'qty'], e.detail.item.qty - 1);
-                this._updateCartCookie();
+      scrollToMenuSection: function(e) {
+        var yPos;
+        if (e.model) {
+          yPos = this.$.menulistpage.getCategoryYPos(e.model.category.$key);
+        } else {
+          yPos = this.$.menulistpage.getCategoryYPos(e.detail);
+        }
+        this.$.mainScrollPanel.scroll(yPos - 50, true);
+        this.$.mainPanel.closeDrawer();
+      },
 
-                if (e.detail.item.qty === 0) {
-                    this.deleteFromCart(e);
-                }
-            },
+      _panelResized: function(e) {
+        // if (this.itemList) {
+        if (this.page === 'menu') {
+          this.$.menulistpage.debounceRecalculateHeight();
+        }
+      },
 
-            deleteFromCart: function(e) {
-                this.splice('cart.items', e.detail.index, 1);
-                this._updateCartCookie();
-            },
+      _currencyFilter: function(price) {
+        if (price === 0) {
+          return '£0.00';
+        } else if (price < 100) {
+          return price + 'p';
+        } else {
+          return '£' + (price / 100).toFixed(2);
+        }
+      },
 
-            //Syncs the 'cart' cookie with this.cart
-            loadCartFromCookie: function(itemArray) {
-                var cartdata = getCartCookieJSON();
-                var newCart = {
-                    items: []
-                };
-
-                for (x = 0; x < cartdata.items.length; x++) {
-
-                    var found = itemArray.filter(
-                        function(data) {
-                            return data.$key == cartdata.items[x].id;
-                        }
-                    );
-
-                    if (found.length) {
-                        var itemdata = {
-                            item: found[0],
-                            qty: cartdata.items[x].qty
-                        };
-                        //add selection data if any
-                        if (cartdata.items[x].selections !== null) {
-                            itemdata.selections = cartdata.items[x].selections;
-                        }
-                        newCart.items.push(itemdata);
-                    }
-                }
-                this.cart = newCart;
-            },
-
-            //Updates 'cart' cookie and the badge to sync with this.Cart
-            _updateCartCookie: function() {
-
-                var list = {
-                    items: []
-                };
-                var cartBadge = 0;
-                for (i = 0; i < this.cart.items.length; i++) {
-                    //check for selections
-                    if (this.cart.items[i].selections === null) {
-                        //single items
-                        list.items.push({
-                            id: this.cart.items[i].item.$key,
-                            qty: this.cart.items[i].qty
-                        });
-                    } else {
-                        //selection items
-                        list.items.push({
-                            id: this.cart.items[i].item.$key,
-                            qty: this.cart.items[i].qty,
-                            selections: this.cart.items[i].selections
-
-                        });
-                    }
-                    cartBadge += this.cart.items[i].qty;
-
-                }
-                this.cartBadge = cartBadge;
-                setCartCookieJSON(list);
-            },
-
-            //Casts items nodes in to array and loads the cart from cookie
-            _cartItemListChanged: function(fbObject) {
-                if (Object.getOwnPropertyNames(fbObject).length !== 0) {
-                    var key;
-                    var itemArray = [];
-                    for (key in fbObject) {
-                        fbObject[key].$key = key;
-                        itemArray.push(fbObject[key]);
-                    }
-                    this.loadCartFromCookie(itemArray);
-                }
-            },
-
+      ready: function() {
+        //when the firebase-auth element tries to log in on startup
+        var auth = this.$.auth.auth;
+        //observer function triggered when the state of authentication changes on page init fired when auth element attempts to auto login
+        auth.onAuthStateChanged(function(user) {
+          //if user has no json token for login
+          if (!user) {
+            //create anon login
+            auth.signInAnonymously().catch(function(error) {
+              // Handle Errors here.
+              var errorCode = error.code;
+              var errorMessage = error.message;
+              if (errorCode === 'auth/operation-not-allowed') {
+                alert('You must enable Anonymous auth in the Firebase Console.');
+              } else {
+                console.error(error);
+              }
+            });
+          }
         });
-
-        function ItemIndex(items, itemObj) {
-            //loop through cart items
-
-            if (itemObj.selections) {
-                //selections
-                for (x = 0; x < items.length; x++) {
-                    if (items[x].item.$key == itemObj.item.$key) {
-                        if (JSON.stringify(items[x].selections) === JSON.stringify(itemObj.selections)) {
-                            return x;
-                        }
-                    }
-                }
-                return false;
-            } else {
-                //single items
-                for (x = 0; x < items.length; x++) {
-                    if (items[x].item.$key == itemObj.item.$key) {
-                        return x;
-                    }
-                }
-                return false;
-            }
-
-
-        }
-
-        //Sets 'cart' cookie to arg:data
-        function setCartCookieJSON(data) {
-            var now = new Date();
-            //Expires in 12 hours
-            now.setTime(now.getTime() + 12 * 3600 * 1000);
-            document.cookie = 'cart=' + JSON.stringify(data) + '; expires=' + now.toUTCString() + '; path=/';
-        }
-
-        //Gets the JSON data from 'cart' Cookie or empty cart object
-        function getCartCookieJSON() {
-            var oldCartData = getCookie('cart');
-            var newCart;
-            if (!oldCartData) {
-                newCart = {
-                    items: []
-                };
-            } else {
-                newCart = JSON.parse(oldCartData);
-            }
-            return newCart;
-        }
-
-        //Simple get values for cookie, arg:cookie key
-        function getCookie(cname) {
-            var name = cname + "=";
-            var ca = document.cookie.split(';');
-            for (var i = 0; i < ca.length; i++) {
-                var c = ca[i];
-                while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                }
-                if (c.indexOf(name) === 0) {
-                    return c.substring(name.length, c.length);
-                }
-            }
-            return "";
-        }
-
-        function isEmpty(obj) {
-            for (var prop in obj) {
-                if (obj.hasOwnProperty(prop))
-                    return false;
-            }
-            return true && JSON.stringify(obj) === JSON.stringify({});
-        }
-    </script>
+      }
+    });
+  </script>
 </dom-module>

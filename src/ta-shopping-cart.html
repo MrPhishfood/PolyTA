@@ -1,284 +1,120 @@
-
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<link rel="import" href="../bower_components/paper-ripple/paper-ripple.html">
-<link rel="import" href="../bower_components/paper-card/paper-card.html">
-<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/iron-media-query/iron-media-query.html">
+
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+
+<link rel="import" href="ta-cart.html">
+<link rel="import" href="cart/my-cart-item.html">
+<link rel="import" href="cart/my-cart-table/my-cart-table.html">
+<link rel="import" href="filters/filter-currency.html">
 
 <dom-module id="ta-shopping-cart">
-    <template>
-        <style>
-            :host {
-                display: block;
-                padding: 16px;
-                background-color: #eceff1;
-                --paper-card: {
-                    width: 100%;
-                    margin: 0px 0px 15px 0px;
-                    background-color: var(--paper-grey-100);
-                };
-                --paper-card-content: {
-                    padding: 7px;
-                };
-            }
+  <template>
+    <style>
+       :host {
+        --ta-shopping-cart-padding: 16px;
+        max-width: 1280px;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        padding: calc(var(--ta-shopping-cart-padding)/2);
+      }
 
-            #checkout {
-                padding: 10px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                background: var(--paper-amber-500);
-            }
+      my-cart-item {
+        margin-bottom: calc(var(--ta-shopping-cart-padding)/2);
+      }
 
-            #gocheckout {
-                font-size: 15px;
-            }
+      #checkout {
+        display: block;
+        color: #fff;
+        background: var(--paper-red-500);
+        box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.14), 0 1px 8px 0 rgba(0, 0, 0, 0.12), 0 3px 3px -2px rgba(0, 0, 0, 0.4);
+        border-radius: 3px;
+        line-height: 1.5;
+      }
 
-            #total {
-                font-size: 24px;
-            }
+      #checkout[hidden],
+      my-cart-table[hidden] {
+        display: none;
+        pointer-events: none;
+      }
 
-            .details {
-                display: flex;
-            }
+      #gocheckout,
+      #total {
+        text-align: center;
+      }
 
-            .qty {
-                white-space: nowrap;
-                padding-right: 8px;
-                font-size: 19px;
-            }
+      #gocheckout {
+        font-size: 18px;
+        padding: 13px;
+      }
 
-            .name {
-                flex: 99;
-                font-size: 17px;
-            }
+      #total {
+        font-size: 20px;
+        padding: 0px 13px 13px 13px;
+      }
 
-            .subtotal {
-                white-space: nowrap;
-                font-size: 19px;
-                padding-left: 8px;
-            }
+      #empty {
+        text-align: center;
+        font-size: 24px;
+        font-weight: normal;
+      }
 
-            .selections {
-                display: flex;
-                flex-direction: column;
-            }
+      @media all and (max-width: 600px) {
+        #cartTable {
+          display: none;
+        }
+      }
 
-            .selection {
-                display: flex;
-                align-items: baseline;
-            }
+      @media all and (min-width: 601px) {
+        my-cart-item,
+        #checkout {
+          display: none;
+        }
+      }
+    </style>
+    <firebase-auth id="auth" user="{{user}}"></firebase-auth>
+    <firebase-query id="cart" path="/cart/pending/[[user.uid]]" data="{{cart}}"></firebase-query>
 
-            .selection-name {
-                font-size: 15px;
-                white-space: nowrap;
-            }
+    <ta-cart total="{{cartTotal}}"></ta-cart>
 
-            .subitem-names {
-                margin-bottom: 3px;
-                display: flex;
-                flex-wrap: wrap;
-            }
+    <filter-currency id="filterCurrency" zero-value="£0.00"></filter-currency>
 
-            .subitem-name {
-                font-size: 14px;
-                white-space: nowrap;
-            }
+    <iron-media-query query="min-width: 600px" query-matches="{{largeScreen}}"></iron-media-query>
 
-            .remove {
-                font-size: 13px;
-                text-transform: lowercase;
-                background: var(--paper-blue-grey-100);
-                padding: 0.3em 0.3em;
-                height: 28px;
-                padding-left: 5px;
-                padding-right: 5px;
-                margin: 0px;
-            }
+    <h2 id="empty" hidden="[[cartTotal]]">cart is empty</h2>
 
-            .remove iron-icon {
-                height: 18px;
-                width: 18px;
-            }
-
-            .controls {
-                display: flex;
-                flex-direction: row;
-            }
-
-            .spacer {
-                width: 10px;
-                flex-grow: 99;
-            }
-
-            paper-fab[mini] {
-                width: 28px;
-                height: 28px;
-                @apply(--shadow-none);
-            }
-
-            paper-fab.subtract {
-                margin-right: 5px;
-                --paper-fab-background: var(--paper-amber-400);
-                --paper-fab-keyboard-focus-background: var(--paper-amber-400);
-            }
-
-            paper-fab.add {
-                --paper-fab-background: var(--paper-amber-400);
-                --paper-fab-keyboard-focus-background: var(--paper-amber-400);
-            }
-        </style>
-
-        <paper-card>
-            <div id="checkout" class="card-content" on-tap="_checkoutTap">
-                <paper-ripple></paper-ripple>
-                <div id="gocheckout">Proceed to Checkout</div>
-                <div id="total">Total: {{_total(cart.*)}}</div>
-            </div>
-        </paper-card>
-
-        <template id="cartrepeater" is="dom-repeat" items="{{cart.items}}">
-            <paper-card>
-                <div class="card-content">
-                    <div class="details">
-                        <div class="qty">{{item.qty}}x</div>
-                        <div class="name"> {{item.item.name}}</div>
-                        <div class="subtotal">{{_subtotal(item,item.qty)}}</div>
-                    </div>
-                    <template is="dom-if" if="{{_hasSelections(item.selections)}}">
-                        <div class="selections">
-                            <template is="dom-repeat" items="{{item.selections}}" as="selection">
-                                <div class="selection">
-                                    <div class="selection-name">{{_getSelectionName(item,selection.id)}}:&nbsp;</div>
-                                    <div class="subitem-names">
-                                        <template is="dom-repeat" items="{{selection.subitems}}" as="subitem">
-                                            <div class="subitem-name">{{_getSubitemName(item,selection.id,subitem.id)}}</div>
-                                            <template is="dom-if" if="{{!_isLastSubitem(selection,subitem.id)}}">,&nbsp</template>
-                                        </template>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-                    </template>
-                    <div class="controls">
-
-                        <paper-fab id="-fab-remove-{{item.item.id}}-{{index}}" class="subtract" mini icon="icons:remove" on-tap="_cartRemove"></paper-fab>
-                        <paper-fab id="-fab-add-{{item.item.id}}-{{index}}" class="add" mini icon="icons:add" on-tap="_cartAdd"></paper-fab>
-
-                        <div class="spacer"></div>
-                        <paper-button class="remove" on-tap="_cartDelete">
-                            <iron-icon icon="icons:clear"></iron-icon>remove</paper-button>
-                    </div>
-                </div>
-            </paper-card>
-        </template>
-
+    <!-- <template is="dom-if" if="[[!largeScreen]]"> -->
+    <template id="cartrepeater" is="dom-repeat" items="[[cart]]">
+      <my-cart-item item-key="[[item.$key]]"></my-cart-item>
     </template>
-    <script>
-        Polymer({
 
-            is: 'ta-shopping-cart',
+    <div id="checkout" class="card-content" on-tap="_checkoutTap" hidden="[[!cartTotal]]">
+      <div id="gocheckout">Checkout - Total: [[_priceFilter(cartTotal)]]</div>
+    </div>
+    <!-- </template> -->
 
-            properties: {
-                cart: {
-                    type: Object,
-                },
-            },
+    <my-cart-table id="cartTable" hidden="[[!cartTotal]]"></my-cart-table>
 
-            _checkoutTap: function () {
-                this.fire('checkout-tapped');
-            },
 
-            _cartAdd: function(e) {
-                this.fire('cart-plus', {
-                    item: e.model.item,
-                    index: e.model.index
-                });
-            },
+  </template>
+  <script>
+    Polymer({
 
-            _cartRemove: function(e) {
-                this.fire('cart-minus', {
-                    item: e.model.item,
-                    index: e.model.index
-                });
-            },
+      is: 'ta-shopping-cart',
 
-            _cartDelete: function(e) {
-                this.fire('cart-deleted', {
-                    index: e.model.index
-                });
-            },
+      properties: {
 
-            _subtotal: function(item, qty, noFilter) {
-                var subtotal = 0;
-                if (!item.selections) {
-                    subtotal = (item.qty * item.item.price);
-                } else {
-                    var selectionPrice = 0;
-                    for (var a = 0; a < item.selections.length; a++) {
-                        var sel = item.selections[a].id;
-                        for (var b = 0; b < item.selections[a].subitems.length; b++) {
-                            var sub = item.selections[a].subitems[b].id;
-                            selectionPrice += item.item.selections[sel].subitems[sub].price;
-                        }
-                    }
-                    subtotal = (item.item.price + selectionPrice) * item.qty;
-                }
-                if (noFilter) {
-                    return subtotal;
-                }
+      },
 
-                return this._currencyFilter(subtotal);
+      _checkoutTap: function() {
+        this.fire('checkout-tapped');
+      },
 
-            },
-
-            _total: function(cart) {
-                var total = 0;
-                for (var i = 0; i < cart.base.items.length; i++) {
-                    total += this._subtotal(cart.base.items[i], null, true);
-                }
-                return this._currencyFilter(total);
-            },
-
-            _hasSelections: function(selections) {
-                return (typeof selections !== 'undefined');
-            },
-
-            _hasSubitems: function(item) {
-                console.log(item);
-            },
-
-            _getSelectionName: function(item, selectionKey) {
-                //console.log(item.item.selections[selectionKey].name);
-                return item.item.selections[selectionKey].name;
-            },
-
-            _getSubitemName: function(item, selectionKey, subitemKey) {
-                return item.item.selections[selectionKey].subitems[subitemKey].name;
-            },
-
-            _isLastSubitem: function(selection, subitemKey) {
-                length = selection.subitems.length;
-                for (var i = 0; i < length; i++) {
-                    if (subitemKey == selection.subitems[length - 1].id) {
-                        return true;
-                    }
-                }
-                return false;
-            },
-
-            _currencyFilter: function(price) {
-                if (price === 0) {
-                    return 'free';
-                } else if (price < 1) {
-                    return (price * 100) + 'p';
-                } else {
-                    return '£' + price.toFixed(2);
-                }
-            }
-
-        });
-    </script>
+      _priceFilter: function(price) {
+        return this.$.filterCurrency.filter(price);
+      },
+    });
+  </script>
 </dom-module>

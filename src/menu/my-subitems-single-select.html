@@ -1,0 +1,170 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-query.html">
+
+<link rel="import" href="paper-radio-group-custom.html">
+<link rel="import" href="paper-radio-button-custom.html">
+
+<dom-module id="my-subitems-single-select">
+  <template>
+    <style>
+       :host {
+        --my-subitems-single-select-padding: 8px;
+        --my-subitems-single-select-font-size: 14px;
+      }
+
+      .subitem {
+        display: flex;
+        align-items: center;
+        padding: var(--my-subitems-single-select-padding) 0;
+      }
+
+      .subitem ::content {
+        display: flex;
+        flex-wrap: nowrap;
+      }
+
+      .subitem-name {
+        flex-grow: 99;
+      }
+
+      .subitem[checked] .subitem-name,
+      .subitem[checked] .subitem-price {
+        font-weight: bold;
+      }
+
+      .subitem-price {
+        margin-left: calc(var(--my-subitems-single-select-padding)*2);
+        white-space: nowrap;
+      }
+
+      .subitem-name,
+      .subitem-price {
+        display: block;
+        font-size: var(--my-subitems-single-select-font-size);
+      }
+    </style>
+
+    <firebase-document path="/menu/items/{{itemKey}}/selections/[[selectionKey]]" data="{{selection}}"></firebase-document>
+    <firebase-query path="/menu/items/{{itemKey}}/selections/[[selectionKey]]/subitems" data="{{subitemList}}"></firebase-query>
+
+    <!--Subitems-->
+    <paper-radio-group-custom selected="[[selection.default]]" attr-for-selected="id" allow-empty-selection="[[_isOptional(selection.min)]]">
+      <template is="dom-repeat" items="[[subitemList]]" as="subitem" sort="_sort" observe="order">
+        <paper-radio-button-custom class="subitem" id="[[subitem.$key]]">
+          <div class="subitem-name">[[subitem.name]]</div>
+          <div class="subitem-price">[[_currencyFilterSubitem(subitem.price)]]</div>
+        </paper-radio-button-custom>
+      </template>
+    </paper-radio-group-custom>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'my-subitems-single-select',
+
+      properties: {
+        //item key for firebase path
+        itemKey: {
+          type: String,
+        },
+
+        selectionKey: {
+          type: String,
+        },
+
+        selected: {
+          type: Array,
+          readOnly: true,
+          observer: '_setValid'
+        },
+
+        selectionValid: {
+          type: Boolean,
+          notify: true,
+          readOnly: true
+        }
+
+      },
+
+      //check the checkbox states when iron-change event detected
+      listeners: {
+        'iron-change': '_checkChanged',
+      },
+
+      //recheck state of checkboxes if the selection parameters change
+      observers: [
+        '_checkChanged(selection.min,selection.max,subitemList.splices)',
+      ],
+
+      //function called when a checkbox changes state
+      //counts the number of boxes checked to determine whether to
+      //enable/disable other checkboxes if limit reached.
+      //creates a JSON object of all selected subitems to add in to cart
+      _checkChanged: function() {
+        var cboxes = Polymer.dom(this.root).querySelectorAll('.subitem');
+
+        //check how many boxes checked
+        var selected = {};
+        var subitems = {};
+        for (var i in cboxes) {
+          if (cboxes[i].checked) {
+            subitems[cboxes[i].id] = true;
+          }
+        }
+        if (Object.keys(subitems).length !== 0) {
+          selected[this.selectionKey] = subitems;
+        }
+        this._setSelected(selected);
+      },
+
+      //if the number of selected subitems is >= the min
+      //then set selectionValid to true (private setter) else false
+      //fire off event for my-item-selections to recheck selection validation
+      _setValid: function() {
+        var subitemLength = 0;
+        if (Object.keys(this.selected).length) {
+          //gets the number of properties in the first property of this.selected
+          subitemLength = Object.keys(this.selected[Object.keys(this.selected)[0]]).length;
+        }
+        if (subitemLength >= this.selection.min) {
+          this._setSelectionValid(true);
+        } else {
+          this._setSelectionValid(false);
+        }
+        this.fire('selection-valid-update');
+      },
+
+      //converts GBP in its lowest demonination (300 pence)
+      //to its standard representation (£3.00) and anything
+      //lower than 100 pence is suffixed with 'p'
+      //example: 50p
+      _currencyFilterSubitem: function(price) {
+        if (price === 0) {
+          return '';
+        } else if (price < 100) {
+          return '+ ' + price + 'p';
+        } else {
+          return '+ £' + (price / 100).toFixed(2);
+        }
+      },
+
+      //sorting function used to sort subitems based on the
+      //order property
+      _sort: function(a, b) {
+        if (a.order === b.order) {
+          return 0;
+        }
+        return a.order < b.order ? -1 : 1;
+      },
+
+      //returns true if the radio button is optional
+      _isOptional: function(min) {
+        return min === 0 ? true : false;
+      },
+    });
+  </script>
+</dom-module>

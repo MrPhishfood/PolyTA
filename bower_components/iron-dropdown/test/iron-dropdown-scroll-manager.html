@@ -112,7 +112,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             events = scrollEvents.map(function(scrollEvent) {
               var event = new CustomEvent(scrollEvent, {
                 bubbles: true,
-                cancelable: true
+                cancelable: true,
+                composed: true
               });
               event.deltaX = 0;
               event.deltaY = 10;
@@ -123,7 +124,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           test('prevents wheel events from locked elements', function() {
             events.forEach(function(event) {
               childTwo.dispatchEvent(event);
-              expect(event.defaultPrevented).to.be.eql(true);
+              assert.isTrue(event.defaultPrevented, event.type + ' ok');
             });
           });
 
@@ -131,33 +132,35 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             Polymer.IronDropdownScrollManager.removeScrollLock(childOne);
             events.forEach(function(event) {
               childTwo.dispatchEvent(event);
-              expect(event.defaultPrevented).to.be.eql(false);
+              assert.isFalse(event.defaultPrevented, event.type + ' ok');
             });
           });
 
           test('allows wheel events from unlocked elements', function() {
             events.forEach(function(event) {
               childOne.dispatchEvent(event);
-              expect(event.defaultPrevented).to.be.eql(false);
+              assert.isFalse(event.defaultPrevented, event.type + ' ok');
             });
           });
 
           test('touchstart is prevented if dispatched by an element outside the locking element', function() {
             var event = new CustomEvent('touchstart', {
               bubbles: true,
-              cancelable: true
+              cancelable: true,
+              composed: true
             });
             childTwo.dispatchEvent(event);
-            expect(event.defaultPrevented).to.be.eql(true);
+            assert.isTrue(event.defaultPrevented, event.type + ' ok');
           });
 
           test('touchstart is not prevented if dispatched by an element inside the locking element', function() {
             var event = new CustomEvent('touchstart', {
               bubbles: true,
-              cancelable: true
+              cancelable: true,
+              composed: true
             });
             grandChildOne.dispatchEvent(event);
-            expect(event.defaultPrevented).to.be.eql(false);
+            assert.isFalse(event.defaultPrevented, event.type + ' ok');
           });
 
           test('arrow keyboard events not prevented by manager', function() {
@@ -173,10 +176,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             grandChildOne.dispatchEvent(up);
             grandChildOne.dispatchEvent(right);
             grandChildOne.dispatchEvent(down);
-            expect(left.defaultPrevented).to.be.eql(false);
-            expect(up.defaultPrevented).to.be.eql(false);
-            expect(right.defaultPrevented).to.be.eql(false);
-            expect(down.defaultPrevented).to.be.eql(false);
+            assert.isFalse(left.defaultPrevented, 'left ok');
+            assert.isFalse(up.defaultPrevented, 'up ok');
+            assert.isFalse(right.defaultPrevented, 'right ok');
+            assert.isFalse(down.defaultPrevented, 'down ok');
           });
         });
       });

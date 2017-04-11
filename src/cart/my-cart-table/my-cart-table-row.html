@@ -1,0 +1,267 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../bower_components/iron-collapse/iron-collapse.html">
+
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+
+<link rel="import" href="../../../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../../../bower_components/polymerfire/firebase-document.html">
+
+<link rel="import" href="../../filters/filter-currency.html">
+
+<link rel="import" href="../../custom-icons.html">
+
+<dom-module id="my-cart-table-row">
+  <template>
+    <style>
+       :host {
+        display: flex;
+        font-size: 13px;
+        color: var(--paper-grey-900);
+        padding: 14px 24px;
+        min-height: 48px;
+        box-sizing: border-box;
+        align-items: center;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+      }
+
+      .data:not(:first-of-type) {
+        margin-left: 56px;
+      }
+
+      .data:nth-of-type(2),
+      .data:nth-of-type(3) {
+        margin-left: 24px;
+      }
+
+      .data,
+      #itemName {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      #selections {
+        white-space: normal;
+      }
+
+      #removeItem {
+        color: var(--paper-red-500);
+      }
+
+      #name {
+        flex-grow: 99;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #itemName {}
+
+      #selections {
+        color: var(--paper-grey-700);
+        font-size: 12px;
+      }
+
+      #note {
+        flex-shrink: 0;
+        width: 20%;
+      }
+
+      #noteButton {
+        text-transform: none;
+        justify-content: flex-start;
+        width: 96%;
+      }
+
+      #noteButton span {
+        white-space: normal;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      #qty {
+        flex-shrink: 0;
+        width: 105px;
+        text-align: center;
+      }
+
+      #minusItem,
+      #addItem {
+        color: var(--paper-green-500);
+      }
+
+      #price {
+        flex-shrink: 0;
+        width: 50px;
+        text-align: right;
+      }
+
+      #clear {
+        flex-shrink: 0;
+        width: 40px;
+      }
+
+      #noteTextBox {
+        margin-bottom: 12px;
+      }
+
+      #noteDialog {
+        margin: 0px;
+        width: 280px;
+        max-height: none !important;
+      }
+    </style>
+
+    <firebase-auth id="auth" user="{{user}}"></firebase-auth>
+    <firebase-document id="cartRef" path="/cart/pending/[[user.uid]]/[[itemKey]]" data="{{cartItem}}"></firebase-document>
+    <firebase-document id="itemRef" path="/menu/items/[[cartItem.item]]" data="{{menuItem}}"></firebase-document>
+
+    <filter-currency id="filterCurrency" zero-value="free"></filter-currency>
+
+    <div class="data" id="clear">
+      <paper-icon-button id="removeItem" icon="custom-icons:highlight-off" on-tap="_removeItem"></paper-icon-button>
+    </div>
+    <div class="data" id="name">
+      <div id="itemName">[[menuItem.name]]</div>
+      <div id="selections">[[_computeSelectionText(cartItem,menuItem)]]</div>
+    </div>
+    <div class="data" id="note">
+      <paper-button id="noteButton" on-tap="_openNoteDialog"><span>[[_buttonText(cartItem.note)]]</span></paper-button>
+    </div>
+    <div class="data" id="qty">
+      <paper-icon-button id="minusItem" icon="custom-icons:remove-circle-outline" on-tap="_subQty"></paper-icon-button>
+      [[cartItem.qty]]
+      <paper-icon-button id="addItem" icon="custom-icons:add-circle-outline" on-tap="_addQty"></paper-icon-button>
+    </div>
+    <div class="data" id="price">[[subtotal]]</div>
+
+    <paper-dialog id="noteDialog" no-overlap horizontal-align="left" vertical-align="top">
+      <h2>Add a note</h2>
+      <paper-textarea id="noteTextBox" label="Note" no-label-float char-counter maxlength="100" tabindex="0" type="text"></paper-textarea>
+      <div class="buttons">
+        <paper-button noink on-tap="_removeNote">remove</paper-button>
+        <paper-button noink on-tap="_saveNote">save</paper-button>
+      </div>
+    </paper-dialog>
+
+
+  </template>
+  <script>
+    Polymer({
+      is: 'my-cart-table-row',
+
+      properties: {
+
+        itemKey: {
+          type: String
+        },
+
+        subtotal: {
+          type: Number,
+          computed: '_computeSubtotal(cartItem,menuItem)'
+        },
+
+      },
+
+      _saveNote: function() {
+        this.set('cartItem.note', this.$.noteTextBox.value);
+        this.$.noteDialog.close();
+      },
+
+      _removeNote: function() {
+        this.set('cartItem.note', null);
+        this.$.noteDialog.close();
+      },
+
+      _openNoteDialog: function(e) {
+        this.$.noteDialog.positionTarget = this.$.noteButton;
+        this.$.noteTextBox.value = this.cartItem.note;
+        this.$.noteDialog.open();
+      },
+
+      _buttonText: function(note) {
+        return !note ? 'add note' : this.cartItem.note;
+      },
+
+      //adds 1 to current qty
+      _addQty: function() {
+        this.set('cartItem.qty', this.cartItem.qty + 1);
+      },
+      //subtracts 1 from current qty or removes when 0
+      _subQty: function() {
+        var newQty = this.cartItem.qty - 1;
+        if (newQty === 0) {
+          this._removeItem();
+        } else {
+          this.set('cartItem.qty', newQty);
+        }
+      },
+      //removes the cart firebase ref, thereby deleting this element
+      _removeItem: function() {
+        this.$.cartRef.destroy();
+      },
+
+      _computeSubtotal: function(item, data) {
+        var subtotal = 0;
+        if (!Object.keys(item).length || !Object.keys(data).length) {
+          return subtotal;
+        }
+
+        //add item base price to subtotal
+        subtotal = item.qty * data.price;
+        //if cart item HAS selection
+        if (item.selections) {
+          //loop through cart selection-list for each selection
+          for (let a in item.selections) {
+            //loop through each subitem in selection
+            for (let b in item.selections[a]) {
+              //add subitem to subtotal
+              subtotal += data.selections[a].subitems[b].price * item.qty;
+            }
+          }
+        }
+        return this.$.filterCurrency.filter(subtotal);
+      },
+
+      //returns the list of subitems selected seperated by comma
+      //returns in the right order based on the order of selections and subitems
+      _computeSelectionText: function(cItem, mItem) {
+        var selectText = '';
+        //return nothing if firebase data not populated
+        if (!Object.keys(cItem).length || !Object.keys(mItem).length) {
+          return selectText;
+        }
+        //put selections used in cart item in to sorted array based on order attr
+        var selections = arraySort(cItem, mItem, 'selections', 'selections', 'order');
+        //loop through selections in correct order
+        for (let a = 0; a < selections.length; a++) {
+          //put subitems used in cart item selection in to sorted array based on order attr
+          var subitems = arraySort(cItem.selections[selections[a].$key], selections[a], '', 'subitems', 'order');
+          //loop through subitems in correct order and add to selectText
+          for (let c = 0; c < subitems.length; c++) {
+            selectText += subitems[c].name + ', ';
+          }
+        }
+        return selectText.substring(0, selectText.length - 2);
+
+        function arraySort(cObj, mObj, cProp, mProp, order) {
+          var arr = [];
+          cObj = cProp ? cObj[cProp] : cObj;
+          for (let a in cObj) {
+            mObj[mProp][a].$key = a;
+            arr.push(mObj[mProp][a]);
+          }
+          arr.sort(function(a, b) {
+            return a[order] - b[order];
+          });
+          return arr;
+        }
+      },
+
+    });
+  </script>
+</dom-module>

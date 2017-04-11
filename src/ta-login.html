@@ -1,5 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../bower_components/polymerfire/polymerfire.html">
+
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-button\paper-button.html">
@@ -9,6 +11,11 @@
         <style>
             :host {
                 display: flex;
+
+                max-width: 1440px;
+                margin-left: auto;
+                margin-right: auto;
+
                 justify-content: center;
                 flex-direction: column;
                 padding: 15px;
@@ -46,19 +53,22 @@
             h1 {}
         </style>
 
+        <firebase-auth id="auth" user="{{user}}" on-error="handleError"></firebase-auth>
+
         <!-- logged in -->
-        <template is="dom-if" if="{{user}}">
+        <template is="dom-if" if="[[!user.isAnonymous]]">
             <paper-button raised on-tap="_logout">Log Out</paper-button>
         </template>
 
         <!-- not logged in -->
-        <template is="dom-if" if="{{!user}}">
+        <template is="dom-if" if="[[user.isAnonymous]]">
             <h1>Login</h1>
 
             <paper-button id="google" raised on-tap="_googleSignInTap">
                 <img class="social-icon" src="../images/google-g-icon.svg" /> Sign in with Google</paper-button>
 
             <paper-button id="facebook" raised on-tap="_facebookSignInTap"><img class="social-icon" src="../images/facebook-f-icon-white.svg" />Sign in with Facebook</paper-button>
+
         </template>
 
     </template>

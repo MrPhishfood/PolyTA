@@ -1,0 +1,190 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-query.html">
+
+
+<link rel="import" href="paper-checkbox-custom.html">
+
+<dom-module id="my-subitems-multi-select">
+  <template>
+    <style>
+       :host {
+        --my-subitems-multi-select-padding: 8px;
+        --my-subitems-multi-select-font-size: 14px;
+      }
+
+      .subitem {
+        display: flex;
+        align-items: center;
+        padding: var(--my-subitems-multi-select-padding) 0;
+      }
+
+      .subitem ::content {
+        display: flex;
+        flex-wrap: nowrap;
+      }
+
+      .subitem-name {
+        flex-grow: 99;
+      }
+
+      .subitem[checked] .subitem-name,
+      .subitem[checked] .subitem-price {
+        font-weight: bold;
+      }
+
+      .subitem-price {
+        margin-left: calc(var(--my-subitems-multi-select-padding)*2);
+        white-space: nowrap;
+      }
+
+      .subitem-name,
+      .subitem-price {
+        display: block;
+        font-size: var(--my-subitems-multi-select-font-size);
+      }
+    </style>
+
+    <firebase-document path="/menu/items/{{itemKey}}/selections/[[selectionKey]]" data="{{selection}}"></firebase-document>
+    <firebase-query path="/menu/items/{{itemKey}}/selections/[[selectionKey]]/subitems" data="{{subitemList}}"></firebase-query>
+
+    <!--Subitems-->
+    <template is="dom-repeat" items="[[subitemList]]" as="subitem" sort="_sort" observe="order">
+      <paper-checkbox-custom class="subitem" id="[[subitem.$key]]">
+        <div class="subitem-name">[[subitem.name]]</div>
+        <div class="subitem-price">[[_currencyFilterSubitem(subitem.price)]]</div>
+      </paper-checkbox-custom>
+    </template>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'my-subitems-multi-select',
+
+      properties: {
+        //item key for firebase path
+        itemKey: {
+          type: String,
+        },
+
+        selectionKey: {
+          type: String
+        },
+
+        selected: {
+          type: Object,
+          readOnly: true,
+          observer: '_setValid'
+        },
+
+        selectionValid: {
+          type: Boolean,
+          notify: true,
+          readOnly: true
+        }
+
+      },
+
+      //check the checkbox states when iron-change event detected
+      listeners: {
+        'iron-change': '_checkChanged',
+      },
+
+      //recheck state of checkboxes if the selection parameters change
+      observers: [
+        '_checkChanged(subitemList.splices,selection.min,selection.max)'
+      ],
+
+      //function called when a checkbox changes state
+      //counts the number of boxes checked to determine whether to
+      //enable/disable other checkboxes if limit reached.
+      //creates a JSON object of all selected subitems to add in to cart
+      _checkChanged: function() {
+        var cboxes = Polymer.dom(this.root).querySelectorAll('.subitem');
+        //check how many boxes checked
+        var selected = {};
+        var subitems = {};
+        var chkCount = 0;
+        for (var i in cboxes) {
+          if (cboxes[i].checked) {
+            chkCount++;
+            subitems[cboxes[i].id] = true;
+          }
+        }
+        if (Object.keys(subitems).length !== 0) {
+          selected[this.selectionKey] = subitems;
+        }
+        this._setSelected(selected);
+
+        //If somehow the number of checked boxes exceeds max then uncheck all
+        if (chkCount > this.selection.max) {
+          for (let i in cboxes) {
+            cboxes[i].checked = false;
+            cboxes[i].disabled = false;
+            this.toggleClass('disabled', false, cboxes[i]);
+          }
+        } else {
+          //disable unchecked boxes if max limit reached
+          //else enable all boxes
+          if (chkCount >= this.selection.max) {
+            for (let i in cboxes) {
+              if (!cboxes[i].checked) {
+                cboxes[i].disabled = true;
+                this.toggleClass('disabled', true, cboxes[i]);
+              }
+            }
+          } else {
+            for (let i in cboxes) {
+              cboxes[i].disabled = false;
+              this.toggleClass('disabled', false, cboxes[i]);
+            }
+          }
+        }
+      },
+
+      //if the number of selected subitems is within the min/max
+      //then set selectionValid to true (private setter) else false
+      //fire off event for my-item-selections to recheck selection validation
+      _setValid: function() {
+        var subitemLength = 0;
+        if (Object.keys(this.selected).length) {
+          //gets the number of properties in the first property of this.selected
+          subitemLength = Object.keys(this.selected[Object.keys(this.selected)[0]]).length;
+        }
+        if ((subitemLength >= this.selection.min) && (subitemLength <= this.selection.max)) {
+          this._setSelectionValid(true);
+        } else {
+          this._setSelectionValid(false);
+        }
+        this.fire('selection-valid-update');
+      },
+
+      //sorting function used to sort subitems based on the
+      //order property
+      _sort: function(a, b) {
+        if (a.order === b.order) {
+          return 0;
+        }
+        return a.order < b.order ? -1 : 1;
+      },
+
+      //converts GBP in its lowest demonination (300 pence)
+      //to its standard representation (£3.00) and anything
+      //lower than 100 pence is suffixed with 'p'
+      //example: 50p
+      _currencyFilterSubitem: function(price) {
+        if (price === 0) {
+          return '';
+        } else if (price < 100) {
+          return '+ ' + price + 'p';
+        } else {
+          return '+ £' + (price / 100).toFixed(2);
+        }
+      },
+
+    });
+  </script>
+</dom-module>

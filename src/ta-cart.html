@@ -1,0 +1,138 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymerfire/polymerfire.html">
+
+<dom-module id="ta-cart">
+  <template>
+
+    <firebase-auth id="auth" user="{{user}}"></firebase-auth>
+    <firebase-query id="cart" path="/cart/pending/[[user.uid]]" data="{{cart}}"></firebase-query>
+
+    <firebase-document id="items" path="/menu/items" data="{{itemList}}"></firebase-document>
+
+  </template>
+  <script>
+    Polymer({
+
+      is: 'ta-cart',
+
+      properties: {
+
+        count: {
+          type: Number,
+          notify: true,
+          reflectToAttribute: true,
+          computed: '_computeItemCount(cart.*)'
+        },
+
+        total: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
+          computed: '_computeTotal(itemList.*,cart.*)'
+        },
+
+      },
+
+      _computeItemCount: function() {
+        var counter = 0;
+        for (let i = 0; i < this.cart.length; i++) {
+          counter += this.cart[i].qty;
+        }
+        return counter;
+      },
+
+      _computeSubtotal: function(item) {
+        var menuItem = this.itemList[item.item];
+        var subtotal = 0;
+
+        //add item base price to subtotal
+        subtotal = item.qty * menuItem.price;
+        //if cart item HAS selection
+        if (item.selections) {
+          //loop through cart selection-list for each selection
+          for (let a in item.selections) {
+            //loop through each subitem in selection
+            for (let b in item.selections[a]) {
+              //add subitem to subtotal
+              subtotal += menuItem.selections[a].subitems[b].price * item.qty;
+            }
+          }
+        }
+        return subtotal;
+      },
+
+      _computeTotal: function() {
+        var total = 0;
+        for (let a = 0; a < this.cart.length; a++) {
+          total += this._computeSubtotal(this.cart[a]);
+        }
+        return total;
+      },
+
+      addToCart: function(e) {
+        var key;
+        var qty;
+        var match = false;
+
+        //check if item has no selections
+        if (!e.detail.selections) {
+          //match = is item already in cart?
+          for (let i = 0; i < this.cart.length; i++) {
+            if (this.cart[i].item === e.detail.item) {
+              key = this.cart[i].$key;
+              qty = this.cart[i].qty;
+              match = true;
+            }
+          }
+
+          if (match) {
+            //item already in cart, add to qty
+            qty++;
+            this.$.cart.ref.child(key + '/qty').set(qty);
+          } else {
+            //item not in cart, create new obj
+            this.$.cart.ref.push({
+              item: e.detail.item,
+              qty: 1
+            });
+          }
+
+        } else {
+          //item has selections
+          for (let i = 0; i < this.cart.length; i++) {
+            if (JSON.stringify(e.detail.selections) === JSON.stringify(this.cart[i].selections)) {
+              key = this.cart[i].$key;
+              qty = this.cart[i].qty;
+              match = true;
+              console.log('identical selection');
+            }
+          }
+
+          if (match) {
+            //item already in cart, add to qty
+            qty++;
+            this.$.cart.ref.child(key + '/qty').set(qty);
+          } else {
+            //item not in cart, create new obj
+            this.$.cart.ref.push({
+              item: e.detail.item,
+              qty: 1,
+              selections: e.detail.selections
+            });
+          }
+        }
+      },
+
+      _currencyFilter: function(price) {
+        if (price === 0) {
+          return '£0.00';
+        } else if (price < 100) {
+          return price + 'p';
+        } else {
+          return '£' + (price / 100).toFixed(2);
+        }
+      },
+
+    });
+  </script>
+</dom-module>

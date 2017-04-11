@@ -96,6 +96,9 @@
 
         <iron-ajax id="ajaxCheckout" url="http://127.0.0.1:3000/truly-asia/checkout" handle-as="json" content-type="application/json" method="POST" verbose="true" last-response="{{_ajaxCheckoutRes}}"></iron-ajax>
 
+        <firebase-auth id="auth" user="{{user}}" on-error="handleError"></firebase-auth>
+        <firebase-document path="/users/[[user.uid]]" data="{{userProfile}}"></firebase-document>
+
         <paper-dropdown-menu id="order-type-dropdown" label="I will receive my order by:" selected-item-label="{{orderType}}">
             <paper-listbox class="dropdown-content" attr-for-selected="text-content" selected="Delivery">
                 <paper-item name="Delivery">Delivery</paper-item>
@@ -179,8 +182,6 @@
             properties: {
 
                 user: Object,
-
-                userProfile: Object,
 
                 cart: Object,
 

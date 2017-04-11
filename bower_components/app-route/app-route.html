@@ -180,7 +180,9 @@ the `app-route` will update `route.path`. This in-turn will update the
        */
       __routeQueryParamsChanged: function(queryParams) {
         if (queryParams && this.tail) {
-          this.set('tail.__queryParams', queryParams);
+          if (this.tail.__queryParams != queryParams) {
+            this.set('tail.__queryParams', queryParams);
+          }
 
           if (!this.active || this._queryParamsUpdating) {
             return;
@@ -219,7 +221,7 @@ the `app-route` will update `route.path`. This in-turn will update the
        * @export
        */
       __tailQueryParamsChanged: function(queryParams) {
-        if (queryParams && this.route) {
+        if (queryParams && this.route && this.route.__queryParams != queryParams) {
           this.set('route.__queryParams', queryParams);
         }
       },
@@ -238,8 +240,6 @@ the `app-route` will update `route.path`. This in-turn will update the
       __resetProperties: function() {
         this._setActive(false);
         this._matched = null;
-        //this.tail = { path: null, prefix: null, queryParams: null };
-        //this.data = {};
       },
 
       /**
@@ -249,8 +249,10 @@ the `app-route` will update `route.path`. This in-turn will update the
         if (!this.route) {
           return;
         }
+
         var path = this.route.path;
         var pattern = this.pattern;
+
         if (!pattern) {
           return;
         }
@@ -321,7 +323,15 @@ the `app-route` will update `route.path`. This in-turn will update the
           this._dataInUrl[key] = namedMatches[key];
         }
 
-        this.__setMulti(propertyUpdates);
+        if (this.setProperties) {
+          if (!this.active) {
+            this._setActive(true);
+          }
+          // atomic update
+          this.setProperties(propertyUpdates);
+        } else {
+          this.__setMulti(propertyUpdates);
+        }
       },
 
       /**
@@ -410,7 +420,6 @@ the `app-route` will update `route.path`. This in-turn will update the
           this._pathEffector('tail', this.tail);
           this._notifyChange('tail');
         }
-
       }
     });
   })();

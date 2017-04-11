@@ -9,7 +9,7 @@ https://github.com/firebase/polymerfire/blob/master/LICENSE
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../app-storage/app-storage-behavior.html">
 <link rel="import" href="firebase-common-behavior.html">
-<link rel="import" href="firebase.html">
+<link rel="import" href="firebase-database-script.html">
 <script>
   (function() {
     'use strict';
@@ -24,7 +24,8 @@ https://github.com/firebase/polymerfire/blob/master/LICENSE
 
         ref: {
           type: Object,
-          computed: '__computeRef(db, path, disabled)'
+          computed: '__computeRef(db, path, disabled)',
+          observer: '__refChanged'
         },
 
         /**
@@ -54,10 +55,11 @@ https://github.com/firebase/polymerfire/blob/master/LICENSE
       _setFirebaseValue: function(path, value) {
         this._log('Setting Firebase value at', path, 'to', value)
         var key = value && value.$key;
+        var leaf = value && value.hasOwnProperty('$val');
         if (key) {
           value.$key = null;
         }
-        var result = this.db.ref(path).set(value);
+        var result = this.db.ref(path).set(leaf ? value.$val : value);
         if (key) {
           value.$key = key;
         }
@@ -79,10 +81,19 @@ https://github.com/firebase/polymerfire/blob/master/LICENSE
         return db.ref(path);
       },
 
+      /**
+       * Override this method if needed.
+       * e.g. to detach or attach listeners.
+       */
+      __refChanged: function(ref, oldRef){
+        return;
+      },
+
       __pathChanged: function(path, oldPath) {
-        if (oldPath != null && !this.disabled && this.__pathReady(path)) {
+        if (!this.disabled && !this.valueIsEmpty(this.data)) {
           this.syncToMemory(function() {
             this.data = this.zeroValue;
+            this.__needSetData = true;
           });
         }
       },

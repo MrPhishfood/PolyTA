@@ -1,6 +1,5 @@
 {
   "name": "iron-validator-behavior",
-  "version": "1.0.1",
   "description": "Implements a input validator",
   "authors": "The Polymer Authors",
   "keywords": [
@@ -9,9 +8,7 @@
     "iron",
     "behavior"
   ],
-  "main": [
-    "iron-validator-behavior.html"
-  ],
+  "main": "iron-validator-behavior.html",
   "private": true,
   "repository": {
     "type": "git",
@@ -21,23 +18,38 @@
   "homepage": "https://github.com/PolymerElements/iron-validator-behavior",
   "ignore": [],
   "dependencies": {
-    "iron-meta": "PolymerElements/iron-meta#^1.0.0",
-    "polymer": "Polymer/polymer#^1.0.0"
+    "iron-meta": "PolymerElements/iron-meta#2.0-preview",
+    "polymer": "Polymer/polymer#^2.0.0-rc.1"
   },
   "devDependencies": {
-    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
-    "paper-styles": "PolymerElements/paper-styles#^1.0.0",
-    "test-fixture": "PolymerElements/test-fixture#^1.0.0",
-    "web-component-tester": "*",
-    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#2.0-preview",
+    "paper-styles": "PolymerElements/paper-styles#2.0-preview",
+    "test-fixture": "PolymerElements/test-fixture#^3.0.0-rc.1",
+    "web-component-tester": "Polymer/web-component-tester#^6.0.0-prerelease.6",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0-rc.1"
   },
-  "_release": "1.0.1",
+  "variants": {
+    "1.x": {
+      "dependencies": {
+        "iron-meta": "PolymerElements/iron-meta#^1.0.0",
+        "polymer": "Polymer/polymer#^1.1.0"
+      },
+      "devDependencies": {
+        "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+        "paper-styles": "PolymerElements/paper-styles#^1.0.4",
+        "test-fixture": "PolymerElements/test-fixture#^1.0.0",
+        "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0",
+        "web-component-tester": "Polymer/web-component-tester#^4.0.0"
+      }
+    }
+  },
+  "_release": "1391990344",
   "_resolution": {
-    "type": "version",
-    "tag": "v1.0.1",
-    "commit": "fd9c609472c0c0b64657488d1d33dfc2365dea44"
+    "type": "branch",
+    "branch": "2.0-preview",
+    "commit": "139199034429594c8032e39452ca4149a9e24b96"
   },
-  "_source": "git://github.com/PolymerElements/iron-validator-behavior.git",
-  "_target": "^1.0.0",
+  "_source": "https://github.com/PolymerElements/iron-validator-behavior.git",
+  "_target": "2.0-preview",
   "_originalSource": "PolymerElements/iron-validator-behavior"
 }

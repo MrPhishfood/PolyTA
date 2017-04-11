@@ -19,6 +19,8 @@ _[Demo and API docs](https://elements.polymer-project.org/elements/paper-scroll-
 
 ##&lt;paper-scroll-header-panel&gt;
 
+**This element has been deprecated in favor of [app-layout](https://github.com/PolymerElements/app-layout).**
+
 Material design: [Scrolling techniques](https://www.google.com/design/spec/patterns/scrolling-techniques.html)
 
 `paper-scroll-header-panel` contains a header section and a content section.  The
@@ -34,9 +36,10 @@ Using [layout classes](https://www.polymer-project.org/1.0/docs/migration.html#l
 ```html
 <body class="fullbleed layout vertical">
   <paper-scroll-header-panel class="flex">
-    <paper-toolbar>
+    <paper-toolbar slot="header">
       <div>Hello World!</div>
     </paper-toolbar>
+    <div slot="content">Content goes here...</div>
   </paper-scroll-header-panel>
 </body>
 ```
@@ -66,8 +69,8 @@ Note: If the class `paper-header` is used, the header must be positioned relativ
 
 ```html
 <paper-scroll-header-panel>
-  <div class="paper-header">Header</div>
-  <div>Content goes here...</div>
+  <div class="paper-header" slot="header">Header</div>
+  <div slot="content">Content goes here...</div>
 </paper-scroll-header-panel>
 ```
 
@@ -83,5 +86,3 @@ The following custom properties and mixins are available for styling:
 | --paper-scroll-header-panel-condensed-header | To change the background for toolbar when it is condensed | {} |
 | --paper-scroll-header-panel-container | To override or add container styles | {} |
 | --paper-scroll-header-panel-header-container | To override or add header styles | {} |
-
-

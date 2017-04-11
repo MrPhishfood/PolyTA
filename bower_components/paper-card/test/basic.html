@@ -51,10 +51,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         f.heading = 'batman';
         assert.strictEqual(f.getAttribute('aria-label'), 'batman');
       });
-  
+
       test('aria-hidden is set on image', function() {
         assert.strictEqual(img.getAttribute('aria-hidden'), 'true');
-	  });
+      });
 
       test('aria-hidden is removed when image is set', function() {
         f.image = 'some-image-url';
@@ -78,7 +78,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.strictEqual(img.src, f.image);
         assert.strictEqual(img.offsetWidth, f.offsetWidth);
       });
-
+      
       test('preload properly setup', function() {
         assert.strictEqual(img.preload, f.preloadImage);
         f.preloadImage = !f.preloadImage;
