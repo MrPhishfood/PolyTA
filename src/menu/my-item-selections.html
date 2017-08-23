@@ -15,11 +15,8 @@
         --my-item-selection-control-size: 18px;
         --my-item-selection-heading-font-size: 18px;
         --my-item-selection-option-font-size: 14px;
-        --my-item-selection-font-color: var(--paper-grey-900);
         /*default colors*/
-        --my-item-selection-default-unselected-color: var(--paper-grey-900);
-        --my-item-selection-default-selected-color: var(--paper-red-500);
-        color: var(--my-item-selection-font-color);
+        color: var(--app-menu-card-selection-text-color);
         display: block;
         line-height: 1;
       }
@@ -45,19 +42,20 @@
         /*sizes of selection control*/
         --paper-radio-button-size: var(--my-item-selection-control-size);
         --paper-checkbox-size: var(--my-item-selection-control-size);
+        --paper-checkbox-ink-size: calc( var(--my-item-selection-control-size) *1.8);
         /*padding+font size for selection controls*/
         --my-subitems-single-select-padding: calc(var(--my-item-selection-control-padding)/2);
         --my-subitems-single-select-font-size: var(--my-item-selection-option-font-size);
         --my-subitems-multi-select-padding: calc(var(--my-item-selection-control-padding)/2);
         --my-subitems-multi-select-font-size: var(--my-item-selection-option-font-size);
         /*selected/unselected colors*/
-        --paper-radio-button-unchecked-color: var(--my-item-selection-default-unselected-color);
-        --paper-radio-button-unchecked-ink-color: var(--my-item-selection-default-unselected-color);
-        --paper-radio-button-checked-color: var(--my-item-selection-default-selected-color);
-        --paper-checkbox-unchecked-color: var(--my-item-selection-default-unselected-color);
-        --paper-checkbox-unchecked-ink-color: var(--my-item-selection-default-unselected-color);
-        --paper-checkbox-checked-color: var(--my-item-selection-default-selected-color);
-        --paper-checkbox-checked-ink-color: var(--my-item-selection-default-selected-color);
+        --paper-radio-button-unchecked-color: var(--app-menu-card-selection-unselected-color);
+        --paper-radio-button-unchecked-ink-color: var(--app-menu-card-selection-unselected-color);
+        --paper-radio-button-checked-color: var(--app-menu-card-selection-selected-color);
+        --paper-checkbox-unchecked-color: var(--app-menu-card-selection-unselected-color);
+        --paper-checkbox-unchecked-ink-color: var(--app-menu-card-selection-unselected-color);
+        --paper-checkbox-checked-color: var(--app-menu-card-selection-selected-color);
+        --paper-checkbox-checked-ink-color: var(--app-menu-card-selection-selected-color);
       }
     </style>
 

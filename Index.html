@@ -4,155 +4,170 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
   <title>Truly Asia</title>
-  <link rel="shortcut icon" sizes="32x32" href="images/app-icon-32.png">
-  <meta name="theme-color" content="#fff">
-  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="My App description">
+
+  <link rel="icon" href="/images/favicon.ico">
+
+  <!-- See https://goo.gl/OOhYW5 -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- See https://goo.gl/qRE0vM -->
+  <meta name="theme-color" content="#C62828">
+
+  <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
   <meta name="mobile-web-app-capable" content="yes">
-  <link rel="icon" sizes="192x192" href="icon.png">
-  <link rel="manifest" href="manifest.json">
+  <meta name="application-name" content="Truly Asia">
 
-  <link rel="import" href="src/ta-shop.html" async="">
+  <!-- Add to homescreen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Truly Asia">
 
-  <link rel="prefetch" href="bower_components/polymer/polymer.html">
+  <!-- Homescreen icons -->
+  <link rel="apple-touch-icon" href="/images/manifest/icon-48x48.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/images/manifest/icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="96x96" href="/images/manifest/icon-96x96.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/images/manifest/icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="/images/manifest/icon-192x192.png">
 
-  <!--App Elements-->
-  <link rel="prefetch" href="bower_components/app-route/app-location.html">
-  <link rel="prefetch" href="bower_components/app-route/app-route.html">
-
-  <!--Iron Elements-->
-  <link rel="prefetch" href="bower_components/iron-icon/iron-icon.html">
-  <link rel="prefetch" href="bower_components/iron-pages/iron-pages.html">
-  <link rel="prefetch" href="bower_components/iron-media-query/iron-media-query.html" />
-
-  <!--Paper Elements-->
-  <link rel="prefetch" href="bower_components/paper-drawer-panel/paper-drawer-panel.html">
-  <link rel="prefetch" href="bower_components/paper-header-panel/paper-header-panel.html">
-  <link rel="prefetch" href="bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
-  <link rel="prefetch" href="bower_components/paper-toolbar/paper-toolbar.html">
-  <link rel="prefetch" href="bower_components/paper-icon-button/paper-icon-button.html">
-  <link rel="prefetch" href="bower_components/paper-item/paper-icon-item.html">
-  <link rel="prefetch" href="bower_components/paper-item/paper-item.html">
-  <link rel="prefetch" href="bower_components/paper-badge/paper-badge.html">
-  <link rel="prefetch" href="bower_components/paper-toast/paper-toast.html">
-
-  <!--Other Elements-->
-  <link rel="prefetch" href="bower_components/polymerfire/polymerfire.html">
-
-  <link rel="prefetch" href="src/ta-menu.html" async="">
-  <link rel="prefetch" href="src/ta-shopping-cart.html" async="">
-  <link rel="prefetch" href="src/ta-login.html" async="">
+  <!-- Tile icon for Windows 8 (144x144 + tile color) -->
+  <meta name="msapplication-TileImage" content="/images/manifest/icon-144x144.png">
+  <meta name="msapplication-TileColor" content="#C62828">
+  <meta name="msapplication-tap-highlight" content="no">
 
   <!-- fonts -->
   <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
 
+  <!-- Load and register pre-caching Service Worker -->
   <script>
-    // setup Polymer options
-    window.Polymer = {
-      lazyRegister: true,
-      dom: 'shadow'
-    };
-
-    // load webcomponents polyfills
-    (function() {
-      if ('registerElement' in document &&
-        'import' in document.createElement('link') &&
-        'content' in document.createElement('template')) {
-        // browser has web components
-      } else {
-        // polyfill web components
-        var e = document.createElement('script');
-        e.src = 'bower_components/webcomponentsjs/webcomponents-lite.min.js';
-        document.head.appendChild(e);
-      }
-    })();
-
-    // load pre-caching service worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('service-worker.js');
+        navigator.serviceWorker.register('/service-worker.js');
       });
     }
-
-    window.addEventListener('WebComponentsReady', function(e) {
-      // do stuff here as components are loaded .....
-    });
   </script>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Roboto', 'Noto', sans-serif;
-      line-height: 1.5;
-      min-height: 100vh;
-      background-color: #eeeeee;
-    }
 
-    @media all and (max-width: 480px) {
-      html {
-        font-size: 15px;
-      }
-    }
+  <!-- Load webcomponents-loader.js to check and load any polyfills your browser needs -->
+  <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>
 
-    @media all and (min-width: 481px) and (max-width: 600px) {
+  <!-- Load your application shell -->
+  <link rel="import" href="src/ta-shop.html">
+  <link rel="import" href="bower_components/polymer/lib/elements/custom-style.html">
+  <custom-style>
+    <style is="custom-style">
       html {
-        font-size: 15px;
-      }
-    }
+        /*generic styles*/
+        --app-background-color: var(--paper-grey-200);
+        --app-primary-color: var(--paper-red-500);
+        --app-highlight-color: var(--paper-green-500);
+        --app-light-text: hsl(0, 0%, 100%);
+        --app-dark-text: hsl(0, 0%, 13%);
+        --app-dark-supporting-text: var(--paper-grey-700);
+        --app-dark-divider-border: 1px solid rgba(0, 0, 0, 0.12);
 
-    @media all and (min-width: 601px) and (max-width: 720px) {
-      html {
-        font-size: 14px;
-      }
-    }
+        /*layout styles*/
+        --app-toast-close-button-color: var(--paper-yellow-500);
+        --app-progress-container-color: var(--paper-red-200);
+        --app-progress-active-color: var(--app-primary-color);
 
-    @media all and (min-width: 721px) and (max-width: 840px) {
-      html {
-        font-size: 14.2px;
-      }
-    }
+        /*menu styles*/
+        --app-menu-card-bg: var(--paper-grey-50);
+        --app-menu-card-main-text-color: var(--app-dark-text);
+        --app-menu-card-support-text-color: var(--app-dark-supporting-text);
+        --app-menu-card-image-height: 150px;
+        --app-menu-card-divider: var(--app-dark-divider-border);
+        --add-menu-card-add-button-color: var(--app-highlight-color);
 
-    @media all and (min-width: 841px) and (max-width: 960px) {
-      html {
-        font-size: 15px;
-      }
-    }
+        --app-menu-card-selection-text-color: var(--app-dark-text);
+        --app-menu-card-selection-selected-color: var(--app-primary-color);
+        --app-menu-card-selection-unselected-color: var(--app-dark-text);
 
-    @media all and (min-width: 961px) and (max-width: 1024px) {
-      html {
-        font-size: 15.7px;
-      }
-    }
+        /*shopping cart styles*/
+        --app-cart-checkout-button-color: var(--app-primary-color);
+        --app-cart-checkout-button-bg: var(--app-light-text);
 
-    @media all and (min-width: 1025px) and (max-width: 1280px) {
-      html {
-        font-size: 15px;
-      }
-    }
+        --app-cart-card-bg: var(--app-menu-card-bg);
+        --app-cart-card-main-font-color: var(--app-dark-text);
+        --app-cart-card-supporting-font-color: var(--app-dark-supporting-text);
+        --app-cart-card-actions-divider: var(--app-dark-divider-border);
+        --app-cart-card-actions: var(--app-highlight-color);
+        --app-cart-card-actions-remove: var(--paper-red-600);
+        --app-cart-card-note-font-color: var(--app-dark-text);
+        --app-cart-card-note-focus-color: var(--app-primary-color);
+        --app-cart-card-addnote-button-color: var(--app-highlight-color);
 
-    @media all and (min-width: 1281px) and (max-width: 1440px) {
-      html {
-        font-size: 15px;
-      }
-    }
+        --app-cart-table-bg: var(--app-menu-card-bg);
+        --app-cart-table-font-color: var(--paper-grey-600);
+        --app-cart-table-divider: var(--app-dark-divider-border);
 
-    @media all and (min-width: 1441px) and (max-width: 1600px) {
-      html {
-        font-size: 15px;
+        --app-cart-table-row-font-color: var(--app-dark-text);
+        --app-cart-table-row-support-font-color: var(--app-dark-supporting-text);
+        --app-cart-table-row-divider: var(--app-dark-divider-border);
+        --app-cart-table-row-actions: var(--app-highlight-color);
+        --app-cart-table-row-remove-color: var(--paper-red-600);
       }
-    }
 
-    @media all and (min-width: 1601px) and (max-width: 1920px) {
-      html {
-        font-size: 15px;
+      @media all and (max-width: 480px) {
+        html {
+          --app-item-header-fontsize: calc( 24px + (30 - 24) * (100vw - 320px) / (480 - 320));
+          --app-item-supporting-fontsize: calc( 14px + (17.5 - 14) * (100vw - 320px) / (480 - 320));
+          --app-item-actions-fontsize: calc( 18px + (20 - 18) * (100vw - 320px) / (480 - 320));
+          --app-item-imageheight: calc( 204px + (311 - 204) * (100vw - 320px) / (480 - 320));
+          --app-toolbar-big-title-size: calc( 38px + (50 - 38) * (100vw - 320px) / (480 - 320));
+        }
       }
-    }
 
-    @media all and (min-width: 1921px) {
-      html {
-        font-size: 15px;
+      @media all and (min-width: 481px) and (max-width: 700px) {
+        html {
+          --app-item-header-fontsize: calc( 20px + (24 - 20) * (100vw - 481px) / (700 - 481));
+          --app-item-supporting-fontsize: calc( 14px + (16.25 - 14) * (100vw - 481px) / (700 - 481));
+          --app-item-actions-fontsize: calc( 18px + (21.25 - 18) * (100vw - 481px) / (700 - 481));
+          --app-item-imageheight: calc( 153px + (227 - 153) * (100vw - 481px) / (700 - 481));
+          --app-toolbar-big-title-size: 50px;
+        }
       }
-    }
-  </style>
+
+      @media all and (min-width: 701px) and (max-width: 987px) {
+        html {
+          --app-item-header-fontsize: calc( 20px + (24 - 20) * (100vw - 701px) / (987 - 701));
+          --app-item-supporting-fontsize: calc( 14px + (16.25 - 14) * (100vw - 701px) / (987 - 701));
+          --app-item-actions-fontsize: calc( 18px + (21.25 - 18) * (100vw - 701px) / (987 - 701));
+          --app-item-imageheight: calc( 150px + (213 - 150) * (100vw - 701px) / (987 - 701));
+          --app-toolbar-big-title-size: 50px;
+        }
+      }
+
+      @media all and (min-width: 988px) and (max-width: 1280px) {
+        html {
+          --app-item-header-fontsize: calc( 20px + (24 - 20) * (100vw - 988px) / (1280 - 988));
+          --app-item-supporting-fontsize: calc( 14px + (16.25 - 14) * (100vw - 988px) / (1280 - 988));
+          --app-item-actions-fontsize: calc( 18px + (21.25 - 18) * (100vw - 988px) / (1280 - 988));
+          --app-item-imageheight: calc( 159px + (207 - 159) * (100vw - 988px) / (1280 - 988));
+          --app-toolbar-big-title-size: 50px;
+        }
+      }
+
+      @media all and (min-width: 1281px) {
+        html {
+          --app-item-header-fontsize: 24px;
+          --app-item-supporting-fontsize: 14px;
+          --app-item-actions-fontsize: 18px;
+          --app-item-imageheight: 207px;
+          --app-toolbar-big-title-size: 50px;
+        }
+      }
+
+      body {
+        margin: 0;
+        font-family: 'Roboto', 'Noto', sans-serif;
+        line-height: 1.5;
+        min-height: 100vh;
+        background-color: var(--app-background-color);
+      }
+    </style>
+  </custom-style>
 </head>
 
 <body>

@@ -42,6 +42,11 @@
       },
 
       _computeSubtotal: function(item) {
+        //return nothing if itemList not populated with param item yet
+        if (!this.itemList[item.item]) {
+          return;
+        }
+
         var menuItem = this.itemList[item.item];
         var subtotal = 0;
 
@@ -59,6 +64,7 @@
           }
         }
         return subtotal;
+
       },
 
       _computeTotal: function() {

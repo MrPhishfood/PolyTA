@@ -16,13 +16,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
-  <script src="../../test-fixture/test-fixture-mocha.js"></script>
   <script src="../../iron-test-helpers/mock-interactions.js"></script>
 
   <link rel="import" href="../../paper-listbox/paper-listbox.html">
   <link rel="import" href="../../paper-item/paper-item.html">
   <link rel="import" href="../paper-dropdown-menu.html">
-
 </head>
 <body>
 
@@ -127,7 +125,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         setup(function(done) {
           dropdownMenu = fixture('PreselectedDropdownMenu');
           // Wait for distribution.
-          setTimeout(function() {
+          Polymer.Base.async(function() {
             done();
           });
         });
@@ -143,7 +141,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           dropdownMenu = fixture('PreselectedDropdownMenu');
           content = Polymer.dom(dropdownMenu).querySelector('[slot="dropdown-content"]');
           // Wait for distribution.
-          setTimeout(function() {
+          Polymer.Base.async(function() {
             done();
           });
         });
@@ -159,7 +157,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           dropdownMenu = fixture('TrivialDropdownMenu');
           content = Polymer.dom(dropdownMenu).querySelector('[slot="dropdown-content"]');
           // Wait for distribution.
-          setTimeout(function() {
+          Polymer.Base.async(function() {
             // no selection.
             expect(dropdownMenu.validate()).to.be.true;
             expect(dropdownMenu.invalid).to.be.false;
@@ -177,7 +175,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         test('a required dropdown is invalid without a selection', function(done) {
           dropdownMenu = fixture('TrivialDropdownMenu');
           // Wait for distribution.
-          setTimeout(function() {
+          Polymer.Base.async(function() {
             dropdownMenu.required = true;
             // no selection.
             expect(dropdownMenu.validate()).to.be.false;
@@ -190,7 +188,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         test('a required dropdown is valid with a selection', function(done) {
           dropdownMenu = fixture('PreselectedDropdownMenu');
           // Wait for distribution.
-          setTimeout(function() {
+          Polymer.Base.async(function() {
             dropdownMenu.required = true;
             expect(dropdownMenu.validate()).to.be.true;
             expect(dropdownMenu.invalid).to.be.false;
@@ -205,7 +203,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           dropdownMenu = fixture('LabelsDropdownMenu');
           content = Polymer.dom(dropdownMenu).querySelector('[slot="dropdown-content"]');
           // Wait for distribution.
-          setTimeout(function() {
+          Polymer.Base.async(function() {
             done();
           });
         });

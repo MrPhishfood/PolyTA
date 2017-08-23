@@ -139,7 +139,9 @@ To style it:
         @apply --paper-dropdown-menu-input;
       }
 
-      :host(:dir(rtl)) #input {
+      /* Keep :host-context() to make it work where :dir doesn't exist */
+      :host(:dir(rtl)) #input,
+      :host-context([dir="rtl"]) #input {
         padding-right: 0px;
         padding-left: 20px;
       }
@@ -179,7 +181,9 @@ To style it:
         @apply --paper-dropdown-menu-label;
       }
 
-      :host(:dir(rtl)) label {
+      /* Keep :host-context() to make it work where :dir doesn't exist */
+      :host(:dir(rtl)) label,
+      :host-context([dir="rtl"]) label {
         padding-right: 0px;
         padding-left: 20px;
       }
@@ -249,7 +253,9 @@ To style it:
         @apply --paper-dropdown-menu-icon;
       }
 
-      :host(:dir(rtl)) iron-icon {
+      /* Keep :host-context() to make it work where :dir doesn't exist */
+      :host(:dir(rtl)) iron-icon,
+      :host-context([dir="rtl"]) iron-icon {
         left: 0;
         right: auto;
       }
@@ -475,12 +481,13 @@ To style it:
          * The content element that is contained by the dropdown menu, if any.
          */
         get contentElement() {
+          // Polymer 2.x returns slot.assignedNodes which can contain text nodes.
           var nodes = Polymer.dom(this.$.content).getDistributedNodes();
-          var i = 0;
-          while (nodes[i] && nodes[i].nodeType !== Node.ELEMENT_NODE) {
-            i++;
+          for (var i = 0, l = nodes.length; i < l; i++) {
+            if (nodes[i].nodeType === Node.ELEMENT_NODE) {
+              return nodes[i];
+            }
           }
-          return nodes[i];
         },
 
         /**

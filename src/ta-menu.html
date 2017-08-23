@@ -1,5 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html" />
+
 <link rel="import" href="../bower_components/iron-media-query/iron-media-query.html" />
 
 <link rel="import" href="../bower_components/paper-styles/color.html">
@@ -29,11 +31,10 @@
 
       .category-divider {
         display: block;
-        font-size: 1.5rem;
-        width: 100%;
-        color: var(--paper-red-500);
+        font-size: var(--app-item-header-fontsize);
+        color: var(--app-primary-color);
         /*border-bottom: 2px solid var(--paper-red-500);*/
-        margin: 0.6667rem 0px 0.9333rem 0px;
+        margin: 10px 0px 15px 10px;
       }
 
       .category-list {
@@ -50,18 +51,17 @@
         padding-bottom: 8px;
         padding-right: 8px;
       }
-      /*228 min width for card*/
+
+      my-menu-item {
+        --my-menu-item-header-font-size: var(--app-item-header-fontsize);
+        --my-menu-item-support-font-size: var(--app-item-supporting-fontsize);
+        --my-menu-item-actions-font-size: var(--app-item-actions-fontsize);
+        --my-menu-item-image-height: var(--app-item-imageheight);
+      }
 
       @media all and (max-width: 480px) {
         .list-item {
           width: 100%;
-        }
-        my-menu-item {
-          /*--my-menu-item-header-font-size:6.9vw;*/
-          --my-menu-item-header-font-size: calc( 24px + (30 - 24) * (100vw - 320px) / (480 - 320));
-          --my-menu-item-support-font-size: calc( 14px + (17.5 - 14) * (100vw - 320px) / (480 - 320));
-          --my-menu-item-actions-font-size: calc( 18px + (20 - 18) * (100vw - 320px) / (480 - 320));
-          --my-menu-item-image-height: calc( 204px + (311 - 204) * (100vw - 320px) / (480 - 320));
         }
       }
 
@@ -69,23 +69,11 @@
         .list-item {
           width: 50%;
         }
-        my-menu-item {
-          --my-menu-item-header-font-size: calc( 20px + (24 - 20) * (100vw - 481px) / (700 - 481));
-          --my-menu-item-support-font-size: calc( 14px + (16.25 - 14) * (100vw - 481px) / (700 - 481));
-          --my-menu-item-actions-font-size: calc( 18px + (21.25 - 18) * (100vw - 481px) / (700 - 481));
-          --my-menu-item-image-height: calc( 153px + (227 - 153) * (100vw - 481px) / (700 - 481));
-        }
       }
 
       @media all and (min-width: 701px) and (max-width: 987px) {
         .list-item {
           width: 33.33%;
-        }
-        my-menu-item {
-          --my-menu-item-header-font-size: calc( 20px + (24 - 20) * (100vw - 701px) / (987 - 701));
-          --my-menu-item-support-font-size: calc( 14px + (16.25 - 14) * (100vw - 701px) / (987 - 701));
-          --my-menu-item-actions-font-size: calc( 18px + (21.25 - 18) * (100vw - 701px) / (987 - 701));
-          --my-menu-item-image-height: calc( 150px + (213 - 150) * (100vw - 701px) / (987 - 701));
         }
       }
 
@@ -93,23 +81,11 @@
         .list-item {
           width: 25%;
         }
-        my-menu-item {
-          --my-menu-item-header-font-size: calc( 20px + (24 - 20) * (100vw - 988px) / (1280 - 988));
-          --my-menu-item-support-font-size: calc( 14px + (16.25 - 14) * (100vw - 988px) / (1280 - 988));
-          --my-menu-item-actions-font-size: calc( 18px + (21.25 - 18) * (100vw - 988px) / (1280 - 988));
-          --my-menu-item-image-height: calc( 159px + (207 - 159) * (100vw - 988px) / (1280 - 988));
-        }
       }
 
       @media all and (min-width: 1281px) {
         .list-item {
           width: 25%;
-        }
-        my-menu-item {
-          --my-menu-item-header-font-size: 24px;
-          --my-menu-item-support-font-size: 14px;
-          --my-menu-item-actions-font-size: 18px;
-          --my-menu-item-image-height: 207px;
         }
       }
     </style>
@@ -134,7 +110,6 @@
       </template>
     </div>
 
-
   </template>
 
   <!-- Creates the element's prototype and registers it -->
@@ -144,22 +119,20 @@
 
       properties: {
 
-        categoriesTopPos: {
-          type: Array,
-        }
-
       },
 
       observers: [
         'debounceRecalculateHeight(itemList.*)'
       ],
 
+      // use by dom repeat to filter from 1 category
       _filterByCategory: function(category) {
         return function(item) {
           return category == item.category;
         };
       },
 
+      // sort items in a category based on the order property
       _sortItems: function(a, b) {
         if (a.order == b.order) {
           return 0;
@@ -169,18 +142,19 @@
 
       addToCart: function(e) {
         //call function from data element for cart
+        // this.fire('cart-add', {
+        //   item: this.itemKey,
+        //   selections: selections.getSelections()
+        // });
         this.$.cart.addToCart(e);
       },
 
+      // gets the y position of the category header
       getCategoryYPos: function(catID) {
         return Polymer.dom(this.root).querySelector('#category-id-' + catID).offsetTop;
       },
 
-      fireScrollToCategory: function(e) {
-        this.fire('ta-menu-scrollcategory', e.model.category.$key);
-
-      },
-
+      //limits the recalculate function to once every 100ms
       debounceRecalculateHeight: function(e) {
         this.debounce('newheight', function() {
           this.recalculateHeight();
@@ -291,4 +265,3 @@
     });
   </script>
 </dom-module>
-e>

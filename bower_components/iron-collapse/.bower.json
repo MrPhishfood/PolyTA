@@ -1,5 +1,6 @@
 {
   "name": "iron-collapse",
+  "version": "2.0.0",
   "description": "Provides a collapsable container",
   "authors": [
     "The Polymer Authors"
@@ -18,21 +19,21 @@
   "homepage": "https://github.com/PolymerElements/iron-collapse",
   "ignore": [],
   "dependencies": {
-    "iron-resizable-behavior": "PolymerElements/iron-resizable-behavior#2.0-preview",
-    "polymer": "Polymer/polymer#^2.0.0-rc.1"
+    "iron-resizable-behavior": "PolymerElements/iron-resizable-behavior#1 - 2",
+    "polymer": "Polymer/polymer#1.9 - 2"
   },
   "devDependencies": {
-    "iron-component-page": "PolymerElements/iron-component-page#2.0-preview",
-    "paper-styles": "PolymerElements/paper-styles#2.0-preview",
-    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#2.0-preview",
-    "web-component-tester": "Polymer/web-component-tester#^6.0.0-prerelease.6",
-    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0-rc.1"
+    "iron-component-page": "PolymerElements/iron-component-page#1 - 2",
+    "paper-styles": "PolymerElements/paper-styles#1 - 2",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#1 - 2",
+    "web-component-tester": "^6.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0"
   },
   "variants": {
     "1.x": {
       "dependencies": {
         "iron-resizable-behavior": "PolymerElements/iron-resizable-behavior#^1.0.0",
-        "polymer": "Polymer/polymer#^1.0.0"
+        "polymer": "Polymer/polymer#^1.9"
       },
       "devDependencies": {
         "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
@@ -40,18 +41,23 @@
         "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
         "web-component-tester": "^5.0.0",
         "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+      },
+      "resolutions": {
+        "webcomponentsjs": "^0.7"
       }
     }
   },
   "main": "iron-collapse.html",
-  "_release": "9e43355e9b",
+  "resolutions": {
+    "webcomponentsjs": "^1.0.0"
+  },
+  "_release": "2.0.0",
   "_resolution": {
-    "type": "branch",
-    "branch": "2.0-preview",
-    "commit": "9e43355e9be664ff9277422c75bbb24bce25b2d6"
+    "type": "version",
+    "tag": "v2.0.0",
+    "commit": "b673ab042d565b7bfffb32ba799337b07627344e"
   },
   "_source": "https://github.com/PolymerElements/iron-collapse.git",
-  "_target": "2.0-preview",
-  "_originalSource": "PolymerElements/iron-collapse",
-  "_direct": true
+  "_target": "^2.0.0",
+  "_originalSource": "PolymerElements/iron-collapse"
 }

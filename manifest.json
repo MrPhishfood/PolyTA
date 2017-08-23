@@ -1,29 +1,41 @@
 {
   "name": "Truly Asia",
   "short_name": "Truly Asia",
-    "icons": [{
-      "src": "images/app-icon-32.png",
-      "type": "image/png",
-      "sizes": "32x32"
-    }, {
-      "src": "images/app-icon.svg",
-      "sizes": "128x128",
-      "type": "image/svg"
-    }, {
-      "src": "images/app-icon-144.png",
-      "sizes": "144x144",
-      "type": "image/png"
-    }, {
-      "src": "images/app-icon.svg",
-      "sizes": "192x192",
-      "type": "image/svg"
-    },{
-      "src": "images/app-icon.svg",
-      "sizes": "384x384",
-      "type": "image/svg"
-    }],
-  "start_url": "/",
+  "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#3f51b5",
-  "theme_color": "#3f51b5"
+  "orientation": "portrait",
+  "background_color": "#C62828",
+  "theme_color": "#C62828",
+  "icons": [
+    {
+      "src": "images/icon-48x48.png",
+      "type": "image/png",
+      "sizes": "48x48"
+    },
+    {
+      "src": "images/icon-72x72.png",
+      "type": "image/png",
+      "sizes": "72x72"
+    },
+    {
+      "src": "images/icon-96x96.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "images/icon-144-144.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    },
+    {
+      "src": "images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
 }

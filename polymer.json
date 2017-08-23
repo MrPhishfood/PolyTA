@@ -1,9 +1,44 @@
+
 {
   "entrypoint": "index.html",
   "shell": "src/ta-shop.html",
   "fragments": [
     "src/ta-menu.html",
     "src/ta-shopping-cart.html",
-    "src/ta-login.html"
-  ]
+    "src/ta-login.html",
+    "src/ta-payment.html"
+  ],
+  "sources": [
+    "src/**/*",
+    "images/**/*",
+    "bower.json"
+  ],
+  "extraDependencies": [
+    "manifest.json",
+    "bower_components/webcomponentsjs/webcomponents-lite.js"
+  ],
+  "lint": {
+    "rules": ["polymer-2-hybrid"]
+  },
+  "builds": [{
+    "name": "es6-bundled",
+    "browserCapabilities": ["es2015"],
+    "js": {"minify": false},
+    "css": {"minify": true},
+    "html": {"minify": true},
+    "bundle": true,
+    "addServiceWorker" : true,
+    "addPushManifest": true,
+    "insertPrefetchLinks": true
+  },{
+    "name": "es6-unbundled",
+    "browserCapabilities": ["es2015", "push"],
+    "js": {"minify": false, "compile": false},
+    "css": {"minify": true},
+    "html": {"minify": true},
+    "bundle": false,
+    "addServiceWorker" : true,
+    "addPushManifest": true,
+    "insertPrefetchLinks": true
+  }]
 }

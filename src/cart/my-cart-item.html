@@ -22,9 +22,9 @@
         --my-cart-item-heading-font-size: 20px;
         --my-cart-item-supporting-font-size: 14px;
         display: block;
-        color: var(--paper-grey-900);
-        background: var(--my-cart-item-background, #fff);
-        box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.14), 0 1px 8px 0 rgba(0, 0, 0, 0.12), 0 3px 3px -2px rgba(0, 0, 0, 0.4);
+        color: var(--app-cart-card-main-font-color);
+        background: var(--app-cart-card-bg);
+        @apply --shadow-elevation-2dp;
         border-radius: 3px;
         line-height: 1.5;
       }
@@ -62,7 +62,7 @@
         font-size: var(--my-cart-item-supporting-font-size);
         text-transform: lowercase;
         padding: 0px var(--my-cart-item-padding) var(--my-cart-item-padding) var(--my-cart-item-padding);
-        color: var(--paper-grey-700);
+        color: var(--app-cart-card-supporting-font-color);
       }
 
       #selections:empty {
@@ -74,7 +74,7 @@
         flex-wrap: nowrap;
         justify-content: flex-end;
         padding: calc(var(--my-cart-item-padding)/2);
-        border-top: 1px solid rgba(0, 0, 0, 0.12);
+        border-top: var(--app-cart-card-actions-divider);
       }
 
       #addItem,
@@ -100,11 +100,11 @@
 
       #addItem,
       #minusItem {
-        color: var(--paper-green-500);
+        color: var(--app-cart-card-actions);
       }
 
       #removeItem {
-        color: var(--paper-red-500);
+        color: var(--app-cart-card-actions-remove);
       }
 
       #note {
@@ -113,9 +113,9 @@
           padding: 0 0px 20px 0px;
         }
         ;
-        --paper-input-container-input-color: var(--paper-grey-900);
-        --paper-input-container-color: var(--paper-grey-900);
-        --paper-input-container-focus-color: var(--paper-red-500);
+        --paper-input-container-input-color: var(--app-cart-card-note-font-color);
+        --paper-input-container-color: var(--app-cart-card-note-font-color);
+        --paper-input-container-focus-color: var(--app-cart-card-note-focus-color);
       }
 
       #noteButton {
@@ -124,11 +124,10 @@
 
       #addNote {
         text-transform: uppercase;
-        color: var(--paper-green-500);
+        color: var(--app-cart-card-addnote-button-color);
       }
     </style>
-    <firebase-auth id="auth" user="{{user}}"></firebase-auth>
-    <firebase-document id="cartRef" path="/cart/pending/[[user.uid]]/[[itemKey]]" data="{{cartItem}}"></firebase-document>
+    <firebase-document id="cartRef" path="/cart/pending/[[userId]]/[[itemKey]]" data="{{cartItem}}"></firebase-document>
     <firebase-document id="itemRef" path="/menu/items/[[cartItem.item]]" data="{{menuItem}}"></firebase-document>
 
     <filter-currency id="filterCurrency" zero-value="free"></filter-currency>
@@ -144,7 +143,7 @@
     <div id="selections">[[_computeSelectionText(cartItem,menuItem)]]</div>
 
     <iron-collapse id="collapse" opened="[[noteState]]">
-      <paper-textarea id="note" label="Note" char-counter maxlength="100" value="{{cartItem.note}}" tabindex="0"></paper-textarea>
+      <paper-textarea id="note" label="Note" always-float-label char-counter maxlength="100" value="{{cartItem.note}}" tabindex="0"></paper-textarea>
     </iron-collapse>
 
     <div id="actions">
@@ -165,9 +164,6 @@
       is: 'my-cart-item',
 
       properties: {
-        itemKey: {
-          type: String,
-        },
 
         noteState: {
           type: Boolean,
@@ -176,7 +172,7 @@
 
         subtotal: {
           type: Number,
-          computed: '_computeSubtotal(cartItem,menuItem)'
+          computed: '_computeSubtotal(cartItem,menuItem,cartItem.qty)'
         },
 
       },
@@ -193,7 +189,7 @@
       _toggleNoteState: function() {
         this.noteState = !this.noteState;
         if (!this.noteState) {
-          this.set('cartItem.note', null);
+          this.$.cartRef.ref.child('note').remove();
         } else {
           //focus on input element delayed to allow time for iron collapse to finish
           var input = this.$.note;
@@ -221,7 +217,7 @@
       },
       //removes the cart firebase ref, thereby deleting this element
       _removeItem: function() {
-        this.$.cartRef.destroy();
+        this.$.cartRef.ref.remove();
       },
 
       _computeSubtotal: function(item, data) {
@@ -235,9 +231,9 @@
         //if cart item HAS selection
         if (item.selections) {
           //loop through cart selection-list for each selection
-          for (let a in item.selections) {
+          for (var a in item.selections) {
             //loop through each subitem in selection
-            for (let b in item.selections[a]) {
+            for (var b in item.selections[a]) {
               //add subitem to subtotal
               subtotal += data.selections[a].subitems[b].price * item.qty;
             }

@@ -1,6 +1,5 @@
 {
   "name": "shadycss",
-  "version": "1.0.0-rc.4",
   "main": "scoping-shim.min.js",
   "description": "Styling helpers for ShadyDOM",
   "authors": [
@@ -26,21 +25,22 @@
     "tests"
   ],
   "devDependencies": {
-    "web-component-tester": "^5",
+    "web-component-tester": "^6",
     "es6-promise": "stefanpenner/es6-promise#^4.0.0",
-    "template": "webcomponents/template#^1.0.0-rc.1",
-    "html-imports": "webcomponents/html-imports#^1.0.0-rc.2",
-    "custom-elements": "webcomponents/custom-elements#^1.0.0-rc.1",
-    "shadydom": "webcomponents/shadydom#^1.0.0-rc.2",
-    "webcomponents-platform": "webcomponents/webcomponents-platform#^1.0.0-rc.1"
+    "template": "webcomponents/template#^1.0.0",
+    "html-imports": "webcomponents/html-imports#^1.0.0",
+    "custom-elements": "webcomponents/custom-elements#^1.0.0",
+    "shadydom": "webcomponents/shadydom#^1.0.0",
+    "webcomponents-platform": "webcomponents/webcomponents-platform#^1.0.0"
   },
-  "_release": "1.0.0-rc.4",
+  "version": "1.0.5",
+  "_release": "1.0.5",
   "_resolution": {
     "type": "version",
-    "tag": "v1.0.0-rc.4",
-    "commit": "d1a6b4463d9ecf079d1ee020507eddd75f32e2bf"
+    "tag": "v1.0.5",
+    "commit": "77c675ab6bac75d5a50d25d02b6ed96799a556c2"
   },
   "_source": "https://github.com/webcomponents/shadycss.git",
-  "_target": "^v1.0.0-rc.1",
+  "_target": "^v1.0.0",
   "_originalSource": "webcomponents/shadycss"
 }

@@ -1,5 +1,5 @@
+<!-- TODO: Do checkout and payment page -->
 <link rel="import" href="../bower_components/polymer/polymer.html">
-
 <!-- Iron Elements -->
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
@@ -19,398 +19,395 @@
 <link rel="import" href="../bower_components/polymerfire/polymerfire.html">
 
 <dom-module id="ta-checkout">
-    <template>
-        <style>
-            :host {
-                display: block;
-                padding: 16px;
-                paper-input: {
-                    --paper-input-container: {
-                        padding: 8px 0;
-                    }
-                    ;
-                }
-                ;
-            }
+  <template>
+    <style>
+       :host {
+        display: block;
+        padding: 16px;
+      }
 
-            paper-card#address-card {
-                --paper-card: {
-                    width: 100%;
-                }
-                ;
-            }
+      paper-input {
+        --paper-input-container: {
+          padding: 8px 0;
+        }
+        ;
+      }
 
-            .address-input {
-                --paper-input-container-underline: {
-                    background-color: var(--paper-orange-200);
-                }
-                ;
-                --paper-input-container-underline-focus: {
-                    background-color: var(--paper-orange-300);
-                }
-            }
+      paper-card#address-card {
+        --paper-card: {
+          width: 100%;
+        }
+        ;
+      }
 
-            #address-lastline {
-                display: flex;
-            }
+      .address-input {
+        --paper-input-container-underline: {
+          background-color: var(--paper-orange-200);
+        }
+        ;
+        --paper-input-container-underline-focus: {
+          background-color: var(--paper-orange-300);
+        }
+        ;
+      }
 
-            #town-address {
-                margin-right: 5px;
-            }
+      #address-lastline {
+        display: flex;
+      }
 
-            #postcode-address {
-                margin-left: 5px;
-                flex-shrink: 8;
-            }
+      #town-address {
+        margin-right: 5px;
+      }
 
-            #order-type-dropdown {
-                width: 100%;
-            }
+      #postcode-address {
+        margin-left: 5px;
+        flex-shrink: 8;
+      }
 
-            .upper {
-                --paper-input-container-input: {
-                    text-transform: uppercase;
-                }
-                ;
-            }
+      #order-type-dropdown {
+        width: 100%;
+      }
 
-            #dialog {
-                background-color: var(--paper-grey-200);
-            }
+      .upper {
+        --paper-input-container-input: {
+          text-transform: uppercase;
+        }
+        ;
+      }
 
-            #diaglog .content {
-                padding: 0px;
-            }
+      #dialog {
+        background-color: var(--paper-grey-200);
+      }
 
-            #dialog-scrollable,
-            #dialog-listbox {
-                background-color: var(--paper-grey-50);
-            }
+      #diaglog .content {
+        padding: 0px;
+      }
 
-            --paper-input-container {
-                padding: 5px 0;
-            }
-        </style>
+      #dialog-scrollable,
+      #dialog-listbox {
+        background-color: var(--paper-grey-50);
+      }
 
-        <iron-ajax id="ajaxAddressSearch" url="https://api.getAddress.io/v2/uk/{{_postcodeURL(searchPostCode)}}" params='{"api-key":"S5LKHBxIS0C7gYc4aX2nOw5068", "format":"true"}' handle-as="json" last-response="{{_ajaxAddressList}}"></iron-ajax>
+      --paper-input-container {
+        padding: 5px 0;
+      }
+    </style>
 
-        <iron-ajax id="ajaxCheckout" url="http://127.0.0.1:3000/truly-asia/checkout" handle-as="json" content-type="application/json" method="POST" verbose="true" last-response="{{_ajaxCheckoutRes}}"></iron-ajax>
+    <iron-ajax id="ajaxAddressSearch" url="https://api.getAddress.io/v2/uk/{{_postcodeURL(searchPostCode)}}" params='{"api-key":"S5LKHBxIS0C7gYc4aX2nOw5068", "format":"true"}' handle-as="json" last-response="{{_ajaxAddressList}}"></iron-ajax>
 
-        <firebase-auth id="auth" user="{{user}}" on-error="handleError"></firebase-auth>
-        <firebase-document path="/users/[[user.uid]]" data="{{userProfile}}"></firebase-document>
+    <!-- cart verification ajax - replace with cloud function -->
+    <!-- <iron-ajax id="ajaxCheckout" url="http://127.0.0.1:3000/truly-asia/checkout" handle-as="json" content-type="application/json" method="POST" verbose="true" last-response="{{_ajaxCheckoutRes}}"></iron-ajax> -->
 
-        <paper-dropdown-menu id="order-type-dropdown" label="I will receive my order by:" selected-item-label="{{orderType}}">
-            <paper-listbox class="dropdown-content" attr-for-selected="text-content" selected="Delivery">
-                <paper-item name="Delivery">Delivery</paper-item>
-                <paper-item name="Collection">Collection</paper-item>
+    <firebase-document path="/users/[[userId]]" data="{{userProfile}}"></firebase-document>
+
+    <paper-dropdown-menu id="order-type-dropdown" label="I will receive my order by:" selected-item-label="{{orderType}}">
+      <paper-listbox class="dropdown-content" selected="Delivery" slot="dropdown-content">
+        <paper-item name="Delivery">Delivery</paper-item>
+        <paper-item name="Collection">Collection</paper-item>
+      </paper-listbox>
+    </paper-dropdown-menu>
+
+
+    <!-- When order is DELIVERY -->
+    <template is="dom-if" if="{{_isDelivery(orderType)}}">
+
+      <template></template>
+
+      <!-- IF there are no saved addresses - allow for creation -->
+      <template is="dom-if" if="{{!_hasAddresses(userProfile.addresses.length)}}">
+
+        <!-- Address search functionality -->
+        <paper-input id="postcodeSearch" class="upper" type="text" auto-validate="true" required="true" error-message="postcode not valid" label="postcode" value="{{searchPostCode}}" invalid="{{_pcSearchInvalid}}" autocapitalize="characters" pattern="[[_postcodePattern]]"></paper-input>
+        <paper-button raised disabled="{{_searchButtonDisabled(searchPostCode,_pcSearchInvalid)}}" on-tap="_requestAddresses">find address
+        </paper-button>
+
+        <!-- DIAGLOG BOX - ADDRESS LIST -->
+        <paper-dialog id="dialog" modal="true">
+          <h2>select your address</h2>
+          <paper-dialog-scrollable id="dialog-scrollable">
+            <!-- <paper-dropdown-menu label="select your address:"> -->
+            <paper-listbox id="dialog-listbox" selected="{{listBoxSelected}}">
+              <template is="dom-repeat" items="{{_ajaxAddressList.Addresses}}">
+                <paper-item>{{item.line1}}</paper-item>
+              </template>
             </paper-listbox>
-        </paper-dropdown-menu>
+          </paper-dialog-scrollable>
+          <div class="buttons">
+            <paper-button raised on-tap="_closeDialog">Cancel</paper-button>
+            <paper-button id="dialog-ok-button" raised disabled="{{!_listAddressSelected(listBoxSelected)}}" on-tap="_selectDialog">Select
+            </paper-button>
+          </div>
+        </paper-dialog>
 
+        <!-- form for address creation and update -->
+        <paper-card id="address-card">
+          <div class="card-content">
+            <div>
+              <h3>Address Name</h3>
+            </div>
+            <paper-input class="address-input" type="text" label="address line 1" no-label-float value="{{address.line1}}" auto-validate="true" required="true" error-message="cannot be blank" minlength="1"></paper-input>
+            <paper-input class="address-input" type="text" label="address line 2" no-label-float value="{{address.line2}}"></paper-input>
+            <paper-input class="address-input" type="text" label="address line 3" no-label-float value="{{address.line3}}"></paper-input>
+            <div id="address-lastline">
+              <paper-input id="town-address" class="address-input" type="text" label="town" no-label-float value="{{address.town}}"></paper-input>
 
+              <paper-input id="postcode-address" class="upper address-input" type="text" auto-validate="true" required="true" error-message="not valid" label="postcode" no-label-float value="{{address.postcode}}" autocapitalize="characters" pattern="[[_postcodePattern]]"></paper-input>
+            </div>
+          </div>
+        </paper-card>
 
-        <!-- When order is DELIVERY -->
-        <template is="dom-if" if="{{_isDelivery(orderType)}}">
+      </template>
 
-            <template></template>
-
-            <!-- IF there are no saved addresses - allow for creation -->
-            <template is="dom-if" if="{{!_hasAddresses(userProfile.addresses.length)}}">
-
-                <!-- Address search functionality -->
-                <paper-input id="postcodeSearch" class="upper" type="text" auto-validate="true" required="true" error-message="postcode not valid" label="postcode" value="{{searchPostCode}}" invalid="{{_pcSearchInvalid}}" autocapitalize="characters" pattern="[[_postcodePattern]]"></paper-input>
-                <paper-button raised disabled="{{_searchButtonDisabled(searchPostCode,_pcSearchInvalid)}}" on-tap="_requestAddresses">find address
-                </paper-button>
-
-                <!-- DIAGLOG BOX - ADDRESS LIST -->
-                <paper-dialog id="dialog" modal="true">
-                    <h2>select your address</h2>
-                    <paper-dialog-scrollable id="dialog-scrollable">
-                        <!-- <paper-dropdown-menu label="select your address:"> -->
-                        <paper-listbox id="dialog-listbox" selected="{{listBoxSelected}}">
-                            <template is="dom-repeat" items="{{_ajaxAddressList.Addresses}}">
-                                <paper-item>{{item.line1}}</paper-item>
-                            </template>
-                        </paper-listbox>
-                    </paper-dialog-scrollable>
-                    <div class="buttons">
-                        <paper-button raised on-tap="_closeDialog">Cancel</paper-button>
-                        <paper-button id="dialog-ok-button" raised disabled="{{!_listAddressSelected(listBoxSelected)}}" on-tap="_selectDialog">Select
-                        </paper-button>
-                    </div>
-                </paper-dialog>
-
-                <!-- form for address creation and update -->
-                <paper-card id="address-card">
-                    <div class="card-content">
-                        <div>
-                            <h3>Address Name</h3>
-                        </div>
-                        <paper-input class="address-input" type="text" label="address line 1" no-label-float value="{{address.line1}}" auto-validate="true" required="true" error-message="cannot be blank" minlength="1"></paper-input>
-                        <paper-input class="address-input" type="text" label="address line 2" no-label-float value="{{address.line2}}"></paper-input>
-                        <paper-input class="address-input" type="text" label="address line 3" no-label-float value="{{address.line3}}"></paper-input>
-                        <div id="address-lastline">
-                            <paper-input id="town-address" class="address-input" type="text" label="town" no-label-float value="{{address.town}}"></paper-input>
-
-                            <paper-input id="postcode-address" class="upper address-input" type="text" auto-validate="true" required="true" error-message="not valid" label="postcode" no-label-float value="{{address.postcode}}" autocapitalize="characters" pattern="[[_postcodePattern]]"></paper-input>
-                        </div>
-                    </div>
-                </paper-card>
-
-            </template>
-
-
-
-
-        </template>
-
-        <!-- When order is COLLECTION -->
-        <template is="dom-if" if="{{!_isDelivery(orderType)}}">
-
-        </template>
-
-        <template is="dom-if" if="{{user}}">
-            <paper-button raised on-tap="_checkoutTapped">Checkout</paper-button>
-        </template>
-
-        <paper-button raised on-tap="_hasAddresses">Test</paper-button>
 
     </template>
-    <script>
-        Polymer({
-            is: 'ta-checkout',
 
-            properties: {
+    <!-- When order is COLLECTION -->
+    <template is="dom-if" if="{{!_isDelivery(orderType)}}">
 
-                user: Object,
+    </template>
 
-                cart: Object,
+    <template is="dom-if" if="{{userId}}">
+      <paper-button raised on-tap="_checkoutTapped">Checkout</paper-button>
+    </template>
 
-                orderType: Object,
+    <paper-button raised on-tap="_hasAddresses">Test</paper-button>
 
-                address: {
-                    type: Object,
-                    value: {
-                        line1: "",
-                        line2: "",
-                        line3: "",
-                        town: "",
-                        postcode: "",
-                        note: ""
-                    },
-                },
+  </template>
+  <script>
+    Polymer({
+      is: 'ta-checkout',
 
-                searchPostCode: {
-                    type: String,
-                    value: "NG3 3ER",
-                },
+      properties: {
 
-                _postcodePattern: {
-                    type: String,
-                    value: "^([Gg][Ii][Rr]0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([AZa-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9]?[A-Za-z])))) [0-9][A-Za-z]{2})$"
-                },
+        user: Object,
 
-                _addressPattern: {
-                    type: String,
-                    value: "^[a-z0-9- ]+$",
-                },
+        cart: Object,
 
-                _ajaxAddressList: {
-                    type: Object,
-                    observer: '_sortList',
-                },
+        orderType: Object,
 
-                _ajaxCheckoutRes: {
-                    type: Object,
-                    observer: '_checkoutMethod',
-                }
-            },
+        address: {
+          type: Object,
+          value: {
+            line1: "",
+            line2: "",
+            line3: "",
+            town: "",
+            postcode: "",
+            note: ""
+          },
+        },
 
-            _show: function(data) {
-                console.log(data);
-            },
+        searchPostCode: {
+          type: String,
+          value: "NG3 3ER",
+        },
 
-            _sortList: function(data) {
-                //natural sorts the addresses
-                console.log('sort called');
-                var addresses = data.Addresses;
-                addresses.sort(alphanum);
+        _postcodePattern: {
+          type: String,
+          value: "^([Gg][Ii][Rr]0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([AZa-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9]?[A-Za-z])))) [0-9][A-Za-z]{2})$"
+        },
 
-                var newAddressList = [];
-                for (var i = 0; i < addresses.length; i++) {
-                    var ad = {
-                        line1: addresses[i][0],
-                        line2: addresses[i][1],
-                        line3: addresses[i][2],
-                        town: addresses[i][3]
-                    };
-                    newAddressList.push(ad);
+        _addressPattern: {
+          type: String,
+          value: "^[a-z0-9- ]+$",
+        },
 
-                    //data.Addresses.push(ad);
-                }
-                this.set('_ajaxAddressList.Addresses', newAddressList);
-                this.$$('#dialog').open();
-                this.$$('#dialog-ok-button').disabled = true;
-            },
+        _ajaxAddressList: {
+          type: Object,
+          observer: '_sortList',
+        },
 
-            _closeDialog: function() {
-                this.$$('#dialog').close();
-            },
+        _ajaxCheckoutRes: {
+          type: Object,
+          observer: '_checkoutMethod',
+        }
+      },
 
-            _selectDialog: function() {
-                this.set('address', JSON.parse(JSON.stringify(this._ajaxAddressList.Addresses[this.$$('#dialog-listbox').selected])));
-                this.set('address.postcode', this.searchPostCode);
+      _show: function(data) {
+        console.log(data);
+      },
 
-                this.$$('#dialog').close();
-            },
+      _sortList: function(data) {
+        //natural sorts the addresses
+        console.log('sort called');
+        var addresses = data.Addresses;
+        addresses.sort(alphanum);
 
-            _searchButtonDisabled: function(value, invalid) {
-                return invalid || value.length === 0;
-            },
+        var newAddressList = [];
+        for (var i = 0; i < addresses.length; i++) {
+          var ad = {
+            line1: addresses[i][0],
+            line2: addresses[i][1],
+            line3: addresses[i][2],
+            town: addresses[i][3]
+          };
+          newAddressList.push(ad);
 
-            _isDelivery: function(val) {
-                return val === 'Delivery';
-            },
+          //data.Addresses.push(ad);
+        }
+        this.set('_ajaxAddressList.Addresses', newAddressList);
+        this.$$('#dialog').open();
+        this.$$('#dialog-ok-button').disabled = true;
+      },
 
-            _postcodeURL: function(val) {
-                return val.replace(/\s+/g, '');
-            },
+      _closeDialog: function() {
+        this.$$('#dialog').close();
+      },
 
-            _hasAddresses: function(val) {
-                if (val > 0) {
-                    return true;
-                }
-                return false;
-            },
+      _selectDialog: function() {
+        this.set('address', JSON.parse(JSON.stringify(this._ajaxAddressList.Addresses[this.$$('#dialog-listbox').selected])));
+        this.set('address.postcode', this.searchPostCode);
 
-            _requestAddresses: function() {
-                // this.$.ajaxAddressSearch.generateRequest();
+        this.$$('#dialog').close();
+      },
 
-                var val = {
-                    Addresses: [
-                        ['1 Folkton Gardens', 'Mapperley', '', 'Nottingha,'],
-                        ['3 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['4 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['21 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['23 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['18 Folkton Gardens', 'Mapperley', 'Jo Jos Bizarre Adventure', 'Nottingham'],
-                        ['2 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['5 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['8 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['10 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['13 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['52 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['5 Folkton Gardens OOH BOOGA', 'Mapperley', '', 'Nottingham'],
-                        ['4a Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['15 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['16 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['19 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['20 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['9 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['6 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['7 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                        ['11 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
-                    ]
-                };
-                this.set('_ajaxAddressList', val);
-            },
+      _searchButtonDisabled: function(value, invalid) {
+        return invalid || value.length === 0;
+      },
 
-            _getAddresses: function(data) {
-                console.log(data);
-            },
+      _isDelivery: function(val) {
+        return val === 'Delivery';
+      },
 
-            _listAddressSelected: function(val) {
-                console.log(val);
-                return val !== null ? true : false;
-            },
+      _postcodeURL: function(val) {
+        return val.replace(/\s+/g, '');
+      },
 
-            _checkoutTapped: function() {
-                var chkout = this.$.ajaxCheckout;
-                this.user.getToken(true).then(function(idToken) {
-                    chkout.body = {
-                        idToken: idToken,
-                        cart: getCartCookieJSON(),
-                    };
-                    console.log('body:', chkout.body.cart);
-                    chkout.generateRequest();
-                }).catch(function(error) {
-                    console.log(error);
-                });
+      _hasAddresses: function(val) {
+        if (val > 0) {
+          return true;
+        }
+        return false;
+      },
 
-            },
+      _requestAddresses: function() {
+        // this.$.ajaxAddressSearch.generateRequest();
 
-            _checkoutMethod: function(val) {
-                if (val.res === 'cart valid') {
+        var val = {
+          Addresses: [
+            ['1 Folkton Gardens', 'Mapperley', '', 'Nottingha,'],
+            ['3 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['4 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['21 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['23 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['18 Folkton Gardens', 'Mapperley', 'Jo Jos Bizarre Adventure', 'Nottingham'],
+            ['2 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['5 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['8 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['10 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['13 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['52 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['5 Folkton Gardens OOH BOOGA', 'Mapperley', '', 'Nottingham'],
+            ['4a Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['15 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['16 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['19 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['20 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['9 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['6 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['7 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+            ['11 Folkton Gardens', 'Mapperley', '', 'Nottingham'],
+          ]
+        };
+        this.set('_ajaxAddressList', val);
+      },
 
-                }
-                console.log(val);
+      _getAddresses: function(data) {
+        console.log(data);
+      },
 
-            }
+      _listAddressSelected: function(val) {
+        console.log(val);
+        return val !== null ? true : false;
+      },
 
+      _checkoutTapped: function() {
+        var chkout = this.$.ajaxCheckout;
+        this.user.getToken(true).then(function(idToken) {
+          chkout.body = {
+            idToken: idToken,
+            cart: getCartCookieJSON(),
+          };
+          console.log('body:', chkout.body.cart);
+          chkout.generateRequest();
+        }).catch(function(error) {
+          console.log(error);
         });
 
+      },
 
-        //Gets the JSON data from 'cart' Cookie or empty cart object
-        function getCartCookieJSON() {
-            var oldCartData = getCookie('cart');
-            var newCart;
-            if (!oldCartData) {
-                newCart = {
-                    items: []
-                };
-            } else {
-                newCart = JSON.parse(oldCartData);
-            }
-            return newCart;
+      _checkoutMethod: function(val) {
+        if (val.res === 'cart valid') {
+
         }
+        console.log(val);
 
-        //Simple get values for cookie, arg:cookie key
-        function getCookie(cname) {
-            var name = cname + "=";
-            var ca = document.cookie.split(';');
-            for (var i = 0; i < ca.length; i++) {
-                var c = ca[i];
-                while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                }
-                if (c.indexOf(name) === 0) {
-                    return c.substring(name.length, c.length);
-                }
-            }
-            return "";
+      }
+
+    });
+
+    //Gets the JSON data from 'cart' Cookie or empty cart object
+    function getCartCookieJSON() {
+      var oldCartData = getCookie('cart');
+      var newCart;
+      if (!oldCartData) {
+        newCart = {
+          items: []
+        };
+      } else {
+        newCart = JSON.parse(oldCartData);
+      }
+      return newCart;
+    }
+
+    //Simple get values for cookie, arg:cookie key
+    function getCookie(cname) {
+      var name = cname + "=";
+      var ca = document.cookie.split(';');
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
         }
-
-        function alphanum(a, b) {
-            function chunkify(t) {
-                var tz = [],
-                    x = 0,
-                    y = -1,
-                    n = 0,
-                    i, j;
-
-                while (i = (j = t.charAt(x++)).charCodeAt(0)) {
-                    var m = (i == 46 || (i >= 48 && i <= 57));
-                    if (m !== n) {
-                        tz[++y] = "";
-                        n = m;
-                    }
-                    tz[y] += j;
-                }
-                return tz;
-            }
-
-            var aa = chunkify(a[0].toLowerCase());
-            var bb = chunkify(b[0].toLowerCase());
-
-            for (x = 0; aa[x] && bb[x]; x++) {
-                if (aa[x] !== bb[x]) {
-                    var c = Number(aa[x]),
-                        d = Number(bb[x]);
-                    if (c == aa[x] && d == bb[x]) {
-                        return c - d;
-                    } else return (aa[x] > bb[x]) ? 1 : -1;
-                }
-            }
-            return aa.length - bb.length;
+        if (c.indexOf(name) === 0) {
+          return c.substring(name.length, c.length);
         }
-    </script>
+      }
+      return "";
+    }
+
+    function alphanum(a, b) {
+      function chunkify(t) {
+        var tz = [],
+          x = 0,
+          y = -1,
+          n = 0,
+          i, j;
+
+        while (i = (j = t.charAt(x++)).charCodeAt(0)) {
+          var m = (i == 46 || (i >= 48 && i <= 57));
+          if (m !== n) {
+            tz[++y] = "";
+            n = m;
+          }
+          tz[y] += j;
+        }
+        return tz;
+      }
+
+      var aa = chunkify(a[0].toLowerCase());
+      var bb = chunkify(b[0].toLowerCase());
+
+      for (x = 0; aa[x] && bb[x]; x++) {
+        if (aa[x] !== bb[x]) {
+          var c = Number(aa[x]),
+            d = Number(bb[x]);
+          if (c == aa[x] && d == bb[x]) {
+            return c - d;
+          } else return (aa[x] > bb[x]) ? 1 : -1;
+        }
+      }
+      return aa.length - bb.length;
+    }
+  </script>
 </dom-module>

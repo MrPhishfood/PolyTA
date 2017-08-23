@@ -1,10 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../bower_components/polymerfire/firebase-document.html">
 <link rel="import" href="../../bower_components/polymerfire/firebase-query.html">
-
-
-<link rel="import" href="paper-checkbox-custom.html">
 
 <dom-module id="my-subitems-multi-select">
   <template>
@@ -12,6 +9,14 @@
        :host {
         --my-subitems-multi-select-padding: 8px;
         --my-subitems-multi-select-font-size: 14px;
+      }
+
+      paper-checkbox {
+        --paper-checkbox-label: {
+          display: flex;
+          flex-grow: 99;
+        }
+        ;
       }
 
       .subitem {
@@ -51,10 +56,10 @@
 
     <!--Subitems-->
     <template is="dom-repeat" items="[[subitemList]]" as="subitem" sort="_sort" observe="order">
-      <paper-checkbox-custom class="subitem" id="[[subitem.$key]]">
+      <paper-checkbox class="subitem" id="[[subitem.$key]]">
         <div class="subitem-name">[[subitem.name]]</div>
         <div class="subitem-price">[[_currencyFilterSubitem(subitem.price)]]</div>
-      </paper-checkbox-custom>
+      </paper-checkbox>
     </template>
 
   </template>
@@ -103,46 +108,60 @@
       //enable/disable other checkboxes if limit reached.
       //creates a JSON object of all selected subitems to add in to cart
       _checkChanged: function() {
-        var cboxes = Polymer.dom(this.root).querySelectorAll('.subitem');
-        //check how many boxes checked
-        var selected = {};
-        var subitems = {};
-        var chkCount = 0;
-        for (var i in cboxes) {
-          if (cboxes[i].checked) {
-            chkCount++;
-            subitems[cboxes[i].id] = true;
-          }
-        }
-        if (Object.keys(subitems).length !== 0) {
-          selected[this.selectionKey] = subitems;
-        }
-        this._setSelected(selected);
+        try {
 
-        //If somehow the number of checked boxes exceeds max then uncheck all
-        if (chkCount > this.selection.max) {
-          for (let i in cboxes) {
-            cboxes[i].checked = false;
-            cboxes[i].disabled = false;
-            this.toggleClass('disabled', false, cboxes[i]);
+          var cboxes = Polymer.dom(this.root).querySelectorAll('.subitem');
+          //end function if no checkboxes found
+          if (!cboxes.length) {
+            return;
           }
-        } else {
-          //disable unchecked boxes if max limit reached
-          //else enable all boxes
-          if (chkCount >= this.selection.max) {
-            for (let i in cboxes) {
-              if (!cboxes[i].checked) {
-                cboxes[i].disabled = true;
-                this.toggleClass('disabled', true, cboxes[i]);
-              }
+          //check how many boxes checked
+          var selected = {};
+          var subitems = {};
+          var chkCount = 0;
+          var thisObj = this;
+
+          cboxes.forEach(function(box) {
+            if (box.checked) {
+              chkCount++;
+              subitems[box.id] = true;
             }
+          });
+
+          //If somehow the number of checked boxes exceeds max then uncheck all
+          if (chkCount > this.selection.max) {
+            cboxes.forEach(function(box) {
+              box.checked = false;
+              box.disabled = false;
+            });
           } else {
-            for (let i in cboxes) {
-              cboxes[i].disabled = false;
-              this.toggleClass('disabled', false, cboxes[i]);
+            //disable unchecked boxes if max limit reached
+            //else enable all boxes
+            if (chkCount >= this.selection.max) {
+              cboxes.forEach(function(box) {
+                if (!box.checked) {
+                  box.disabled = true;
+                }
+              });
+            } else {
+              cboxes.forEach(function(box) {
+                box.disabled = false;
+              });
             }
           }
+
+          //selected will be populated with properties named After
+          //the subitem witht he value true
+          if (Object.keys(subitems).length !== 0) {
+            selected[this.selectionKey] = subitems;
+          }
+          this._setSelected(selected);
+
+        } catch (err) {
+
+          console.log('_checkChanged error:', err);
         }
+
       },
 
       //if the number of selected subitems is within the min/max

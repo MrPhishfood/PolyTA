@@ -21,12 +21,12 @@
        :host {
         display: flex;
         font-size: 13px;
-        color: var(--paper-grey-900);
+        color: var(--app-cart-table-row-font-color);
         padding: 14px 24px;
         min-height: 48px;
         box-sizing: border-box;
         align-items: center;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+        border-bottom: var(--app-cart-table-row-divider);
       }
 
       .data:not(:first-of-type) {
@@ -50,7 +50,7 @@
       }
 
       #removeItem {
-        color: var(--paper-red-500);
+        color: var(--app-cart-table-row-remove-color);
       }
 
       #name {
@@ -62,7 +62,7 @@
       #itemName {}
 
       #selections {
-        color: var(--paper-grey-700);
+        color: var(--app-cart-table-row-support-font-color);
         font-size: 12px;
       }
 
@@ -91,7 +91,7 @@
 
       #minusItem,
       #addItem {
-        color: var(--paper-green-500);
+        color: var(--app-cart-table-row-actions);
       }
 
       #price {
@@ -116,8 +116,7 @@
       }
     </style>
 
-    <firebase-auth id="auth" user="{{user}}"></firebase-auth>
-    <firebase-document id="cartRef" path="/cart/pending/[[user.uid]]/[[itemKey]]" data="{{cartItem}}"></firebase-document>
+    <firebase-document id="cartRef" path="/cart/pending/[[userId]]/[[itemKey]]" data="{{cartItem}}"></firebase-document>
     <firebase-document id="itemRef" path="/menu/items/[[cartItem.item]]" data="{{menuItem}}"></firebase-document>
 
     <filter-currency id="filterCurrency" zero-value="free"></filter-currency>
@@ -162,7 +161,7 @@
 
         subtotal: {
           type: Number,
-          computed: '_computeSubtotal(cartItem,menuItem)'
+          computed: '_computeSubtotal(cartItem,menuItem,cartItem.qty)'
         },
 
       },
@@ -202,7 +201,7 @@
       },
       //removes the cart firebase ref, thereby deleting this element
       _removeItem: function() {
-        this.$.cartRef.destroy();
+        this.$.cartRef.ref.remove();
       },
 
       _computeSubtotal: function(item, data) {

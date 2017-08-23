@@ -1,6 +1,5 @@
 {
   "projects": {
-    "default": "truyasia",
-    "trulyasia": "truyasia"
+    "default": "truyasia"
   }
 }

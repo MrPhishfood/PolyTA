@@ -1,22 +1,33 @@
+<!-- TODO: Create postcode search splash page -->
+<!-- IDEA: create product page for individual items and make it toggleable by admins -->
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<!--App Elements-->
+<!--Routing Elements-->
 <link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
+<!-- Layout Elements -->
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
 <!--Iron Elements-->
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-media-query/iron-media-query.html">
 <!--Paper Elements-->
-<link rel="import" href="../bower_components/paper-drawer-panel/paper-drawer-panel.html">
-<link rel="import" href="../bower_components/paper-header-panel/paper-header-panel.html">
-<link rel="import" href="../bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
-<link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-badge/paper-badge.html">
 <link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-progress/paper-progress.html">
+
+<link rel="import" href="../bower_components/paper-styles/color.html">
+
 <!--Google Elements-->
 <link rel="import" href="../bower_components/polymerfire/polymerfire.html">
+
 <!--Custom Elements-->
 <link rel="import" href="ta-cart.html">
 <link rel="import" href="ta-menu.html">
@@ -30,33 +41,78 @@
 <dom-module id="ta-shop">
   <template>
     <style>
-       :host {
-        display: block;
-        --app-primary-color: #4285f4;
-        --app-secondary-color: black;
-      }
+       :host {}
+      /*APP HEADER STYLES*/
 
-      #main-toolbar {
-        position: relative;
-        --paper-toolbar-background: var(--paper-red-500);
-        --paper-toolbar-content: {
-          max-width: 1280px;
-          margin-left: auto;
-          margin-right: auto;
+      #app-header {
+        background-color: var(--app-primary-color, --paper-red-600);
+        --app-header-background-front-layer: {}
+        ;
+        --app-header-background-rear-layer: {}
+        ;
+      }
+      /*DRAWER STYLES*/
+
+      #drawer {
+        /*drawer colors*/
+        --app-drawer-content-container: {
+          background: var(--app-primary-color);
+          color: var(--app-light-text);
         }
+        ;
       }
 
-      #drawer-toolbar {
-        --paper-toolbar-background: var(--paper-indigo-500);
+      #drawer-container {
+        /*make drawer scrollable*/
+        height: 100%;
+        overflow: auto;
+        padding-bottom: 24px;
+        border-right: 24px solid var(--paper-red-700);
       }
 
-      .toolbar-link {
-        text-decoration: none;
+      .menu-category {
+        /*category button styles*/
+        justify-content: flex-start;
+        width: 100%;
+        text-transform: none;
+        font-size: 20px;
+        padding: 10px 0px 10px 24px;
+        margin: 0;
+        /*don't make font bold when clicked or when drawer open*/
+        --paper-button-flat-keyboard-focus: {
+          font-weight: normal;
+        }
+        ;
+      }
+
+      .menu-category:first-of-type {
+        /*first category is extra tall for the upper padding*/
+        padding-top: 24px;
+      }
+      /*APP TOOLBAR STYLES*/
+
+      app-toolbar {
+        /*make sure the toolbars do not stretch beyond 1280px and align center*/
+        position: relative;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 1280px;
+      }
+
+      #toolbar-main-title {
+        /*size of the large Title when toolbar not condensed*/
+        font-size: var(--app-toolbar-big-title-size);
+      }
+
+      .toolbar-title,
+      .toolbar-button {
+        /*color for all text on the toolbar*/
+        color: var(--app-light-text);
       }
 
       .toolbar-button {
-        color: #ffffff;
-        font-size: 1.15rem;
+        /*styles for paper-icon-button and paper-button*/
+        font-size: 16px;
         min-width: 0;
         min-height: 40px;
         padding: 8px;
@@ -66,178 +122,243 @@
       }
 
       .toolbar-button iron-icon {
+        /*styles just for paper-button*/
         --iron-icon-width: 24px;
         --iron-icon-height: 24px;
       }
 
-      #menuButton {
-        color: #fff;
-      }
-
-      .toolbar-text {
+      .toolbarText {
+        /*style for paper-button with text*/
         margin-left: 2px;
       }
 
+      #menuButton[page="menu"] {
+        /*don't display the BACK button when on the menu page*/
+        display: none;
+      }
+
+      #categoryButton:not([page="menu"]) {
+        /*don't display the drawer open button when not on menu*/
+        display: none;
+      }
+
       paper-badge {
-        --paper-badge-margin-left: -3px;
+        /*badge style for the item counter on the shopping cart*/
+        --paper-badge-margin-left: -10px;
         --paper-badge-margin-bottom: -15px;
-        --paper-badge-background: var(--paper-green-500);
+        --paper-badge-background: var(--app-highlight-color);
       }
 
       paper-badge[alt-hidden] {
-        display: none;
-      }
-
-      .drawer-list {
-        margin: 0 20px;
-      }
-
-      .drawer-list a {
-        display: block;
-        padding: 0 16px;
-        line-height: 40px;
-        text-decoration: none;
-        color: var(--app-secondary-color);
-      }
-
-      .drawer-list a.iron-selected {
-        color: black;
-        font-weight: bold;
-      }
-
-      .drawer-list a.subroute {
-        padding-left: 32px;
-      }
-
-      .menu-category-item {
-        font-size: 20px;
-        --paper-item-focused-before: {
-          opacity: 0;
-        }
-        ;
-      }
-
-      #categoryButton {
-        visibility: visible;
-        opacity: 1;
-      }
-
-      #bigTitle {
-        position: fixed;
-        font-size: 64px;
-        line-height: 1;
-        bottom: 16px;
-      }
-
-      #categoryButton[hidden] {
+        /*hide badge when the alt-hidden attribute is set when the toolbar is wide*/
         visibility: hidden;
-        opacity: 0;
-        width: 0;
-        padding: 0;
+      }
+
+      paper-badge[aria-label="0"] {
+        /*hide badge when no items*/
+        visibility: hidden;
+      }
+
+      @media all and (max-width: 719px) {
+        /*resolution EQUAL TO OR LESS THAN ???px*/
+        /*hides the toolbar buttons meant for the wide toolbar UI*/
+        .wide-toolbar-button {
+          display: none;
+        }
+        #app-header {
+          /*reduces the header height for just 1 toolbar*/
+          height: 64px;
+        }
+        #title-toolbar {
+          /*hide the large title toolbar*/
+          display: none;
+        }
+        #toolbar-condensed-title {
+          /*overide the computed style for the small title to show*/
+          opacity: 1 !important;
+        }
       }
 
       @media all and (min-width: 720px) {
+        /*resolution EQUAL TO OR MORE THAN ???px*/
+        /*hides the buttons meant for narrow displays*/
+        .small-toolbar-button {
+          display: none;
+        }
+        /*badge no longer necessary as there is full price display*/
         #cartCountBadge {
           display: none;
         }
-      }
-
-      @media all and (max-width: 721px) {
-        .toolbar-text {
-          display: none;
+        /*header height is now tall enough for 2 toolbars*/
+        #app-header {
+          height: 128px;
         }
       }
+      /*DIALOG ERROR STYLES*/
 
-      @media all and (max-width: 979px) {
-        #wideMenuButton {
-          display: none;
-        }
+      #dialogError {
+        /*all styles meant to match material design dialog boxes*/
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: stretch;
       }
 
-      @media all and (min-width: 980px) {
-        #categoryButton,
-        #menuButton {
-          display: none;
-        }
-        ;
+      #dialogErrorTitle {
+        font-size: 20px;
+        margin: 24px 24px 20px 24px;
+        padding: 0;
       }
 
-      #pages[selected="menu"]+#main-toolbar #menuButton {
-        display: none;
+      #dialogErrorContent {
+        flex-grow: 99;
+        padding: 0;
+        margin: 0px 24px 24px 24px;
       }
 
-      #pages:not([selected="menu"])+#main-toolbar #categoryButton {
-        display: none;
+      #dialogErrorButtons {
+        margin: 8px 8px 8px 24px;
+        padding: 0;
+        align-self: flex-end;
+      }
+
+      #dialogErrorButtons paper-button {
+        margin: 0;
+        font-weight: bold;
+      }
+      /*LOGIN DIALOG STYLES*/
+
+      #dialogLogin {
+        /*just a little bit smaller than iphone 4 display*/
+        display: flex;
+        min-height: 435px;
+        max-height: 480px;
+        min-width: 280px;
+        max-width: 320px;
+      }
+      /*MISC STYLES*/
+
+      #progressBar {
+        width: 100%;
+        --paper-progress-container-color: var(--app-progress-container-color);
+        --paper-progress-active-color: var(--app-primary-color);
+        --paper-progress-disabled-active-color: var(--app-progress-active-color);
+      }
+
+      #toastyPersistant {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      #toastyPersistant paper-button {
+        color: var(--app-toast-close-button-color);
       }
     </style>
+    <!-- ROUTING ELEMENTS -->
     <app-location route="{{route}}"></app-location>
     <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}" active="active"></app-route>
-
+    <!-- FIREBASE ELEMENTS -->
     <firebase-app auth-domain="truyasia.firebaseapp.com" database-url="https://truyasia.firebaseio.com" api-key="AIzaSyCgfF2gQeiE1fyOWlaBcAcSLcwocz23BNk" storage-bucket="truyasia.appspot.com"></firebase-app>
     <firebase-query path="/menu/categories" order-by-child="order" data="{{categoryList}}"></firebase-query>
     <firebase-auth id="auth" user="{{user}}" on-error="handleError"></firebase-auth>
-
-    <iron-media-query query="(min-width: 980px)" query-matches="{{sidebarQuery}}"></iron-media-query>
-    <iron-media-query query="(min-width: 721px)" query-matches="{{wideToolbarQuery}}"></iron-media-query>
+    <!--Binded Media Queries -->
+    <iron-media-query query="(min-width: 720px)" query-matches="{{sidebarQuery}}"></iron-media-query>
+    <iron-media-query query="(min-width: 720px)" query-matches="{{bigScreenQuery}}"></iron-media-query>
 
     <ta-cart id="cart" uid="[[user.uid]]" count="{{cartCount}}" total="{{cartTotal}}"></ta-cart>
 
-    <paper-drawer-panel id="mainPanel" responsive-width="979px" disable-edge-swipe="[[_edgeSwipeDisable(sidebarQuery,page)]]" force-narrow="[[sidebarQuery]]">
+    <!-- login page dialog box -->
+    <paper-dialog id="dialogLogin" with-backdrop opened="{{_loginDialogCanceled}}">
+      <ta-login id="loginPage" user="{{user}}"></ta-login>
+    </paper-dialog>
+
+    <!-- generic dialog box for errors -->
+    <paper-dialog id="dialogError" with-backdrop>
+      <div id="dialogErrorTitle">
+      </div>
+      <div id="dialogErrorContent">
+      </div>
+      <div id="dialogErrorButtons">
+        <paper-button on-tap="_okError">ok</paper-button>
+      </div>
+    </paper-dialog>
+
+    <!-- MAIN APP -->
+    <app-drawer-layout responsive-width="979px" force-narrow="[[sidebarQuery]]">
       <!-- Drawer -->
-      <paper-header-panel drawer id="leftDrawer" mode="seamed">
-        <paper-toolbar id="drawer-toolbar"></paper-toolbar>
-        <div id="slide-panel">
+      <app-drawer id="drawer" slot="drawer" swipe-open="[[_edgeSwipable(sidebarQuery,page)]]">
+        <!-- IDEA: Change styling on drawer based on app theme -->
+        <div>
           <template is="dom-repeat" items="[[categoryList]]" as="category">
-            <paper-item class="menu-category-item" on-tap="scrollToMenuSection">
+            <paper-button class="menu-category" on-tap="scrollToMenuSection">
               [[category.name]]
-            </paper-item>
+            </paper-button>
           </template>
         </div>
-      </paper-header-panel>
+
+      </app-drawer>
       <!--Main Section-->
-      <paper-scroll-header-panel id="mainScrollPanel" main fixed="[[sidebarQuery]]" on-iron-resize="_panelResized">
+      <app-header-layout>
+        <!-- TODO: animated pages -->
         <!-- iron-pages -->
-        <iron-pages id="pages" selected$="[[page]]" attr-for-selected="name">
+        <iron-pages id="pages" selected="[[page]]" attr-for-selected="name">
           <ta-menu id="menulistpage" name="menu"></ta-menu>
           <ta-shopping-cart name="shopping-cart"></ta-shopping-cart>
-          <ta-checkout name="checkout"></ta-checkout>
+          <ta-checkout name="checkout" user-id="[[user.uid]]"></ta-checkout>
           <ta-payment name="payment"></ta-payment>
-          <ta-login name="login"></ta-login>
+          <ta-login name="login" user="{{user}}"></ta-login>
         </iron-pages>
-        <!--Toolbar-->
-        <paper-toolbar id="main-toolbar" class="[[_calculateMedTallClass(sidebarQuery)]]">
-          <!-- <span id="bigTitle" class="">Truly Asia</span> -->
-          <a href="/" class="middle toolbar-link">
-            <paper-icon-button id="menuButton" class="middle" icon="custom-icons:arrow-back"></paper-icon-button>
-          </a>
-          <paper-icon-button id="categoryButton" class="middle" icon="custom-icons:menu" paper-drawer-toggle></paper-icon-button>
-          <span id="smallTitle" class="title middle">TRULY ASIA</span>
-          <a href="/payment" class="middle">
-            <paper-icon-button icon="custom-icons:account-box" class="toolbar-button"></paper-icon-button>
-          </a>
-          <a id="wideMenuButton" href="/" class="middle toolbar-link">
-            <paper-button class="toolbar-button">
+        <!-- Header -->
+        <app-header id="app-header" effects="material" slot="header" fixed on-iron-resize="_panelResized" condenses>
+          <!-- <app-header id="app-header" reveals="[[!bigScreenQuery]]" effects="material" slot="header" fixed="[[bigScreenQuery]]" on-iron-resize="_panelResized" condenses> -->
+
+          <!-- Main Toolbar-->
+          <app-toolbar sticky>
+            <!-- MENU-BACK BUTTON (visible when not on menu) -->
+            <paper-icon-button id="menuButton" class="toolbar-button small-toolbar-button" icon="custom-icons:arrow-back" on-tap="_goToMenu" page$="[[page]]"></paper-icon-button>
+            <!-- DRAWER BUTTON -->
+            <paper-icon-button id="categoryButton" class="toolbar-button  small-toolbar-button" icon="custom-icons:menu" drawer-toggle page$="[[page]]"></paper-icon-button>
+            <!-- condensed toolbar title -->
+            <div id="toolbar-condensed-title" class="toolbar-title" condensed-title>TRULY ASIA</div>
+            <!-- MENU BUTTON (visible only in wide mode) -->
+            <paper-button class="toolbar-button wide-toolbar-button" on-tap="_goToMenu">
               <iron-icon icon="custom-icons:chrome-reader-mode"></iron-icon>
-              <span class="toolbar-text">Menu</span>
+              <span class="toolbarText">Menu</span>
             </paper-button>
-          </a>
-          <a href="/login" class="middle toolbar-link">
-            <paper-button class="toolbar-button">
-              <iron-icon icon="custom-icons:account-box"></iron-icon>
-              <span class="toolbar-text">Account</span>
+            <!-- ACCOUNTS BUTTON (logged off/open dialog) (logged on/account page) -->
+            <paper-button class="toolbar-button wide-toolbar-button" on-tap="_accountClick">
+              <iron-icon icon="[[_accountIcon]]"></iron-icon>
+              <span class="toolbarText">Account</span>
             </paper-button>
-          </a>
-          <a href="/shopping-cart" class="middle toolbar-link">
-            <paper-button id="headercart" class="toolbar-button">
-              <iron-icon id="cart-icon" icon="custom-icons:shopping-cart"></iron-icon>
-              <span class="toolbar-text">Cart [[_currencyFilter(cartTotal)]]</span>
+            <!-- ACCOUNTS ICON BUTTON -->
+            <paper-icon-button class="toolbar-button small-toolbar-button" icon="[[_accountIcon]]" on-tap="_accountClick"></paper-icon-button>
+            <!-- CART BUTTON: go to shopping cart page -->
+            <paper-button id="cart-button-wide" class="toolbar-button wide-toolbar-button" on-tap="_goToCart">
+              <iron-icon icon="custom-icons:shopping-cart"></iron-icon>
+              <span class="toolbarText">Cart [[_currencyFilter(cartTotal)]]</span>
             </paper-button>
-            <paper-badge id="cartCountBadge" for="headercart" label="[[cartCount]]" hidden$="[[!cartCount]]" alt-hidden$="[[sidebarQuery]]"></paper-badge>
-          </a>
-        </paper-toolbar>
-      </paper-scroll-header-panel>
-    </paper-drawer-panel>
-    <paper-toast id="toast0" text=""></paper-toast>
+            <!-- CART ICON BUTTON: go to shopping cart page -->
+            <paper-icon-button id="cart-button" class="toolbar-button small-toolbar-button" icon="custom-icons:shopping-cart" on-tap="_goToCart"></paper-icon-button>
+            <!-- BADGE attached to shopping cart button -->
+            <paper-badge id="cartCountBadge" for="cart-button" label="[[cartCount]]"></paper-badge>
+
+
+          </app-toolbar>
+
+          <!-- Toolbar for large title only -->
+          <app-toolbar id="title-toolbar">
+            <div id="toolbar-main-title" class="toolbar-title" main-title>TRULY ASIA</div>
+          </app-toolbar>
+
+          <!-- PROGRESS BAR for generic progress update -->
+          <paper-progress id="progressBar" indeterminate value="100" bottom-item></paper-progress>
+        </app-header>
+      </app-header-layout>
+    </app-drawer-layout>
+    <paper-toast id="toastyPersistant" class="fit-bottom" duration="0">
+      <paper-button on-tap="_closeToastyPersistant">Close</paper-button>
+    </paper-toast>
   </template>
   <script>
     Polymer({
@@ -267,6 +388,11 @@
           type: Array
         },
 
+        _accountIcon: {
+          type: String,
+          value: 'custom-icons:person-outline',
+        },
+
         tabpage: {
           type: String,
           value: 'menutab'
@@ -280,17 +406,20 @@
         cartBadge: {
           type: Number,
           value: 0
-        }
+        },
+
+        _loginDialogCanceled: {
+          type: Boolean,
+          observer: '_resetDialog'
+        },
 
       },
+
       listeners: {
-        'ta-menu-scrollcategory': 'scrollToMenuSection',
-        'cart-plus': 'plusFromCart',
-        'cart-minus': 'minusFromCart',
-        'cart-deleted': 'deleteFromCart',
         'checkout-tapped': '_pageToCheckout',
-        'sign-in': '_login',
-        'logout': '_logout'
+        'close-login-dialog': '_closeLoginDialog',
+        'toasty-persistant': 'openToastyPersistant',
+        'dialog-error': 'dialogErrorOpen'
       },
 
       observers: ['_routePageChanged(routeData.page)'],
@@ -298,6 +427,7 @@
         this.page = page || 'menu';
       },
 
+      // changes the page based on url
       _pageChanged: function(page) {
         // load page import on demand.
         this.importHref(this.resolveUrl('ta-' + page + '.html'), null, null, true);
@@ -306,40 +436,53 @@
         }
       },
 
-      _calculateMedTallClass: function(query) {
-        return query ?
-          'medium-tall' :
-          '';
-      },
-
-      openDrawer: function() {
-        this.$.mainPanel.openDrawer();
-      },
-
-      tabToCart: function() {
-        this.tabpage = 'carttab';
-        this.$.mainPanel.openDrawer();
-      },
-
+      // changes page to checkout but not url
       _pageToCheckout: function() {
         this.page = 'checkout';
       },
 
-      _login: function(e) {
-        console.log(e.detail);
-        this.$.auth.signInWithPopup(e.detail);
+      // changes page/url to menu
+      _goToMenu: function() {
+        this.set('routeData.page', '');
       },
 
-      _logout: function() {
-        this.$.auth.signOut();
+      // changes page/url to cart
+      _goToCart: function() {
+        this.set('routeData.page', 'shopping-cart');
       },
 
+      // closes login dialog box, triggered by event
+      _closeLoginDialog: function() {
+        this.$.dialogLogin.close();
+      },
+
+      // resets the login dialog box
+      _resetDialog: function(val) {
+        if (!val) {
+          this.$.loginPage.reset();
+        }
+      },
+
+      _accountClick: function() {
+        if (this.user.isAnonymous === false) {
+          //TODO: go to accounts page, make accounts page
+          // this.set('routeData.page', 'account');
+          //HACK: open login page for dev purposes
+          this.$.dialogLogin.open();
+        } else {
+          this.$.dialogLogin.open();
+        }
+      },
+
+      // create user profile, if non exists
       _userchange: function(user) {
-        //CREATE USER PROFILE IF NON EXISTS check if logged in
-        if (this.user && !this.user.isAnonymous) {
-          console.log('create profile', this.user);
-          var profileEl = this.$.fbUserProfile;
-          profileEl.ref.once('value').then(function(snapshot) {
+        if (user && !user.isAnonymous) {
+
+          this._accountIcon = 'custom-icons:person';
+          this.$.dialogLogin.close();
+
+          var fbUserRef = firebase.database().ref('/users/' + user.uid);
+          fbUserRef.once('value').then(function(snapshot) {
             //if no profile exists
             if (!snapshot.val()) {
               //create profile data obj
@@ -348,7 +491,7 @@
                 provider: user.providerData[0].providerId
               };
               //create profile
-              profileEl.ref.set(userProfile, function(error) {
+              fbUserRef.set(userProfile, function(error) {
                 if (error) {
                   console.log('user creation failure:' + error);
                 } else {
@@ -357,34 +500,47 @@
               });
             }
           });
+        } else {
+          this._accountIcon = 'custom-icons:person-outline';
         }
       },
 
-      _edgeSwipeDisable: function(sidebarQuery, page) {
-        if (page != 'menu' || sidebarQuery) {
+      // makes the drawer unswipable when horizontal resolution is over
+      // or when the page isn't on menu
+      _edgeSwipable: function(sidebarQuery, page) {
+        if (page === 'menu' && !sidebarQuery) {
           return true;
         }
         return false;
       },
 
+      // scrolls to menu section by getting the Y position of the menu header
       scrollToMenuSection: function(e) {
         var yPos;
+        const offset = 70; //offset to account for header
         if (e.model) {
           yPos = this.$.menulistpage.getCategoryYPos(e.model.category.$key);
+          console.log('$key');
         } else {
           yPos = this.$.menulistpage.getCategoryYPos(e.detail);
+          console.log('detail');
         }
-        this.$.mainScrollPanel.scroll(yPos - 50, true);
-        this.$.mainPanel.closeDrawer();
+
+        Polymer.AppLayout.scroll({
+          top: yPos - offset,
+          behavior: 'smooth',
+        });
+        this.$.drawer.close();
       },
 
+      // on viewport resize call recalculate function
       _panelResized: function(e) {
-        // if (this.itemList) {
         if (this.page === 'menu') {
           this.$.menulistpage.debounceRecalculateHeight();
         }
       },
 
+      // filter for shopping cart price on toolbar
       _currencyFilter: function(price) {
         if (price === 0) {
           return '£0.00';
@@ -393,6 +549,29 @@
         } else {
           return '£' + (price / 100).toFixed(2);
         }
+      },
+
+      // opens persistant toast, param is the text
+      openToastyPersistant: function(e) {
+        this.$.toastyPersistant.show(e.detail)
+      },
+
+      // closes persistant the toast
+      _closeToastyPersistant: function() {
+        this.$.toastyPersistant.close();
+      },
+
+      // opens the error dialog box param includes title and message
+      dialogErrorOpen: function(e) {
+        console.log('dialog error open', e);
+        this.$.dialogErrorTitle.innerHTML = e.detail.title;
+        this.$.dialogErrorContent.innerHTML = e.detail.message;
+        this.$.dialogError.open();
+      },
+
+      // closes the above dialog error box
+      _okError: function() {
+        this.$.dialogError.close();
       },
 
       ready: function() {
