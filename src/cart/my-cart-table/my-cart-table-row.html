@@ -1,4 +1,4 @@
-<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
 
 <link rel="import" href="../../../bower_components/iron-collapse/iron-collapse.html">
 
@@ -18,9 +18,9 @@
 <dom-module id="my-cart-table-row">
   <template>
     <style>
-       :host {
+      :host {
         display: flex;
-        font-size: 13px;
+        font-size: var(--app-cart-table-row-font-size);
         color: var(--app-cart-table-row-font-color);
         padding: 14px 24px;
         min-height: 48px;
@@ -28,92 +28,68 @@
         align-items: center;
         border-bottom: var(--app-cart-table-row-divider);
       }
-
       .data:not(:first-of-type) {
-        margin-left: 56px;
+        margin-left: var(--app-cart-table-large-margin);
       }
-
       .data:nth-of-type(2),
       .data:nth-of-type(3) {
-        margin-left: 24px;
+        margin-left: var(--app-cart-table-small-margin);
       }
-
-      .data,
-      #itemName {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
       #selections {
         white-space: normal;
       }
-
       #removeItem {
         color: var(--app-cart-table-row-remove-color);
       }
-
       #name {
         flex-grow: 99;
         display: flex;
         flex-direction: column;
       }
-
-      #itemName {}
-
       #selections {
         color: var(--app-cart-table-row-support-font-color);
-        font-size: 12px;
+        font-size: var(--app-cart-table-row-support-font-size);
       }
-
       #note {
         flex-shrink: 0;
         width: 20%;
       }
-
       #noteButton {
         text-transform: none;
         justify-content: flex-start;
-        width: 96%;
+        border: 2px dashed var(--paper-grey-400);
       }
-
-      #noteButton span {
-        white-space: normal;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
       #qty {
         flex-shrink: 0;
-        width: 105px;
+        width: var(--app-cart-table-qty-width);
         text-align: center;
       }
-
-      #minusItem,
-      #addItem {
+      .icon-button {
+        height: var(--app-cart-table-icon-button-size);
+        width: var(--app-cart-table-icon-button-size);
+      }
+      #addItem,
+      #minusItem {
         color: var(--app-cart-table-row-actions);
       }
-
       #price {
         flex-shrink: 0;
-        width: 50px;
+        width: var(--app-cart-table-price-width);
         text-align: right;
       }
-
       #clear {
         flex-shrink: 0;
         width: 40px;
       }
-
       #noteTextBox {
         margin-bottom: 12px;
       }
-
       #noteDialog {
-        margin: 0px;
+        margin: 0;
         width: 280px;
         max-height: none !important;
       }
+
     </style>
 
     <firebase-document id="cartRef" path="/cart/pending/[[userId]]/[[itemKey]]" data="{{cartItem}}"></firebase-document>
@@ -122,21 +98,23 @@
     <filter-currency id="filterCurrency" zero-value="free"></filter-currency>
 
     <div class="data" id="clear">
-      <paper-icon-button id="removeItem" icon="custom-icons:highlight-off" on-tap="_removeItem"></paper-icon-button>
+      <paper-icon-button id="removeItem" class="icon-button" icon="custom-icons:highlight-off" on-tap="_removeItem"></paper-icon-button>
     </div>
     <div class="data" id="name">
       <div id="itemName">[[menuItem.name]]</div>
       <div id="selections">[[_computeSelectionText(cartItem,menuItem)]]</div>
     </div>
     <div class="data" id="note">
-      <paper-button id="noteButton" on-tap="_openNoteDialog"><span>[[_buttonText(cartItem.note)]]</span></paper-button>
+      <paper-button id="noteButton" on-tap="_openNoteDialog">
+        <span>[[_buttonText(cartItem.note)]]</span>
+      </paper-button>
     </div>
     <div class="data" id="qty">
-      <paper-icon-button id="minusItem" icon="custom-icons:remove-circle-outline" on-tap="_subQty"></paper-icon-button>
+      <paper-icon-button id="minusItem" class="icon-button" icon="custom-icons:remove-circle-outline" on-tap="_subQty"></paper-icon-button>
       [[cartItem.qty]]
-      <paper-icon-button id="addItem" icon="custom-icons:add-circle-outline" on-tap="_addQty"></paper-icon-button>
+      <paper-icon-button id="addItem" class="icon-button" icon="custom-icons:add-circle-outline" on-tap="_addQty"></paper-icon-button>
     </div>
-    <div class="data" id="price">[[subtotal]]</div>
+    <div class="data" id="price">[[_displaySubtotal(subtotal)]]</div>
 
     <paper-dialog id="noteDialog" no-overlap horizontal-align="left" vertical-align="top">
       <h2>Add a note</h2>
@@ -147,88 +125,93 @@
       </div>
     </paper-dialog>
 
-
   </template>
   <script>
-    Polymer({
-      is: 'my-cart-table-row',
+    class MyCartTableRow extends Polymer.Element {
 
-      properties: {
+      static get is() {
+        return 'my-cart-table-row';
+      }
 
-        itemKey: {
-          type: String
-        },
+      static get properties() {
+        return {
 
-        subtotal: {
-          type: Number,
-          computed: '_computeSubtotal(cartItem,menuItem,cartItem.qty)'
-        },
+          itemKey: {
+            type: String
+          },
 
-      },
+          userId: {
+            type: String
+          },
 
-      _saveNote: function() {
+          subtotal: {
+            type: Number
+          }
+
+        };
+      }
+
+      static get observers() {
+        return [];
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      ready() {
+        super.ready();
+        // add event listeners When possible, use afterNextRender to defer non-critical work until after first paint.
+        Polymer.RenderStatus.afterNextRender(this, function () {});
+      }
+
+      _displaySubtotal(subtotal) {
+        return this.$.filterCurrency.filter(subtotal);
+      }
+
+      _saveNote() {
         this.set('cartItem.note', this.$.noteTextBox.value);
         this.$.noteDialog.close();
-      },
+      }
 
-      _removeNote: function() {
+      _removeNote() {
         this.set('cartItem.note', null);
         this.$.noteDialog.close();
-      },
+      }
 
-      _openNoteDialog: function(e) {
+      _openNoteDialog() {
         this.$.noteDialog.positionTarget = this.$.noteButton;
         this.$.noteTextBox.value = this.cartItem.note;
         this.$.noteDialog.open();
-      },
+      }
 
-      _buttonText: function(note) {
-        return !note ? 'add note' : this.cartItem.note;
-      },
+      _buttonText(note) {
+        return !note
+          ? 'add note'
+          : this.cartItem.note;
+      }
 
       //adds 1 to current qty
-      _addQty: function() {
+      _addQty() {
         this.set('cartItem.qty', this.cartItem.qty + 1);
-      },
+      }
       //subtracts 1 from current qty or removes when 0
-      _subQty: function() {
+      _subQty() {
         var newQty = this.cartItem.qty - 1;
         if (newQty === 0) {
           this._removeItem();
         } else {
           this.set('cartItem.qty', newQty);
         }
-      },
+      }
       //removes the cart firebase ref, thereby deleting this element
-      _removeItem: function() {
+      _removeItem() {
         this.$.cartRef.ref.remove();
-      },
+      }
 
-      _computeSubtotal: function(item, data) {
-        var subtotal = 0;
-        if (!Object.keys(item).length || !Object.keys(data).length) {
-          return subtotal;
-        }
-
-        //add item base price to subtotal
-        subtotal = item.qty * data.price;
-        //if cart item HAS selection
-        if (item.selections) {
-          //loop through cart selection-list for each selection
-          for (let a in item.selections) {
-            //loop through each subitem in selection
-            for (let b in item.selections[a]) {
-              //add subitem to subtotal
-              subtotal += data.selections[a].subitems[b].price * item.qty;
-            }
-          }
-        }
-        return this.$.filterCurrency.filter(subtotal);
-      },
-
-      //returns the list of subitems selected seperated by comma
-      //returns in the right order based on the order of selections and subitems
-      _computeSelectionText: function(cItem, mItem) {
+      //returns the list of subitems selected seperated by comma returns in the right order based on the order of selections and subitems
+      _computeSelectionText(cItem, mItem) {
         var selectText = '';
         //return nothing if firebase data not populated
         if (!Object.keys(cItem).length || !Object.keys(mItem).length) {
@@ -249,18 +232,21 @@
 
         function arraySort(cObj, mObj, cProp, mProp, order) {
           var arr = [];
-          cObj = cProp ? cObj[cProp] : cObj;
+          cObj = cProp
+            ? cObj[cProp]
+            : cObj;
           for (let a in cObj) {
             mObj[mProp][a].$key = a;
             arr.push(mObj[mProp][a]);
           }
-          arr.sort(function(a, b) {
+          arr.sort(function (a, b) {
             return a[order] - b[order];
           });
           return arr;
         }
-      },
+      }
 
-    });
+    }
+    window.customElements.define(MyCartTableRow.is, MyCartTableRow);
   </script>
 </dom-module>

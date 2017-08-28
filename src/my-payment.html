@@ -1,0 +1,158 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<!-- <link rel="import" href="../bower_components/gold-cc-input/gold-cc-input.html"> -->
+<!-- <link rel="import" href="../bower_components/gold-cc-expiration-input/gold-cc-expiration-input.html">
+<link rel="import" href="../bower_components/gold-cc-cvc-input/gold-cc-cvc-input.html"> -->
+
+<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+<script type="text/javascript">
+  Stripe.setPublishableKey('pk_test_pUSQFfb4nmCXEonFgjVS4xVR');
+</script>
+
+<dom-module id="my-payment">
+  <template>
+    <style>
+      :host {
+        display: block;
+        padding: 16px;
+      }
+      #expr-cvc {
+        display: flex;
+      }
+      #expiration {
+        width: 50%;
+        margin-right: 10px;
+      }
+      #cvc {
+        width: 50%;
+        margin-left: 10px;
+      }
+
+    </style>
+
+    <iron-ajax id="ajaxPay" url="http://127.0.0.1:3000/truly-asia/pay" handle-as="json" content-type="application/json" method="POST" verbose="true" last-response="{{_ajaxPayRes}}"></iron-ajax>
+
+    <paper-card>
+      <div id="payment-form" class="card-content">
+
+        <!-- <gold-cc-input id="cardnumber" label="Card Number" card-type="{{cardType}}" auto-validate required value="{{_cc.num}}"></gold-cc-input>
+        <div id="expr-cvc"> -->
+        <!-- <gold-cc-expiration-input id="expiration" auto-validate required value="{{_cc.exp}}"></gold-cc-expiration-input>
+                    <gold-cc-cvc-input id="cvc" card-type="[[cardType]]" auto-validate required value="{{_cc.cvc}}"></gold-cc-cvc-input> -->
+      </div>
+      <paper-checkbox>save this card</paper-checkbox>
+    </div>
+  </paper-card>
+
+  <paper-button id="token-button" raised disabled="{{!_cardValid(_cc.num,_cc.exp,_cc.cvc,_disableSubmit)}}" on-tap="_getToken">Get Token</paper-button>
+
+</template>
+<script>
+  class MyPayment extends Polymer.Element {
+
+    static get is() {
+      return 'my-payment';
+    }
+
+    static get properties() {
+      return {
+
+        user: {
+          type: Object
+        },
+
+        _cc: {
+          type: Object,
+          value: {
+            num: '',
+            exp: '11/17',
+            cvc: '123'
+          }
+        },
+
+        _disableSubmit: {
+          type: Boolean,
+          value: false
+        },
+
+        _ajaxPayRes: {
+          type: Object,
+          observer: '_chargeResponse'
+        }
+
+      };
+    }
+
+    static get observers() {
+      return [];
+    }
+
+    connectedCallback() {
+      super.connectedCallback();
+
+    }
+
+    ready() {
+      super.ready();
+      // add event listeners When possible, use afterNextRender to defer non-critical work until after first paint.
+      Polymer.RenderStatus.afterNextRender(this, function () {});
+    }
+
+    _cardValid(card, exp, cvc, disableSubmit) {
+      if (disableSubmit) {
+        return false;
+      } else if (Stripe.card.validateCardNumber(card) && Stripe.card.validateExpiry(exp) && Stripe.card.validateCVC(cvc)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    _getToken() {
+      var user = this.user;
+      var ajaxEl = this.$.ajaxPay;
+      this._disableSubmit = true;
+
+      Stripe.card.createToken({
+        number: this._cc.num,
+        cvc: this._cc.cvc,
+        exp: this._cc.exp
+      }, function (status, response) {
+        if (response.error) {
+          //error in getting token
+          console.log('status: ', status);
+          console.log('error: ', response.error.message);
+        } else {
+          //got card token
+          console.log('status', status);
+          console.log('token:', response.id);
+
+          //get user token
+          user.getToken(true).then(function (idToken) {
+            ajaxEl.body = {
+              idToken: idToken,
+              cardToken: response.id
+            };
+            ajaxEl.generateRequest();
+          }).catch(function (error) {
+            console.log(error);
+          });
+        }
+      });
+    }
+
+    _chargeResponse(val) {
+      console.log(val);
+    }
+
+  }
+  window.customElements.define(MyPayment.is, MyPayment);
+</script>
+
+</dom-module>
