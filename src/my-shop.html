@@ -448,9 +448,10 @@
 
       // changes the page based on url
       _pageChanged(page) {
+        // TODO: Load page import on demand. Show 404 page if fails
 
-        this.resolveUrl('ta-' + page + '.html');
-        // TODO: Load page import on demand. Show 404 page if fails var resolvedPageUrl = this.resolveUrl('ta-' + page + '.html'); Polymer.importHref(resolvedPageUrl,   null,   this._showPage404.bind(this),   true);
+        var resolvedPageUrl = this.resolveUrl('my-' + page + '.html');
+        Polymer.importHref(resolvedPageUrl, null, null, true);
 
         if (this.page === 'menu') {
           this.$.menulistpage.debounceRecalculateHeight();
@@ -486,7 +487,9 @@
 
       _accountClick() {
         if (this.user.isAnonymous === false) {
-          //TODO: go to accounts page, make accounts page this.set('routeData.page', 'account'); HACK: open login page for dev purposes
+          //TODO: go to accounts page, make accounts page
+          this.set('routeData.page', 'account');
+          // HACK: open login page for dev purposes
           this.$.dialogLogin.open();
         } else {
           this.$.dialogLogin.open();

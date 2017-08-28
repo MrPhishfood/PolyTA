@@ -17,6 +17,16 @@
 <dom-module id="my-cart-item">
   <template>
     <style>
+      @media all and (max-width: 600px) {
+        /*my-cart-item styles*/
+        :host {
+          --app-cart-item-header-font-size: calc( 20px + (25 - 20) * (100vw - 320px) / (600 - 320));
+          --app-cart-item-support-font-size: calc( 14px + (17.5 - 14) * (100vw - 320px) / (600 - 320));
+          --app-cart-item-action-font-size: calc( 18px + (22 - 18) * (100vw - 320px) / (600 - 320));
+          --app-cart-item-action-note-icon-size: calc( 24px + (40 - 24) * (100vw - 320px) / (600 - 320));
+          --app-cart-item-action-icon-size: calc( 32px + (40 - 32) * (100vw - 320px) / (600 - 320));
+        }
+      }
       :host {
         --my-cart-item-padding: 16px;
         --my-cart-item-heading-font-size: 20px;

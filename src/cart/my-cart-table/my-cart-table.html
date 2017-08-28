@@ -17,6 +17,34 @@
 <dom-module id="my-cart-table">
   <template>
     <style>
+      @media all and (min-width: 601px) {
+        :host {
+          --app-cart-table-header-font-size: calc( 12px + (22 - 12) * (100vw - 601px) / (1280 - 601));
+          --app-cart-table-row-font-size: calc( 13px + (23 - 13) * (100vw - 601px) / (1280 - 601));
+          --app-cart-table-row-support-font-size: calc( 12px + (19 - 12) * (100vw - 601px) / (1280 - 601));
+          --app-cart-table-icon-button-size: calc( 34px + (45 - 34) * (100vw - 601px) / (1280 - 601));
+          --app-cart-table-note-font-size: calc( 13px + (19 - 13) * (100vw - 601px) / (1280 - 601));
+          --app-cart-table-price-width: calc( 50px + (100 - 50) * (100vw - 601px) / (1280 - 601));
+          --app-cart-table-qty-width: calc( 105px + (150 - 105) * (100vw - 601px) / (1280 - 601));
+          --app-cart-table-small-margin: calc( 9px + (24 - 9) * (100vw - 601px) / (1280 - 601));
+          --app-cart-table-large-margin: calc( 0px + (56 - 0) * (100vw - 601px) / (1280 - 601));
+        }
+      }
+      @media all and (min-width: 1281px) {
+        :host {
+          /*menu table*/
+          --app-cart-table-header-font-size: 22px;
+          --app-cart-table-row-font-size: 23px;
+          --app-cart-table-row-support-font-size: 19px;
+          --app-cart-table-icon-button-size: 45px;
+          --app-cart-table-note-font-size: 19px;
+          --app-cart-table-price-width: 100px;
+          --app-cart-table-qty-width: 150px;
+          --app-cart-table-small-margin: 24px;
+          --app-cart-table-large-margin: 56px;
+        }
+        /*mu-cart-item styles*/
+      }
       :host {
         display: flex;
         flex-direction: column;

@@ -15,6 +15,49 @@
   <!-- Defines the element's style and local DOM -->
   <template>
     <style>
+      @media all and (max-width: 480px) {
+        :host {
+          --app-item-header-fontsize: calc( 24px + (30 - 24) * (100vw - 320px) / (480 - 320));
+          --app-item-supporting-fontsize: calc( 14px + (17.5 - 14) * (100vw - 320px) / (480 - 320));
+          --app-item-actions-fontsize: calc( 18px + (20 - 18) * (100vw - 320px) / (480 - 320));
+          --app-item-image-height: calc( 171px + (261 - 171) * (100vw - 320px) / (480 - 320));
+        }
+      }
+      @media all and (min-width: 481px) and (max-width: 700px) {
+        :host {
+          --app-item-header-fontsize: calc( 20px + (24 - 20) * (100vw - 481px) / (700 - 481));
+          --app-item-supporting-fontsize: calc( 14px + (16.25 - 14) * (100vw - 481px) / (700 - 481));
+          --app-item-actions-fontsize: calc( 18px + (21.25 - 18) * (100vw - 481px) / (700 - 481));
+          --app-item-image-height: calc( 128px + (190 - 128) * (100vw - 481px) / (700 - 481));
+        }
+      }
+      @media all and (min-width: 701px) and (max-width: 987px) {
+        :host {
+          --app-item-header-fontsize: calc( 20px + (24 - 20) * (100vw - 701px) / (987 - 701));
+          --app-item-supporting-fontsize: calc( 14px + (16.25 - 14) * (100vw - 701px) / (987 - 701));
+          --app-item-actions-fontsize: calc( 18px + (21.25 - 18) * (100vw - 701px) / (987 - 701));
+          --app-item-image-height: calc( 125px + (179 - 125) * (100vw - 701px) / (987 - 701));
+        }
+      }
+      @media all and (min-width: 988px) and (max-width: 1280px) {
+        :host {
+          --app-item-header-fontsize: calc( 20px + (24 - 20) * (100vw - 988px) / (1280 - 988));
+          --app-item-supporting-fontsize: calc( 14px + (16.25 - 14) * (100vw - 988px) / (1280 - 988));
+          --app-item-actions-fontsize: calc( 18px + (21.25 - 18) * (100vw - 988px) / (1280 - 988));
+          --app-item-image-height: calc( 133px + (174 - 133) * (100vw - 988px) / (1280 - 988));
+        }
+      }
+      @media all and (min-width: 1281px) {
+        :host {
+          /*menu item*/
+          --app-item-header-fontsize: 24px;
+          --app-item-supporting-fontsize: 14px;
+          --app-item-actions-fontsize: 18px;
+          --app-item-imageheight: 207px;
+          --app-item-image-height: 174px;
+        }
+        /*mu-cart-item styles*/
+      }
       :host {
         display: flex;
         max-width: 1280px;
@@ -45,12 +88,7 @@
         padding-bottom: 8px;
         padding-right: 8px;
       }
-      my-menu-item {
-        --my-menu-item-header-font-size: var(--app-item-header-fontsize);
-        --my-menu-item-support-font-size: var(--app-item-supporting-fontsize);
-        --my-menu-item-actions-font-size: var(--app-item-actions-fontsize);
-        --my-menu-item-image-height: var(--app-item-imageheight);
-      }
+      my-menu-item {}
       @media all and (max-width: 480px) {
         .list-item {
           width: 100%;
