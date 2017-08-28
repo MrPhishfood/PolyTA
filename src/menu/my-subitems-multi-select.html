@@ -1,4 +1,4 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../bower_components/polymerfire/firebase-document.html">
 <link rel="import" href="../../bower_components/polymerfire/firebase-query.html">
@@ -6,111 +6,113 @@
 <dom-module id="my-subitems-multi-select">
   <template>
     <style>
-       :host {
+      :host {
         --my-subitems-multi-select-padding: 8px;
         --my-subitems-multi-select-font-size: 14px;
       }
-
       paper-checkbox {
         --paper-checkbox-label: {
           display: flex;
           flex-grow: 99;
-        }
-        ;
+        };
       }
-
       .subitem {
         display: flex;
         align-items: center;
         padding: var(--my-subitems-multi-select-padding) 0;
       }
-
-      .subitem ::content {
+      .subitem::content {
         display: flex;
         flex-wrap: nowrap;
       }
-
       .subitem-name {
         flex-grow: 99;
       }
-
       .subitem[checked] .subitem-name,
       .subitem[checked] .subitem-price {
         font-weight: bold;
       }
-
       .subitem-price {
         margin-left: calc(var(--my-subitems-multi-select-padding)*2);
         white-space: nowrap;
       }
-
       .subitem-name,
       .subitem-price {
         display: block;
         font-size: var(--my-subitems-multi-select-font-size);
       }
+
     </style>
 
-    <firebase-document path="/menu/items/{{itemKey}}/selections/[[selectionKey]]" data="{{selection}}"></firebase-document>
-    <firebase-query path="/menu/items/{{itemKey}}/selections/[[selectionKey]]/subitems" data="{{subitemList}}"></firebase-query>
+    <firebase-document path="/menu/items/{{itemKey}}/selections/[[selectionKey]]" data="{{_selection}}"></firebase-document>
+    <firebase-query path="/menu/items/{{itemKey}}/selections/[[selectionKey]]/subitems" data="{{_subitemList}}"></firebase-query>
 
     <!--Subitems-->
-    <template is="dom-repeat" items="[[subitemList]]" as="subitem" sort="_sort" observe="order">
-      <paper-checkbox class="subitem" id="[[subitem.$key]]">
-        <div class="subitem-name">[[subitem.name]]</div>
-        <div class="subitem-price">[[_currencyFilterSubitem(subitem.price)]]</div>
+    <template is="dom-repeat" items="[[_subitemList]]" as="_subitem" sort="_sort" observe="order">
+      <paper-checkbox class="subitem" id="[[_subitem.$key]]">
+        <div class="subitem-name">[[_subitem.name]]</div>
+        <div class="subitem-price">[[_currencyFilterSubitem(_subitem.price)]]</div>
       </paper-checkbox>
     </template>
 
   </template>
 
   <script>
-    Polymer({
+    class MySubitemsMultiSelect extends Polymer.Element {
 
-      is: 'my-subitems-multi-select',
+      static get is() {
+        return 'my-subitems-multi-select';
+      }
 
-      properties: {
-        //item key for firebase path
-        itemKey: {
-          type: String,
-        },
+      static get properties() {
+        return {
 
-        selectionKey: {
-          type: String
-        },
+          //item key for firebase path
+          itemKey: {
+            type: String
+          },
 
-        selected: {
-          type: Object,
-          readOnly: true,
-          observer: '_setValid'
-        },
+          selectionKey: {
+            type: String
+          },
 
-        selectionValid: {
-          type: Boolean,
-          notify: true,
-          readOnly: true
-        }
+          selected: {
+            type: Object,
+            readOnly: true,
+            observer: '_setValid'
+          },
 
-      },
+          selectionValid: {
+            type: Boolean,
+            notify: true,
+            readOnly: true
+          }
 
-      //check the checkbox states when iron-change event detected
-      listeners: {
-        'iron-change': '_checkChanged',
-      },
+        };
+      }
 
-      //recheck state of checkboxes if the selection parameters change
-      observers: [
-        '_checkChanged(subitemList.splices,selection.min,selection.max)'
-      ],
+      static get observers() {
+        return ['_checkChanged(_subitemList.splices,selection.min,selection.max)'];
+      }
 
-      //function called when a checkbox changes state
-      //counts the number of boxes checked to determine whether to
-      //enable/disable other checkboxes if limit reached.
-      //creates a JSON object of all selected subitems to add in to cart
-      _checkChanged: function() {
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      ready() {
+        super.ready();
+        // add event listeners
+        this.addEventListener('iron-change', e => this._checkChanged(e));
+        // When possible, use afterNextRender to defer non-critical work until after first paint.
+        Polymer.RenderStatus.afterNextRender(this, function () {});
+      }
+
+      //function called when a checkbox changes state counts the number of boxes checked to determine whether to enable/disable other checkboxes if limit reached. creates a JSON object of all selected subitems to add in to cart
+      _checkChanged() {
         try {
 
-          var cboxes = Polymer.dom(this.root).querySelectorAll('.subitem');
+          var cboxes = this.shadowRoot.querySelectorAll('.subitem');
           //end function if no checkboxes found
           if (!cboxes.length) {
             return;
@@ -119,9 +121,8 @@
           var selected = {};
           var subitems = {};
           var chkCount = 0;
-          var thisObj = this;
 
-          cboxes.forEach(function(box) {
+          cboxes.forEach(function (box) {
             if (box.checked) {
               chkCount++;
               subitems[box.id] = true;
@@ -129,29 +130,27 @@
           });
 
           //If somehow the number of checked boxes exceeds max then uncheck all
-          if (chkCount > this.selection.max) {
-            cboxes.forEach(function(box) {
+          if (chkCount > this._selection.max) {
+            cboxes.forEach(function (box) {
               box.checked = false;
               box.disabled = false;
             });
           } else {
-            //disable unchecked boxes if max limit reached
-            //else enable all boxes
-            if (chkCount >= this.selection.max) {
-              cboxes.forEach(function(box) {
+            //disable unchecked boxes if max limit reached else enable all boxes
+            if (chkCount >= this._selection.max) {
+              cboxes.forEach(function (box) {
                 if (!box.checked) {
                   box.disabled = true;
                 }
               });
             } else {
-              cboxes.forEach(function(box) {
+              cboxes.forEach(function (box) {
                 box.disabled = false;
               });
             }
           }
 
-          //selected will be populated with properties named After
-          //the subitem witht he value true
+          //selected will be populated with properties named After the subitem witht he value true
           if (Object.keys(subitems).length !== 0) {
             selected[this.selectionKey] = subitems;
           }
@@ -162,39 +161,39 @@
           console.log('_checkChanged error:', err);
         }
 
-      },
+      }
 
-      //if the number of selected subitems is within the min/max
-      //then set selectionValid to true (private setter) else false
-      //fire off event for my-item-selections to recheck selection validation
-      _setValid: function() {
+      //if the number of selected subitems is within the min/max then set selectionValid to true (private setter) else false fire off event for my-item-selections to recheck selection validation
+      _setValid() {
         var subitemLength = 0;
         if (Object.keys(this.selected).length) {
           //gets the number of properties in the first property of this.selected
           subitemLength = Object.keys(this.selected[Object.keys(this.selected)[0]]).length;
         }
-        if ((subitemLength >= this.selection.min) && (subitemLength <= this.selection.max)) {
+        if ((subitemLength >= this._selection.min) && (subitemLength <= this._selection.max)) {
           this._setSelectionValid(true);
         } else {
           this._setSelectionValid(false);
         }
-        this.fire('selection-valid-update');
-      },
+        this.dispatchEvent(new CustomEvent('selection-valid-update', {
+          detail: {},
+          bubbles: true,
+          composed: true
+        }));
+      }
 
-      //sorting function used to sort subitems based on the
-      //order property
-      _sort: function(a, b) {
+      //sorting function used to sort subitems based on the order property
+      _sort(a, b) {
         if (a.order === b.order) {
           return 0;
         }
-        return a.order < b.order ? -1 : 1;
-      },
+        return a.order < b.order
+          ? -1
+          : 1;
+      }
 
-      //converts GBP in its lowest demonination (300 pence)
-      //to its standard representation (£3.00) and anything
-      //lower than 100 pence is suffixed with 'p'
-      //example: 50p
-      _currencyFilterSubitem: function(price) {
+      //converts GBP in its lowest demonination (300 pence) to its standard representation (£3.00) and anything lower than 100 pence is suffixed with 'p' example: 50p
+      _currencyFilterSubitem(price) {
         if (price === 0) {
           return '';
         } else if (price < 100) {
@@ -202,8 +201,9 @@
         } else {
           return '+ £' + (price / 100).toFixed(2);
         }
-      },
+      }
 
-    });
+    }
+    window.customElements.define(MySubitemsMultiSelect.is, MySubitemsMultiSelect);
   </script>
 </dom-module>

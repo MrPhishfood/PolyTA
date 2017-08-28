@@ -1,12 +1,23 @@
 
 {
   "entrypoint": "index.html",
-  "shell": "src/ta-shop.html",
+  "shell": "src/my-shop.html",
   "fragments": [
-    "src/ta-menu.html",
-    "src/ta-shopping-cart.html",
-    "src/ta-login.html",
-    "src/ta-payment.html"
+    "src/custom-icons.html",
+    "src/my-cart.html",
+    "src/my-checkout.html",
+    "src/my-login.html",
+    "src/my-menu.html",
+    "src/my-payment.html",
+    "src/my-shopping-cart.html",
+    "src/menu/my-menu-item.html",
+    "src/menu/my-item-selections.html",
+    "src/menu/my-subitems-multi-select.html",
+    "src/menu/my-subitems-single-select.html",
+    "src/cart/my-cart-item.html",
+    "src/cart/my-cart-table\\my-cart-table.html",
+    "src/cart/my-cart-table\\my-cart-table-row.html",
+    "src/filters/filter-currency.html"
   ],
   "sources": [
     "src/**/*",
@@ -15,27 +26,27 @@
   ],
   "extraDependencies": [
     "manifest.json",
-    "bower_components/webcomponentsjs/webcomponents-lite.js"
+    "bower_components/webcomponentsjs/*.js"
   ],
   "lint": {
-    "rules": ["polymer-2-hybrid"]
+    "rules": ["polymer-2"]
   },
   "builds": [{
-    "name": "es6-bundled",
+    "name": "a",
     "browserCapabilities": ["es2015"],
     "js": {"minify": false},
-    "css": {"minify": true},
-    "html": {"minify": true},
+    "css": {"minify": false},
+    "html": {"minify": false},
     "bundle": true,
     "addServiceWorker" : true,
     "addPushManifest": true,
     "insertPrefetchLinks": true
   },{
-    "name": "es6-unbundled",
+    "name": "b",
     "browserCapabilities": ["es2015", "push"],
     "js": {"minify": false, "compile": false},
     "css": {"minify": true},
-    "html": {"minify": true},
+    "html": {"minify": false},
     "bundle": false,
     "addServiceWorker" : true,
     "addPushManifest": true,

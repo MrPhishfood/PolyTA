@@ -1,177 +1,206 @@
 <!doctype html>
 <html lang="en">
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="Shop Test">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 
-  <title>Truly Asia</title>
-  <meta name="description" content="My App description">
+    <title>Truly Asia</title>
+    <meta name="description" content="My App description">
 
-  <link rel="icon" href="/images/favicon.ico">
+    <link rel="icon" href="/images/favicon.ico">
 
-  <!-- See https://goo.gl/OOhYW5 -->
-  <link rel="manifest" href="/manifest.json">
+    <!-- See https://goo.gl/OOhYW5 -->
+    <link rel="manifest" href="/manifest.json">
 
-  <!-- See https://goo.gl/qRE0vM -->
-  <meta name="theme-color" content="#C62828">
+    <!-- See https://goo.gl/qRE0vM -->
+    <meta name="theme-color" content="#C62828">
 
-  <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="application-name" content="Truly Asia">
+    <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Truly Asia">
 
-  <!-- Add to homescreen for Safari on iOS -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Truly Asia">
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Truly Asia">
 
-  <!-- Homescreen icons -->
-  <link rel="apple-touch-icon" href="/images/manifest/icon-48x48.png">
-  <link rel="apple-touch-icon" sizes="72x72" href="/images/manifest/icon-72x72.png">
-  <link rel="apple-touch-icon" sizes="96x96" href="/images/manifest/icon-96x96.png">
-  <link rel="apple-touch-icon" sizes="144x144" href="/images/manifest/icon-144x144.png">
-  <link rel="apple-touch-icon" sizes="192x192" href="/images/manifest/icon-192x192.png">
+    <!-- Homescreen icons -->
+    <link rel="apple-touch-icon" href="/images/manifest/icon-48x48.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/images/manifest/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="/images/manifest/icon-96x96.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/images/manifest/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/images/manifest/icon-192x192.png">
 
-  <!-- Tile icon for Windows 8 (144x144 + tile color) -->
-  <meta name="msapplication-TileImage" content="/images/manifest/icon-144x144.png">
-  <meta name="msapplication-TileColor" content="#C62828">
-  <meta name="msapplication-tap-highlight" content="no">
+    <!-- Tile icon for Windows 8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="/images/manifest/icon-144x144.png">
+    <meta name="msapplication-TileColor" content="#C62828">
+    <meta name="msapplication-tap-highlight" content="no">
 
-  <!-- fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
+    <!-- fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
 
-  <!-- Load and register pre-caching Service Worker -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/service-worker.js');
-      });
-    }
-  </script>
+    <!-- Load and register pre-caching Service Worker -->
+    <script>
+      window.Polymer = {
+        rootPath: '/'
+      };
 
-  <!-- Load webcomponents-loader.js to check and load any polyfills your browser needs -->
-  <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>
-
-  <!-- Load your application shell -->
-  <link rel="import" href="src/ta-shop.html">
-  <link rel="import" href="bower_components/polymer/lib/elements/custom-style.html">
-  <custom-style>
-    <style is="custom-style">
-      html {
-        /*generic styles*/
-        --app-background-color: var(--paper-grey-200);
-        --app-primary-color: var(--paper-red-500);
-        --app-highlight-color: var(--paper-green-500);
-        --app-light-text: hsl(0, 0%, 100%);
-        --app-dark-text: hsl(0, 0%, 13%);
-        --app-dark-supporting-text: var(--paper-grey-700);
-        --app-dark-divider-border: 1px solid rgba(0, 0, 0, 0.12);
-
-        /*layout styles*/
-        --app-toast-close-button-color: var(--paper-yellow-500);
-        --app-progress-container-color: var(--paper-red-200);
-        --app-progress-active-color: var(--app-primary-color);
-
-        /*menu styles*/
-        --app-menu-card-bg: var(--paper-grey-50);
-        --app-menu-card-main-text-color: var(--app-dark-text);
-        --app-menu-card-support-text-color: var(--app-dark-supporting-text);
-        --app-menu-card-image-height: 150px;
-        --app-menu-card-divider: var(--app-dark-divider-border);
-        --add-menu-card-add-button-color: var(--app-highlight-color);
-
-        --app-menu-card-selection-text-color: var(--app-dark-text);
-        --app-menu-card-selection-selected-color: var(--app-primary-color);
-        --app-menu-card-selection-unselected-color: var(--app-dark-text);
-
-        /*shopping cart styles*/
-        --app-cart-checkout-button-color: var(--app-primary-color);
-        --app-cart-checkout-button-bg: var(--app-light-text);
-
-        --app-cart-card-bg: var(--app-menu-card-bg);
-        --app-cart-card-main-font-color: var(--app-dark-text);
-        --app-cart-card-supporting-font-color: var(--app-dark-supporting-text);
-        --app-cart-card-actions-divider: var(--app-dark-divider-border);
-        --app-cart-card-actions: var(--app-highlight-color);
-        --app-cart-card-actions-remove: var(--paper-red-600);
-        --app-cart-card-note-font-color: var(--app-dark-text);
-        --app-cart-card-note-focus-color: var(--app-primary-color);
-        --app-cart-card-addnote-button-color: var(--app-highlight-color);
-
-        --app-cart-table-bg: var(--app-menu-card-bg);
-        --app-cart-table-font-color: var(--paper-grey-600);
-        --app-cart-table-divider: var(--app-dark-divider-border);
-
-        --app-cart-table-row-font-color: var(--app-dark-text);
-        --app-cart-table-row-support-font-color: var(--app-dark-supporting-text);
-        --app-cart-table-row-divider: var(--app-dark-divider-border);
-        --app-cart-table-row-actions: var(--app-highlight-color);
-        --app-cart-table-row-remove-color: var(--paper-red-600);
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/service-worker.js');
+        });
       }
+    </script>
 
-      @media all and (max-width: 480px) {
-        html {
-          --app-item-header-fontsize: calc( 24px + (30 - 24) * (100vw - 320px) / (480 - 320));
-          --app-item-supporting-fontsize: calc( 14px + (17.5 - 14) * (100vw - 320px) / (480 - 320));
-          --app-item-actions-fontsize: calc( 18px + (20 - 18) * (100vw - 320px) / (480 - 320));
-          --app-item-imageheight: calc( 204px + (311 - 204) * (100vw - 320px) / (480 - 320));
-          --app-toolbar-big-title-size: calc( 38px + (50 - 38) * (100vw - 320px) / (480 - 320));
-        }
-      }
+    <!-- Load webcomponents-loader.js to check and load any polyfills your browser needs -->
+    <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>
 
-      @media all and (min-width: 481px) and (max-width: 700px) {
+    <!-- Load your application shell -->
+    <link rel="import" href="src/my-shop.html">
+    <link rel="import" href="bower_components/polymer/lib/elements/custom-style.html">
+    <custom-style>
+      <style>
         html {
-          --app-item-header-fontsize: calc( 20px + (24 - 20) * (100vw - 481px) / (700 - 481));
-          --app-item-supporting-fontsize: calc( 14px + (16.25 - 14) * (100vw - 481px) / (700 - 481));
-          --app-item-actions-fontsize: calc( 18px + (21.25 - 18) * (100vw - 481px) / (700 - 481));
-          --app-item-imageheight: calc( 153px + (227 - 153) * (100vw - 481px) / (700 - 481));
+          /*generic styles*/
+          --app-background-color: var(--paper-grey-200);
+          --app-primary-color: var(--paper-red-500);
+          --app-highlight-color: var(--paper-green-500);
+          --app-light-text: hsl(0, 0%, 100%);
+          --app-dark-text: hsl(0, 0%, 13%);
+          --app-dark-supporting-text: var(--paper-grey-700);
+          --app-dark-divider-border: 1px solid rgba(0, 0, 0, 0.12);
+          /*layout styles*/
+          --app-toast-close-button-color: var(--paper-yellow-500);
+          --app-progress-container-color: var(--app-primary-color);
+          --app-progress-active-color: var(--paper-red-200);
           --app-toolbar-big-title-size: 50px;
+          /*login styles*/
+          --app-dialog-login-bg: #fff;
+          /*menu styles*/
+          --app-menu-card-bg: var(--paper-grey-50);
+          --app-menu-card-main-text-color: var(--app-dark-text);
+          --app-menu-card-support-text-color: var(--app-dark-supporting-text);
+          --app-menu-card-divider: var(--app-dark-divider-border);
+          --add-menu-card-add-button-color: var(--app-highlight-color);
+          --app-menu-card-selection-text-color: var(--app-dark-text);
+          --app-menu-card-selection-selected-color: var(--app-primary-color);
+          --app-menu-card-selection-unselected-color: var(--app-dark-text);
+          /*shopping cart styles*/
+          --app-cart-checkout-button-color: var(--app-primary-color);
+          --app-cart-checkout-button-bg: var(--app-light-text);
+          --app-cart-card-bg: var(--app-menu-card-bg);
+          --app-cart-card-main-font-color: var(--app-dark-text);
+          --app-cart-card-supporting-font-color: var(--app-dark-supporting-text);
+          --app-cart-card-actions-divider: var(--app-dark-divider-border);
+          --app-cart-card-actions: var(--app-highlight-color);
+          --app-cart-card-actions-remove: var(--paper-red-600);
+          --app-cart-card-note-font-color: var(--app-dark-text);
+          --app-cart-card-note-focus-color: var(--app-primary-color);
+          --app-cart-card-addnote-button-color: var(--app-highlight-color);
+          --app-cart-table-bg: var(--app-menu-card-bg);
+          --app-cart-table-font-color: var(--paper-grey-600);
+          --app-cart-table-divider: var(--app-dark-divider-border);
+          --app-cart-table-row-font-color: var(--app-dark-text);
+          --app-cart-table-row-support-font-color: var(--app-dark-supporting-text);
+          --app-cart-table-row-divider: var(--app-dark-divider-border);
+          --app-cart-table-row-actions: var(--app-highlight-color);
+          --app-cart-table-row-remove-color: var(--paper-red-600);
         }
-      }
-
-      @media all and (min-width: 701px) and (max-width: 987px) {
-        html {
-          --app-item-header-fontsize: calc( 20px + (24 - 20) * (100vw - 701px) / (987 - 701));
-          --app-item-supporting-fontsize: calc( 14px + (16.25 - 14) * (100vw - 701px) / (987 - 701));
-          --app-item-actions-fontsize: calc( 18px + (21.25 - 18) * (100vw - 701px) / (987 - 701));
-          --app-item-imageheight: calc( 150px + (213 - 150) * (100vw - 701px) / (987 - 701));
-          --app-toolbar-big-title-size: 50px;
+        @media all and (max-width: 480px) {
+          html {
+            --app-item-header-fontsize: calc( 24px + (30 - 24) * (100vw - 320px) / (480 - 320));
+            --app-item-supporting-fontsize: calc( 14px + (17.5 - 14) * (100vw - 320px) / (480 - 320));
+            --app-item-actions-fontsize: calc( 18px + (20 - 18) * (100vw - 320px) / (480 - 320));
+            --app-item-image-height: calc( 171px + (261 - 171) * (100vw - 320px) / (480 - 320));
+          }
         }
-      }
-
-      @media all and (min-width: 988px) and (max-width: 1280px) {
-        html {
-          --app-item-header-fontsize: calc( 20px + (24 - 20) * (100vw - 988px) / (1280 - 988));
-          --app-item-supporting-fontsize: calc( 14px + (16.25 - 14) * (100vw - 988px) / (1280 - 988));
-          --app-item-actions-fontsize: calc( 18px + (21.25 - 18) * (100vw - 988px) / (1280 - 988));
-          --app-item-imageheight: calc( 159px + (207 - 159) * (100vw - 988px) / (1280 - 988));
-          --app-toolbar-big-title-size: 50px;
+        @media all and (max-width: 600px) {
+          /*my-cart-item styles*/
+          html {
+            --app-cart-item-header-font-size: calc( 20px + (25 - 20) * (100vw - 320px) / (600 - 320));
+            --app-cart-item-support-font-size: calc( 14px + (17.5 - 14) * (100vw - 320px) / (600 - 320));
+            --app-cart-item-action-font-size: calc( 18px + (22 - 18) * (100vw - 320px) / (600 - 320));
+            --app-cart-item-action-note-icon-size: calc( 24px + (40 - 24) * (100vw - 320px) / (600 - 320));
+            --app-cart-item-action-icon-size: calc( 32px + (40 - 32) * (100vw - 320px) / (600 - 320));
+          }
         }
-      }
-
-      @media all and (min-width: 1281px) {
-        html {
-          --app-item-header-fontsize: 24px;
-          --app-item-supporting-fontsize: 14px;
-          --app-item-actions-fontsize: 18px;
-          --app-item-imageheight: 207px;
-          --app-toolbar-big-title-size: 50px;
+        @media all and (min-width: 481px) and (max-width: 700px) {
+          html {
+            --app-item-header-fontsize: calc( 20px + (24 - 20) * (100vw - 481px) / (700 - 481));
+            --app-item-supporting-fontsize: calc( 14px + (16.25 - 14) * (100vw - 481px) / (700 - 481));
+            --app-item-actions-fontsize: calc( 18px + (21.25 - 18) * (100vw - 481px) / (700 - 481));
+            --app-item-image-height: calc( 128px + (190 - 128) * (100vw - 481px) / (700 - 481));
+          }
         }
-      }
+        @media all and (min-width: 601px) {
+          html {
+            --app-cart-table-header-font-size: calc( 12px + (22 - 12) * (100vw - 601px) / (1280 - 601));
+            --app-cart-table-row-font-size: calc( 13px + (23 - 13) * (100vw - 601px) / (1280 - 601));
+            --app-cart-table-row-support-font-size: calc( 12px + (19 - 12) * (100vw - 601px) / (1280 - 601));
+            --app-cart-table-icon-button-size: calc( 34px + (45 - 34) * (100vw - 601px) / (1280 - 601));
+            --app-cart-table-note-font-size: calc( 13px + (19 - 13) * (100vw - 601px) / (1280 - 601));
+            --app-cart-table-price-width: calc( 50px + (100 - 50) * (100vw - 601px) / (1280 - 601));
+            --app-cart-table-qty-width: calc( 105px + (150 - 105) * (100vw - 601px) / (1280 - 601));
+            --app-cart-table-small-margin: calc( 9px + (24 - 9) * (100vw - 601px) / (1280 - 601));
+            --app-cart-table-large-margin: calc( 0px + (56 - 0) * (100vw - 601px) / (1280 - 601));
+          }
+        }
+        @media all and (min-width: 701px) and (max-width: 987px) {
+          html {
+            --app-item-header-fontsize: calc( 20px + (24 - 20) * (100vw - 701px) / (987 - 701));
+            --app-item-supporting-fontsize: calc( 14px + (16.25 - 14) * (100vw - 701px) / (987 - 701));
+            --app-item-actions-fontsize: calc( 18px + (21.25 - 18) * (100vw - 701px) / (987 - 701));
+            --app-item-image-height: calc( 125px + (179 - 125) * (100vw - 701px) / (987 - 701));
+          }
+        }
+        @media all and (min-width: 988px) and (max-width: 1280px) {
+          html {
+            --app-item-header-fontsize: calc( 20px + (24 - 20) * (100vw - 988px) / (1280 - 988));
+            --app-item-supporting-fontsize: calc( 14px + (16.25 - 14) * (100vw - 988px) / (1280 - 988));
+            --app-item-actions-fontsize: calc( 18px + (21.25 - 18) * (100vw - 988px) / (1280 - 988));
+            --app-item-image-height: calc( 133px + (174 - 133) * (100vw - 988px) / (1280 - 988));
+          }
+        }
+        @media all and (min-width: 1281px) {
+          html {
+            /*menu item*/
+            --app-item-header-fontsize: 24px;
+            --app-item-supporting-fontsize: 14px;
+            --app-item-actions-fontsize: 18px;
+            --app-item-imageheight: 207px;
+            --app-item-image-height: 174px;
+            /*menu table*/
+            --app-cart-table-header-font-size: 22px;
+            --app-cart-table-row-font-size: 23px;
+            --app-cart-table-row-support-font-size: 19px;
+            --app-cart-table-icon-button-size: 45px;
+            --app-cart-table-note-font-size: 19px;
+            --app-cart-table-price-width: 100px;
+            --app-cart-table-qty-width: 150px;
+            --app-cart-table-small-margin: 24px;
+            --app-cart-table-large-margin: 56px;
+          }
+          /*mu-cart-item styles*/
+        }
+        body {
+          margin: 0;
+          font-family: 'Roboto', 'Noto', sans-serif;
+          line-height: 1.5;
+          min-height: 100vh;
+          background-color: var(--app-background-color);
+        }
 
-      body {
-        margin: 0;
-        font-family: 'Roboto', 'Noto', sans-serif;
-        line-height: 1.5;
-        min-height: 100vh;
-        background-color: var(--app-background-color);
-      }
-    </style>
-  </custom-style>
-</head>
+      </style>
+    </custom-style>
+  </head>
 
-<body>
-  <ta-shop></ta-shop>
-</body>
+  <body>
+    <my-shop></my-shop>
+    <noscript>
+      Please enable JavaScript to view this website.
+    </noscript>
+  </body>
 
 </html>

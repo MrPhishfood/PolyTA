@@ -1,0 +1,521 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymerfire/polymerfire.html">
+
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+
+<link rel="import" href="custom-icons.html">
+
+<dom-module id="my-login">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-items: stretch;
+        flex-direction: column;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: var(--app-dialog-login-bg, #fff);
+      }
+      paper-input {
+        --paper-input-container-color: var(--app-dark-text);
+        --paper-input-container-focus-color: var(--app-highlight-color);
+        --paper-input-container-label: {
+          color: var(--app-highlight-color);
+        };
+        --paper-input-container-input: {};
+        --paper-input-container-label-floating: {
+          font-size: 20px;
+        }
+      }
+      #title {
+        font-size: 20px;
+        margin: 24px 24px 20px;
+        padding: 0;
+      }
+      #content-container {
+        flex-grow: 99;
+        margin: 0 24px 24px;
+      }
+      .content-page {
+        display: flex;
+        flex-direction: column;
+      }
+      .buttons-container {
+        margin: 8px 8px 8px 24px;
+        align-self: flex-end;
+      }
+      .buttons-container paper-button {
+        margin: 0;
+        font-weight: bold;
+      }
+      #email-container {
+        border-top: 1px solid var(--paper-grey-500);
+      }
+      #email-container #email {
+        margin: 15px 0;
+      }
+      #register {
+        margin-bottom: 0;
+      }
+      #reset-email-btn {
+        margin: 10px 0;
+        justify-content: center;
+        background: var(--paper-grey-200);
+        color: var(--paper-grey-800);
+        width: fit-content;
+        align-self: flex-end;
+        font-size: 13px;
+        border: 1px dashed var(--paper-grey-500);
+      }
+      paper-button.auth-button {
+        margin: 0;
+        font-size: 14px;
+        font-weight: bold;
+        padding: 10px;
+        margin-bottom: 15px;
+        text-transform: none;
+        justify-content: flex-start;
+        width: 100%;
+      }
+      #login-email,
+      #login-password {
+        margin-bottom: 8px;
+      }
+      #login-email-error-collapse div,
+      #reg-error-collapse div {
+        margin: 8px 0;
+        color: var(--paper-red-500);
+      }
+      paper-button#google {
+        background: #ffffff;
+        color: var(--paper-grey-700);
+        border: 1px solid var(--paper-grey-400);
+      }
+      paper-button#facebook {
+        background: #3d5b9a;
+        color: #ffffff;
+      }
+      paper-button#twitter {
+        background: #1DA1F2;
+        color: #ffffff;
+      }
+      #email,
+      #register {
+        background: var(--app-primary-color);
+        color: #ffffff;
+      }
+      .social-icon {
+        height: 23px;
+        width: 23px;
+        margin-right: 31px;
+      }
+      .register-inputs {
+        margin-bottom: 8px;
+      }
+      #login-show-password,
+      #reg-show-password {
+        align-self: flex-end;
+        margin: 8px 0;
+        --paper-checkbox-checked-color: var(--app-highlight-color);
+        --paper-checkbox-checked-ink-color: var(--app-highlight-color);
+      }
+
+    </style>
+
+    <!-- TITLE CONTAINER -->
+    <h1 id="title">
+      <iron-pages attr-for-selected="name" selected="[[_page]]" fallback-selection="default">
+        <!-- SIGIN OPTIONS -->
+        <div name="default">Sign in options</div>
+        <!-- EMAIL LOGIN -->
+        <div name="email-login">Email login</div>
+        <!-- RESET EMAIL -->
+        <div name="reset-email">Reset password</div>
+        <!-- REGISTER EMAIL -->
+        <div name="register-email">Register new account</div>
+      </iron-pages>
+    </h1>
+
+    <!-- CONTENTS CONTAINER -->
+    <div id="content-container">
+      <iron-pages attr-for-selected="name" selected="[[_page]]" fallback-selection="default">
+        <!-- SIGIN OPTIONS -->
+        <div name="default" class="content-page">
+          <paper-button id="google" class="auth-button" on-tap="_googleSignInTap">
+            <img class="social-icon" src="../images/google-g-icon.svg">
+            Sign in with Google
+          </paper-button>
+
+          <paper-button id="facebook" class="auth-button" on-tap="_facebookSignInTap">
+            <img class="social-icon" src="../images/facebook-f-icon-white.svg">
+            Sign in with Facebook
+          </paper-button>
+
+          <paper-button id="twitter" class="auth-button" on-tap="_twitterSignInTap">
+            <img class="social-icon" src="../images/Twitter_Logo_WhiteOnImage.svg">
+            Sign in with Twitter
+          </paper-button>
+
+          <div id="email-container" class="content-page">
+
+            <paper-button id="email" class="auth-button" on-tap="_emailSignInTap">
+              <iron-icon class="social-icon" icon="custom-icons:mail"></iron-icon>
+              Sign in with Email
+            </paper-button>
+
+            <paper-button id="register" class="auth-button" on-tap="_registerTap">
+              <iron-icon class="social-icon" icon="custom-icons:add"></iron-icon>
+              Register New Account
+            </paper-button>
+
+          </div>
+
+          <!-- <paper-button raised="" on-tap="_logout">Log Out</paper-button> -->
+        </div>
+        <!-- EMAIL LOGIN -->
+        <div name="email-login" class="content-page">
+          <paper-input id="login-email" label="Email" required="true" type="text" error-message="this is not a valid email address" pattern="[[_emailRegex]]" value="{{_loginEmail}}"></paper-input>
+
+          <paper-input id="login-password" label="Password" required="true" type="{{_loginPasswordVisible}}" value="{{_loginPassword}}"></paper-input>
+
+          <paper-checkbox id="login-show-password" on-change="_changeLoginPasswordVisible">show password</paper-checkbox>
+
+          <paper-button id="reset-email-btn" on-tap="_resetTap">
+            Reset password
+          </paper-button>
+
+          <iron-collapse id="login-email-error-collapse">
+            <div>email or password is incorrect</div>
+          </iron-collapse>
+
+        </div>
+        <!-- RESET EMAIL -->
+        <div name="reset-email" class="content-page">
+          <paper-input id="reset-email" label="Email" required="true" type="text" error-message="this is not a valid email address" pattern="[[_emailRegex]]" value="{{_loginEmail}}"></paper-input>
+
+          <iron-collapse id="reset-error-collapse">
+            <div id="reset-error-message"></div>
+          </iron-collapse>
+        </div>
+        <!-- REGISTER EMAIL -->
+        <div name="register-email" class="content-page">
+          <paper-input id="register-email" class="register-inputs" label="Email" required="true" type="text" error-message="this is not a valid email" pattern="[[_emailRegex]]" value="{{_registerEmail}}"></paper-input>
+
+          <paper-input id="register-password" class="register-inputs" label="Password" required="true" type="[[_regPasswordVisible]]" error-message="minimum 6 characters" pattern="[[_passwordRegex]]" value="{{_registerPassword}}"></paper-input>
+
+          <paper-input id="register-password-confirm" class="register-inputs" label="Confirm Password" required="true" type="[[_regPasswordVisible]]" error-message="password does not match" value="{{_confirmPassword}}"></paper-input>
+
+          <paper-checkbox id="reg-show-password" on-change="_changeRegPasswordVisible">show password</paper-checkbox>
+
+          <iron-collapse id="reg-error-collapse">
+            <div id="reg-error-message"></div>
+          </iron-collapse>
+        </div>
+
+      </iron-pages>
+    </div>
+
+    <!-- BUTTONS CONTAINER -->
+    <div class="buttons-container">
+      <iron-pages attr-for-selected="name" selected="[[_page]]" fallback-selection="default">
+        <!-- SIGIN OPTIONS -->
+        <div name="default">
+          <paper-button on-tap="_closeDialog">Cancel</paper-button>
+          <paper-button on-tap="_logout">Log Out</paper-button>
+        </div>
+        <!-- EMAIL LOGIN -->
+        <div name="email-login">
+          <paper-button on-tap="_returnToSignIn">Cancel</paper-button>
+          <paper-button on-tap="_submitEmailLogin">Login</paper-button>
+        </div>
+        <!-- RESET EMAIL -->
+        <div name="reset-email">
+          <paper-button on-tap="_returnToSignIn">Cancel</paper-button>
+          <paper-button on-tap="_submitPasswordReset">Reset password</paper-button>
+        </div>
+        <!-- REGISTER EMAIL -->
+        <div name="register-email">
+
+          <paper-button on-tap="_returnToSignIn">Cancel</paper-button>
+          <paper-button on-tap="_submitRegister">Register</paper-button>
+        </div>
+      </iron-pages>
+    </div>
+
+  </template>
+  <script>
+    class MyLogin extends Polymer.Element {
+
+      static get is() {
+        return 'my-login';
+      }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object
+          },
+
+          _page: {
+            type: String,
+            value: 'default'
+          },
+
+          _loginEmail: {
+            type: String,
+            value: ''
+          },
+
+          _loginPassword: {
+            type: String,
+            value: ''
+          },
+          _registerEmail: {
+            type: String,
+            value: ''
+          },
+
+          _registerPassword: {
+            type: String,
+            value: ''
+          },
+
+          _confirmPassword: {
+            type: String,
+            value: ''
+          },
+
+          _loginPasswordVisible: {
+            type: String,
+            value: 'password'
+          },
+
+          _regPasswordVisible: {
+            type: String,
+            value: 'password"'
+          },
+
+          _emailRegex: {
+            type: String,
+            value: '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$'
+          },
+
+          _passwordRegex: {
+            type: String,
+            value: '^.{6,}'
+          }
+        };
+      }
+
+      static get observers() {
+        return [];
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      ready() {
+        super.ready();
+        // add event listeners When possible, use afterNextRender to defer non-critical work until after first paint.
+        Polymer.RenderStatus.afterNextRender(this, function () {});
+      }
+
+      _googleSignInTap() {
+        var provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope('email');
+        this._login(provider);
+      }
+
+      _facebookSignInTap() {
+        var provider = new firebase.auth.FacebookAuthProvider();
+        provider.addScope('email');
+        this._login(provider);
+      }
+
+      _twitterSignInTap() {
+        var provider = new firebase.auth.TwitterAuthProvider();
+        this._login(provider);
+      }
+
+      _emailSignInTap() {
+        this._page = 'email-login';
+      }
+
+      _returnToSignIn() {
+        this._page = 'default';
+      }
+
+      _registerTap() {
+        this._page = 'register-email';
+      }
+
+      _resetTap() {
+        this._page = 'reset-email';
+      }
+
+      _closeDialog() {
+        this.dispatchEvent(new CustomEvent('close-login-dialog', {
+          detail: {},
+          bubbles: true,
+          composed: true
+        }));
+      }
+
+      _login(provider) {
+        var thisObj = this;
+
+        firebase.auth().signInWithPopup(provider).then(function () {
+          thisObj.reset();
+        }).catch(function (error) {
+          thisObj._openDialogError({title: 'Error', message: error.message});
+        });
+      }
+
+      _logout() {
+        firebase.auth().signOut();
+      }
+
+      _submitEmailLogin() {
+        var email = this.shadowRoot.querySelector('#login-email');
+        var errorCollapse = this.shadowRoot.querySelector('#login-email-error-collapse');
+
+        if (email.validate()) {
+          //attempt firebase signin
+          firebase.auth().signInWithEmailAndPassword(this._loginEmail, this._loginPassword).then(function () {
+            errorCollapse.hide();
+          }).catch(function (error) {
+            //If user has the wrong email/password or disabled then give generic error message
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/user-disabled') {
+              errorCollapse.show();
+            }
+          });
+        }
+
+      }
+
+      _submitPasswordReset() {
+        const thisObj = this;
+        const email = this.shadowRoot.querySelector('#reset-email');
+
+        //If valid email
+        if (email.validate()) {
+          firebase.auth().sendPasswordResetEmail(this._loginEmail).then(function () {
+            //close dialog box and display toast
+            thisObj._closeDialog();
+            thisObj.fire('toasty-persistant', 'Password reset email sent, please check your inbox');
+          }).catch(function (error) {
+            thisObj.shadowRoot.querySelector('#reset-error-collapse').show();
+            thisObj.shadowRoot.querySelector('#reset-error-message').innerHTML = error.message;
+          });
+        }
+
+      }
+
+      _submitRegister() {
+        const thisObj = this;
+        //submit details for email registration
+        const regEmail = this.shadowRoot.querySelector('#register-email');
+        const regPW = this.shadowRoot.querySelector('#register-password');
+        //validate confirmation password is same as above password
+        const regPWConfirm = this.shadowRoot.querySelector('#register-password-confirm');
+        if (this._registerPassword === this._confirmPassword) {
+          regPWConfirm.invalid = false;
+        } else {
+          regPWConfirm.invalid = true;
+        }
+
+        //if all field are valid then register user
+        if (regEmail.validate() && regPW.validate() && !regPWConfirm.invalid) {
+          //NOTE: user is logged in when registration is successful
+          firebase.auth().createUserWithEmailAndPassword(this._registerEmail, this._registerPassword).then(function () {
+            //reset all fields
+            thisObj.reset();
+            //TODO: create toggle function so admins can decide if users need email verification on successful registration send verification email
+            firebase.auth().currentUser.sendEmailVerification().then(function () {
+              thisObj.fire('toasty-persistant', 'Please check your email to verify your account');
+            }).catch(function (error) {
+              console.log('verification email sending error', error);
+            });
+          }).catch(function (error) {
+            //displays firebase error message to user
+            thisObj.shadowRoot.querySelector('#reg-error-collapse').show();
+            thisObj.shadowRoot.querySelector('#reg-error-message').innerHTML = error.message;
+          });
+        }
+      }
+
+      _changeRegPasswordVisible() {
+        var chkBox = this.shadowRoot.querySelector('#reg-show-password');
+        var pw1 = this.shadowRoot.querySelector('#register-password');
+        var pw2 = this.shadowRoot.querySelector('#register-password-confirm');
+        if (chkBox.checked) {
+          pw1.type = 'text';
+          pw2.type = 'text';
+        } else {
+          pw1.type = 'password';
+          pw2.type = 'password';
+        }
+      }
+
+      _changeLoginPasswordVisible() {
+        var chkBox = this.shadowRoot.querySelector('#login-show-password');
+        var pw = this.shadowRoot.querySelector('#login-password');
+        if (chkBox.checked) {
+          pw.type = 'text';
+        } else {
+          pw.type = 'password';
+        }
+      }
+
+      _openDialogError(errorObj) {
+        this.dispatchEvent(new CustomEvent('dialog-error', {
+          detail: {
+            errorObj
+          },
+          bubbles: true,
+          composed: true
+        }));
+      }
+
+      reset() {
+        //reset all fields to default state
+        this._loginEmail = '';
+        this.shadowRoot.querySelector('#login-email').invalid = false;
+        this._loginPassword = '';
+        this.shadowRoot.querySelector('#login-show-password').checked = false;
+
+        this.shadowRoot.querySelector('#reset-error-collapse').hide();
+
+        this._registerEmail = '';
+        this.shadowRoot.querySelector('#register-email').invalid = false;
+        this._registerPassword = '';
+        this.shadowRoot.querySelector('#register-password').invalid = false;
+        this._confirmPassword = '';
+        this.shadowRoot.querySelector('#register-password-confirm').invalid = false;
+        this.shadowRoot.querySelector('#reg-show-password').checked = false;
+        this.shadowRoot.querySelector('#reg-error-collapse').hide();
+
+        this._page = 'default';
+
+        this.dispatchEvent(new CustomEvent('logged-in', {
+          detail: {},
+          bubbles: true,
+          composed: true
+        }));
+      }
+
+    }
+    window.customElements.define(MyLogin.is, MyLogin);
+  </script>
+</dom-module>

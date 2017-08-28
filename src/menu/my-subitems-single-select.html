@@ -1,71 +1,64 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../bower_components/polymerfire/firebase-document.html">
 <link rel="import" href="../../bower_components/polymerfire/firebase-query.html">
 
 <dom-module id="my-subitems-single-select">
   <template>
     <style>
-       :host {
+      :host {
         --my-subitems-single-select-padding: 8px;
         --my-subitems-single-select-font-size: 14px;
       }
-
       paper-radio-button {
         --paper-radio-button-label: {
           display: flex;
           flex-grow: 99;
-        }
-        ;
+        };
       }
-
       paper-radio-group {
         width: 100%;
-        --paper-radio-group-item-padding: 0px;
+        --paper-radio-group-item-padding: 0;
       }
-
       .subitem {
         display: flex;
         align-items: center;
         padding: var(--my-subitems-single-select-padding) 0;
       }
-
-      .subitem ::content {
+      .subitem::content {
         display: flex;
         flex-wrap: nowrap;
       }
-
       .subitem-name {
         flex-grow: 99;
       }
-
       .subitem[checked] .subitem-name,
       .subitem[checked] .subitem-price {
         font-weight: bold;
       }
-
       .subitem-price {
         margin-left: calc(var(--my-subitems-single-select-padding)*2);
         white-space: nowrap;
       }
-
       .subitem-name,
       .subitem-price {
         display: block;
         font-size: var(--my-subitems-single-select-font-size);
       }
+
     </style>
 
-    <firebase-document path="/menu/items/{{itemKey}}/selections/[[selectionKey]]" data="{{selection}}"></firebase-document>
+    <firebase-document path="/menu/items/{{itemKey}}/selections/[[selectionKey]]" data="{{_selection}}"></firebase-document>
     <firebase-query path="/menu/items/{{itemKey}}/selections/[[selectionKey]]/subitems" data="{{subitemList}}"></firebase-query>
 
     <!--Subitems-->
-    <paper-radio-group selected="[[selection.default]]" attr-for-selected="id" allow-empty-selection="[[_isOptional(selection.min)]]">
-      <template is="dom-repeat" items="[[subitemList]]" as="subitem" sort="_sort" observe="order">
-        <paper-radio-button class="subitem" id="[[subitem.$key]]">
-          <div class="subitem-name">[[subitem.name]]</div>
-          <div class="subitem-price">[[_currencyFilterSubitem(subitem.price)]]</div>
+
+    <paper-radio-group selected="[[_selection.default]]" attr-for-selected="id" allow-empty-selection="[[_isOptional(_selection.min)]]">
+      <template is="dom-repeat" items="[[subitemList]]" as="_subitem" sort="_sort" observe="order">
+        <paper-radio-button class="subitem" id$="[[_subitem.$key]]">
+          <div class="subitem-name">[[_subitem.name]]</div>
+          <div class="subitem-price">[[_currencyFilterSubitem(_subitem.price)]]</div>
         </paper-radio-button>
       </template>
     </paper-radio-group>
@@ -73,50 +66,59 @@
   </template>
 
   <script>
-    Polymer({
+    class MySubitemsSingleSelect extends Polymer.Element {
 
-      is: 'my-subitems-single-select',
+      static get is() {
+        return 'my-subitems-single-select';
+      }
 
-      properties: {
-        //item key for firebase path
-        itemKey: {
-          type: String,
-        },
+      static get properties() {
+        return {
 
-        selectionKey: {
-          type: String,
-        },
+          //item key for firebase path
+          itemKey: {
+            type: String
+          },
 
-        selected: {
-          type: Array,
-          readOnly: true,
-          observer: '_setValid'
-        },
+          selectionKey: {
+            type: String
+          },
 
-        selectionValid: {
-          type: Boolean,
-          notify: true,
-          readOnly: true
-        }
+          selected: {
+            type: Array,
+            readOnly: true,
+            observer: '_setValid'
+          },
 
-      },
+          selectionValid: {
+            type: Boolean,
+            notify: true,
+            readOnly: true
+          }
 
-      //check the checkbox states when iron-change event detected
-      listeners: {
-        'iron-change': '_checkChanged',
-      },
+        };
+      }
 
-      //recheck state of checkboxes if the selection parameters change
-      observers: [
-        '_checkChanged(selection.min,selection.max,subitemList.splices)',
-      ],
+      static get observers() {
+        return ['_checkChanged(_selection.min,_selection.max,subitemList.splices)'];
+      }
 
-      //function called when a checkbox changes state
-      //counts the number of boxes checked to determine whether to
-      //enable/disable other checkboxes if limit reached.
-      //creates a JSON object of all selected subitems to add in to cart
-      _checkChanged: function() {
-        var cboxes = Polymer.dom(this.root).querySelectorAll('.subitem');
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      ready() {
+        super.ready();
+        // add event listeners
+        this.addEventListener('iron-change', e => this._checkChanged(e));
+        // When possible, use afterNextRender to defer non-critical work until after first paint.
+        Polymer.RenderStatus.afterNextRender(this, function () {});
+      }
+
+      //function called when a checkbox changes state counts the number of boxes checked to determine whether to enable/disable other checkboxes if limit reached. creates a JSON object of all selected subitems to add in to cart
+      _checkChanged() {
+        var cboxes = this.shadowRoot.querySelectorAll('.subitem');
         //end function if no checkboxes found
         if (!cboxes.length) {
           return;
@@ -125,42 +127,40 @@
         var selected = {};
         var subitems = {};
 
-        cboxes.forEach(function(box) {
+        cboxes.forEach(function (box) {
           if (box.checked) {
             subitems[box.id] = true;
           }
         });
 
-        //selected will be populated with properties named After
-        //the subitem witht he value true
+        //selected will be populated with properties named After the subitem witht he value true
         if (Object.keys(subitems).length !== 0) {
           selected[this.selectionKey] = subitems;
         }
         this._setSelected(selected);
-      },
+      }
 
-      //if the number of selected subitems is >= the min
-      //then set selectionValid to true (private setter) else false
-      //fire off event for my-item-selections to recheck selection validation
-      _setValid: function() {
+      //if the number of selected subitems is >= the min then set selectionValid to true (private setter) else false fire off event for my-item-selections to recheck selection validation
+      _setValid() {
         var subitemLength = 0;
         if (Object.keys(this.selected).length) {
           //gets the number of properties in the first property of this.selected
           subitemLength = Object.keys(this.selected[Object.keys(this.selected)[0]]).length;
         }
-        if (subitemLength >= this.selection.min) {
+        if (subitemLength >= this._selection.min) {
           this._setSelectionValid(true);
         } else {
           this._setSelectionValid(false);
         }
-        this.fire('selection-valid-update');
-      },
+        this.dispatchEvent(new CustomEvent('selection-valid-update', {
+          detail: {},
+          bubbles: true,
+          composed: true
+        }));
+      }
 
-      //converts GBP in its lowest demonination (300 pence)
-      //to its standard representation (£3.00) and anything
-      //lower than 100 pence is suffixed with 'p'
-      //example: 50p
-      _currencyFilterSubitem: function(price) {
+      //converts GBP in its lowest demonination (300 pence) to its standard representation (£3.00) and anything lower than 100 pence is suffixed with 'p' example: 50p
+      _currencyFilterSubitem(price) {
         if (price === 0) {
           return '';
         } else if (price < 100) {
@@ -168,21 +168,26 @@
         } else {
           return '+ £' + (price / 100).toFixed(2);
         }
-      },
+      }
 
-      //sorting function used to sort subitems based on the
-      //order property
-      _sort: function(a, b) {
+      //sorting function used to sort subitems based on the order property
+      _sort(a, b) {
         if (a.order === b.order) {
           return 0;
         }
-        return a.order < b.order ? -1 : 1;
-      },
+        return a.order < b.order
+          ? -1
+          : 1;
+      }
 
       //returns true if the radio button is optional
-      _isOptional: function(min) {
-        return min === 0 ? true : false;
-      },
-    });
+      _isOptional(min) {
+        return min === 0
+          ? true
+          : false;
+      }
+
+    }
+    window.customElements.define(MySubitemsSingleSelect.is, MySubitemsSingleSelect);
   </script>
 </dom-module>

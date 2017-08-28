@@ -46,4 +46,9 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Misc
+/node_modules
+package-lock.json
+.eslintrc*
+
 build/

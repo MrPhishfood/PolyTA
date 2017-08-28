@@ -1,23 +1,50 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<!-- TODO: make this usable for all currencies with suffix/prefix and comma seperation either . or ,-->
 <dom-module id="filter-currency">
   <script>
-    Polymer({
-      is: 'filter-currency',
+    class FilterCurrency extends Polymer.Element {
 
-      properties: {
-        symbol: {
-          type: String,
-          value: '£'
-        },
+      static get is() {
+        return 'filter-currency';
+      }
 
-        zeroValue: {
-          type: String,
-          value: ''
-        }
-      },
+      static get properties() {
+        return {
 
-      filter: function(price) {
+          symbol: {
+            type: String,
+            value: '£'
+          },
+
+          affix: {
+            type: String,
+            value: 'left'
+          },
+
+          zeroValue: {
+            type: String,
+            value: ''
+          }
+
+        };
+      }
+
+      static get observers() {
+        return [];
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      ready() {
+        super.ready();
+        // add event listeners When possible, use afterNextRender to defer non-critical work until after first paint.
+        Polymer.RenderStatus.afterNextRender(this, function () {});
+      }
+
+      filter(price) {
         if (price === 0) {
           return this.zeroValue;
         } else if (price < 100) {
@@ -25,7 +52,9 @@
         } else {
           return this.symbol + (price / 100).toFixed(2);
         }
-      },
-    });
+      }
+
+    }
+    window.customElements.define(FilterCurrency.is, FilterCurrency);
   </script>
 </dom-module>

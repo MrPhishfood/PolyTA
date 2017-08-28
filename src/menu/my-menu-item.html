@@ -1,7 +1,9 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../../bower_components/polymerfire/firebase-document.html">
 
 <link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/paper-styles/shadow.html">
+
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
@@ -33,7 +35,7 @@ product display UI
 <dom-module id="my-menu-item">
   <template>
     <style>
-       :host {
+      :host {
         /*padding*/
         --my-menu-item-padding: 16px;
         --my-menu-item-padding-small: calc(var(--my-menu-item-padding)*0.5);
@@ -44,17 +46,15 @@ product display UI
         --my-menu-item-actions-font-size: 18px;
         --my-menu-item-action-icon-size: calc(var(--my-menu-item-actions-font-size)*1.3);
         /*----*/
-        color: var(--app-menu-card-main-text-color);
+        color: var(--app-dark-text);
         background: var(--app-menu-card-bg);
         display: block;
         position: static;
-
         border-radius: 3px;
         line-height: 1;
         /*apply a mixin*/
         @apply --shadow-elevation-2dp;
       }
-
       #title-container {
         display: flex;
         flex-wrap: nowrap;
@@ -62,60 +62,49 @@ product display UI
         align-items: flex-start;
         padding: var(--my-menu-item-padding);
       }
-
       #name,
       #price {
         /*paper material sizing 6.9vw for 360px width*/
         font-size: var(--my-menu-item-header-font-size);
       }
-
       #name {
         font-family: 'Roboto Condensed', sans-serif;
       }
-
       #price {
         padding-left: var(--my-menu-item-padding);
       }
-
       #image {
         width: 100%;
-        height: var(--app-menu-card-image-height, 150px);
+        height: var(--app-item-image-height, 150px);
         --iron-image-height: 100%;
       }
-
-      #image[hidden],
-      #image[alt-hidden] {
+      #image[alt-hidden],
+      #image[hidden] {
         display: none;
       }
-
       #description {
         color: var(--app-menu-card-support-text-color);
         font-size: var(--my-menu-item-support-font-size);
         line-height: 1.5;
-        padding: 0 var(--my-menu-item-padding) var(--my-menu-item-padding) var(--my-menu-item-padding);
+        padding: 0 var(--my-menu-item-padding) var(--my-menu-item-padding);
       }
-
       #description:empty {
         display: none;
       }
-
       #image:not([hidden])~#description {
         padding-top: var(--my-menu-item-padding);
       }
-
       #selections {
-        margin: 0 var(--my-menu-item-padding) var(--my-menu-item-padding) var(--my-menu-item-padding);
+        margin: 0 var(--my-menu-item-padding) var(--my-menu-item-padding);
         padding-top: var(--my-menu-item-padding);
         --my-item-selection-control-padding: var(--my-menu-item-padding);
         --my-item-selection-control-size: calc(var(--my-menu-item-support-font-size)*1.285);
         --my-item-selection-heading-font-size: calc(var(--my-menu-item-support-font-size)*1.285);
         --my-item-selection-option-font-size: var(--my-menu-item-support-font-size);
       }
-
       #description:not(:empty)~#selections {
         border-top: var(--app-menu-card-divider);
       }
-
       #actions-container {
         display: flex;
         flex-wrap: nowrap;
@@ -123,44 +112,36 @@ product display UI
         padding: var(--my-menu-item-padding-small);
         border-top: var(--app-menu-card-divider);
       }
-
       #add-cart {
         padding: calc(var(--my-menu-item-padding-small)/2);
         min-width: 0;
-        margin: 0;
-        margin-left: calc(var(--my-menu-item-padding-small)/2);
+        margin: 0 0 0 calc(var(--my-menu-item-padding-small)/2);
       }
-
       #add-cart:not([disabled]) {
         color: var(--add-menu-card-add-button-color);
       }
-
       #add-text,
       #invalid-text {
         font-size: var(--my-menu-item-actions-font-size, 18px);
       }
-
       #invalid-text,
       #option-icon {
         display: none;
       }
-
       #cart-icon,
       #option-icon {
-
         --iron-icon-height: var(--my-menu-item-action-icon-size, 18px);
         --iron-icon-width: var(--my-menu-item-action-icon-size, 18px);
       }
-
       #selections:not([selections-valid])~#actions-container #add-cart #add-text,
       #selections:not([selections-valid])~#actions-container #add-cart #cart-icon {
         display: none;
       }
-
       #selections:not([selections-valid])~#actions-container #add-cart #invalid-text,
       #selections:not([selections-valid])~#actions-container #add-cart #option-icon {
         display: block;
       }
+
     </style>
 
     <firebase-document path="/menu/items/[[itemKey]]" data="{{item}}"></firebase-document>
@@ -169,7 +150,7 @@ product display UI
       <div id="name">[[item.name]]</div>
       <div id="price">[[_currencyFilter(item.price)]]</div>
     </div>
-    <iron-image id="image" hidden="[[!item.image]]" alt-hidden$="[[errorLoad]]" preload fade error="{{errorLoad}}" placeholder="/images/itemplaceholder.gif" src="[[item.image]]" loading="{{_imgLoaded}}" sizing="cover" position="center"></iron-image>
+    <iron-image id="image" hidden="[[!item.image]]" alt-hidden$="[[errorLoad]]" preload fade error="{{errorLoad}}" placeholder="/images/itemplaceholder.gif" src="[[item.image]]" sizing="cover" position="center"></iron-image>
     <div id="description">{{item.shortdesc}}</div>
     <template is="dom-if" if="[[item.selections]]">
       <my-item-selections id="selections" item-key="[[itemKey]]" selections-valid="{{_selectionsValid}}"></my-item-selections>
@@ -185,44 +166,66 @@ product display UI
 
   </template>
   <script>
-    Polymer({
+    class MyMenuItem extends Polymer.Element {
 
-      is: 'my-menu-item',
+      static get is() {
+        return 'my-menu-item';
+      }
 
-      properties: {
-        item: {
-          type: Object,
-          observer: '_itemChanged'
-        },
-        itemKey: {
-          type: String,
-        },
-      },
+      static get properties() {
+        return {
+
+          item: {
+            type: Object,
+            observer: '_itemChanged'
+          },
+
+          itemKey: {
+            type: String
+          }
+
+        };
+      }
+
+      static get observers() {
+        return [];
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      ready() {
+        super.ready();
+        // add event listeners When possible, use afterNextRender to defer non-critical work until after first paint.
+        Polymer.RenderStatus.afterNextRender(this, function () {});
+      }
 
       //sets the itemKey property if the item property is populated first
-      _itemChanged: function(newVal, oldVal) {
+      _itemChanged(newVal) {
         if (newVal.$key) {
           this.itemKey = newVal.$key;
           // console.log(newVal);
         }
-      },
+      }
 
       //returns the key of the item object
-      _getKey: function(key) {
-        return key ? key : this.item.$key;
-      },
+      _getKey(key) {
+        return key
+          ? key
+          : this.item.$key;
+      }
 
       //if true returns has-image to be inserted in to class
-      _computeHasImageClass: function(val) {
-        return val ? 'has-image' : '';
-      },
+      _computeHasImageClass(val) {
+        return val
+          ? 'has-image'
+          : '';
+      }
 
-      //converts GBP in its lowest demonination (300 pence)
-      //to its standard representation (£3.00) and anything
-      //lower than 100 pence is suffixed with 'p'
-      //example: 50p
-      //0 pence is 'free'
-      _currencyFilter: function(price) {
+      //converts GBP in its lowest demonination (300 pence) to its standard representation (£3.00) and anything lower than 100 pence is suffixed with 'p' example: 50p 0 pence is 'free'
+      _currencyFilter(price) {
         if (price === 0) {
           return 'free';
         } else if (price < 100) {
@@ -230,27 +233,34 @@ product display UI
         } else {
           return '£' + (price / 100).toFixed(2);
         }
-      },
+      }
 
-      //called on tapping the add-cart button,
-      //fires event with JSON object that includes the item data
-      //and also the selection if there is any
-      _addToCart: function(e) {
+      //called on tapping the add-cart button, fires event with JSON object that includes the item data and also the selection if there is any
+      _addToCart(e) {
         console.log(e);
         if (this.item.selections) {
           var selections = Polymer.dom(this.root).querySelector('#selections');
 
-          this.fire('cart-add', {
-            item: this.itemKey,
-            selections: selections.getSelections()
-          });
+          this.dispatchEvent(new CustomEvent('cart-add', {
+            detail: {
+              item: this.itemKey,
+              selections: selections.getSelections()
+            },
+            bubbles: true,
+            composed: true
+          }));
         } else {
-          this.fire('cart-add', {
-            item: this.itemKey
-          });
+          this.dispatchEvent(new CustomEvent('cart-add', {
+            detail: {
+              item: this.itemKey
+            },
+            bubbles: true,
+            composed: true
+          }));
         }
-      },
+      }
 
-    });
+    }
+    window.customElements.define(MyMenuItem.is, MyMenuItem);
   </script>
 </dom-module>

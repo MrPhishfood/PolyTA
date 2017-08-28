@@ -1,4 +1,4 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
 
 <link rel="import" href="../../bower_components/paper-styles/color.html">
 
@@ -10,7 +10,7 @@
 <dom-module id="my-item-selections">
   <template>
     <style>
-       :host {
+      :host {
         --my-item-selection-control-padding: 16px;
         --my-item-selection-control-size: 18px;
         --my-item-selection-heading-font-size: 18px;
@@ -20,29 +20,25 @@
         display: block;
         line-height: 1;
       }
-
       .select-container {
         padding: 0;
       }
-
       .select-container:not(:last-of-type) {
         margin-bottom: var(--my-item-selection-control-padding);
       }
-
       .select-container:only-of-type .select-header {
         display: none;
       }
-
       .select-header {
         font-size: var(--my-item-selection-heading-font-size);
         margin-bottom: calc(var(--my-item-selection-control-padding)/3);
       }
-
       .selection {
         /*sizes of selection control*/
         --paper-radio-button-size: var(--my-item-selection-control-size);
         --paper-checkbox-size: var(--my-item-selection-control-size);
         --paper-checkbox-ink-size: calc( var(--my-item-selection-control-size) *1.8);
+        --paper-radio-button-ink-size: calc( var(--my-item-selection-control-size) *1.8);
         /*padding+font size for selection controls*/
         --my-subitems-single-select-padding: calc(var(--my-item-selection-control-padding)/2);
         --my-subitems-single-select-font-size: var(--my-item-selection-option-font-size);
@@ -57,10 +53,10 @@
         --paper-checkbox-checked-color: var(--app-menu-card-selection-selected-color);
         --paper-checkbox-checked-ink-color: var(--app-menu-card-selection-selected-color);
       }
+
     </style>
 
-    <firebase-query path="/menu/items/[[itemKey]]/selections" data="{{selections}}">
-    </firebase-query>
+    <firebase-query path="/menu/items/[[itemKey]]/selections" data="{{selections}}"></firebase-query>
 
     <!-- SELECTIONS LIST -->
     <template is="dom-repeat" items="[[selections]]" as="selection" sort="_sort">
@@ -68,84 +64,89 @@
         <div class="select-header">[[selection.name]]</div>
         <!-- MULTI SELECT -->
         <template is="dom-if" if="[[!_isSingleSelect(selection.max)]]">
-          <my-subitems-multi-select class="selection" item-key="[[itemKey]]" selection-key="[[selection.$key]]">
-          </my-subitems-multi-select>
+          <my-subitems-multi-select class="selection" item-key="[[itemKey]]" selection-key="[[selection.$key]]"></my-subitems-multi-select>
         </template>
         <!-- SINGLE SELECT -->
         <template is="dom-if" if="[[_isSingleSelect(selection.max)]]">
-          <my-subitems-single-select class="selection" item-key="[[itemKey]]" selection-key="[[selection.$key]]">
-          </my-subitems-single-select>
+          <my-subitems-single-select class="selection" item-key="[[itemKey]]" selection-key="[[selection.$key]]"></my-subitems-single-select>
         </template>
       </div>
     </template>
 
   </template>
   <script>
-    Polymer({
+    class MyItemSelections extends Polymer.Element {
 
-      is: 'my-item-selections',
+      static get is() {
+        return 'my-item-selections';
+      }
 
-      properties: {
-        //item key which selection belongs to
-        //for firebase path
-        itemKey: {
-          type: String,
-        },
+      static get properties() {
+        return {
 
-        selectionsValid: {
-          type: Boolean,
-          reflectToAttribute: true,
-          notify: true,
-          readOnly: true
-        },
+          //item key which selection belongs to for firebase path
+          itemKey: {
+            type: String
+          },
 
-      },
+          selectionsValid: {
+            type: Boolean,
+            reflectToAttribute: true,
+            notify: true,
+            readOnly: true
+          }
 
-      //check valid selections when event is fired from selection elements
-      listeners: {
-        'selection-valid-update': '_checkValidSelections',
-      },
+        };
+      }
 
-      //recheck valid selections in case selections are added/removed
-      //dynamically
-      observers: [
-        '_checkValidSelections(selections.*)'
-      ],
+      static get observers() {
+        return ['_checkValidSelections(selections.*)'];
+      }
 
-      //called from my-menu-item when add cart button is pressed
-      //bundles all selected subitems in to an array, ready for
-      //insertion in to cart cookie
-      getSelections: function() {
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      ready() {
+        super.ready();
+        // add event listeners
+        this.addEventListener('selection-valid-update', e => this._checkValidSelections(e));
+        // When possible, use afterNextRender to defer non-critical work until after first paint.
+        Polymer.RenderStatus.afterNextRender(this, function () {});
+      }
+
+      //called from my-menu-item when add cart button is pressed bundles all selected subitems in to an array, ready for insertion in to cart cookie
+      getSelections() {
         var selections = Polymer.dom(this.root).querySelectorAll('.selection');
         var s = {};
-        var selectionList = {};
         for (let i in selections) {
           for (let x in selections[i].selected) {
             s[x] = selections[i].selected[x];
           }
         }
         return s;
-      },
+      }
 
-      //sorting function used to sort selections based on the
-      //order property
-      _sort: function(a, b) {
+      //sorting function used to sort selections based on the order property
+      _sort(a, b) {
         if (a.order == b.order) {
           return 0;
         }
-        return a.order < b.order ? -1 : 1;
-      },
+        return a.order < b.order
+          ? -1
+          : 1;
+      }
 
-      //returns true if maximum number of selections is <=1
-      //determines whether to usse radio button or checkboxes
-      _isSingleSelect: function(max) {
-        return max <= 1 ? true : false;
-      },
+      //returns true if maximum number of selections is <=1 determines whether to usse radio button or checkboxes
+      _isSingleSelect(max) {
+        return max <= 1
+          ? true
+          : false;
+      }
 
-      //returns a prompt to indicate the choices available to the user
-      //example: choose between 1 and 3 -- min:1, max:3
-      //example: choose up to 3 (optional) -- min:0, max:3
-      _choicePrompt: function(min, max) {
+      //returns a prompt to indicate the choices available to the user example: choose between 1 and 3 -- min:1, max:3 example: choose up to 3 (optional) -- min:0, max:3
+      _choicePrompt(min, max) {
         var verb = 'choose';
         if (min === 0) {
           if (max === 1) {
@@ -160,13 +161,10 @@
             return verb + ' between ' + min + ' and ' + max;
           }
         }
-      },
+      }
 
-      //gets each selection element (multi + single select)
-      //checks for selectionValid property from the element
-      //if ALL elements are true then set this selectionsValid is true, else false
-      //uses a private setter because property is read-only
-      _checkValidSelections: function() {
+      //gets each selection element (multi + single select) checks for selectionValid property from the element if ALL elements are true then set this selectionsValid is true, else false uses a private setter because property is read-only
+      _checkValidSelections() {
         var selections = Polymer.dom(this.root).querySelectorAll('.selection');
 
         var valid = true;
@@ -178,6 +176,7 @@
         this._setSelectionsValid(valid);
       }
 
-    });
+    }
+    window.customElements.define(MyItemSelections.is, MyItemSelections);
   </script>
 </dom-module>

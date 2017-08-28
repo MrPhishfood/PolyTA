@@ -1,0 +1,143 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/iron-media-query/iron-media-query.html">
+
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../bower_components/polymerfire/firebase-query.html">
+
+<link rel="import" href="cart/my-cart-item.html">
+<link rel="import" href="cart/my-cart-table/my-cart-table.html">
+<link rel="import" href="filters/filter-currency.html">
+
+<dom-module id="my-shopping-cart">
+  <template>
+    <style>
+      :host {
+        --ta-shopping-cart-padding: 16px;
+        max-width: 1280px;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        padding: calc(var(--ta-shopping-cart-padding)/2);
+      }
+      my-cart-item {
+        margin-bottom: calc(var(--ta-shopping-cart-padding)/2);
+      }
+      #checkout {
+        display: block;
+        color: var(--app-cart-checkout-button-bg);
+        background: var(--app-cart-checkout-button-color);
+        @apply --shadow-elevation-2dp;
+        border-radius: 3px;
+        line-height: 1.5;
+      }
+      #checkout[hidden],
+      my-cart-table[hidden] {
+        display: none;
+        pointer-events: none;
+      }
+      #gocheckout,
+      #total {
+        text-align: center;
+      }
+      #gocheckout {
+        font-size: 18px;
+        padding: 13px;
+      }
+      #total {
+        font-size: 20px;
+        padding: 0 13px 13px;
+      }
+      #empty {
+        text-align: center;
+        font-size: 24px;
+        font-weight: normal;
+      }
+      @media all and (max-width: 600px) {
+        #cartTable {
+          display: none;
+        }
+      }
+      @media all and (min-width: 601px) {
+        #checkout,
+        my-cart-item {
+          display: none;
+        }
+      }
+
+    </style>
+    <firebase-query id="cart" path="/cart/pending/[[userId]]" data="{{cart}}"></firebase-query>
+
+    <filter-currency id="filterCurrency" zero-value="£0.00"></filter-currency>
+
+    <h2 id="empty" hidden="[[cartObj.total]]">cart is empty</h2>
+
+    <template id="cartrepeater" is="dom-repeat" items="[[cart]]">
+      <my-cart-item item-key="[[item.$key]]" user-id="[[userId]]" subtotal="[[arrayItem(cartObj.*,'items',item.$key)]]"></my-cart-item>
+    </template>
+
+    <div id="checkout" class="card-content" on-tap="_checkoutTap" hidden="[[!cartObj.total]]">
+      <div id="gocheckout">Checkout - Total: [[_priceFilter(cartObj.total)]]</div>
+    </div>
+
+    <my-cart-table id="cartTable" hidden="[[!cartObj.total]]" user-id="[[userId]]" cart-obj="[[cartObj]]"></my-cart-table>
+
+  </template>
+  <script>
+    class MyShoppingCart extends Polymer.Element {
+
+      static get is() {
+        return 'my-shopping-cart';
+      }
+
+      static get properties() {
+        return {
+
+          userId: {
+            type: String
+          },
+
+          cartObj: {
+            type: Object
+          }
+
+        };
+      }
+
+      static get observers() {
+        return [];
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+      ready() {
+        super.ready();
+        // add event listeners When possible, use afterNextRender to defer non-critical work until after first paint.
+        Polymer.RenderStatus.afterNextRender(this, function () {});
+      }
+
+      arrayItem(change, index, path) {
+        // this.get(path, root) returns a value for a path relative to a root object.
+        return this.get(path, change.base[index]);
+      }
+
+      _checkoutTap() {
+        this.dispatchEvent(new CustomEvent('checkout-tapped', {
+          detail: {},
+          bubbles: true,
+          composed: true
+        }));
+      }
+
+      _priceFilter(price) {
+        return this.$.filterCurrency.filter(price);
+      }
+
+    }
+    window.customElements.define(MyShoppingCart.is, MyShoppingCart);
+  </script>
+</dom-module>
